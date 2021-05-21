@@ -1,0 +1,3 @@
+[submodule "src/new_job"]
+	path = src/new_job
+	url = git@github.com:schackartk/new_job.git
