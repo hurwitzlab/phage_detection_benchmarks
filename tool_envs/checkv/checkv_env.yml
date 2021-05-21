@@ -1,0 +1,61 @@
+name: checkv_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - attrs=20.3.0=pyhd3deb0d_0
+  - biopython=1.78=py39h3811e60_2
+  - blast=2.5.0=hc0b0e79_3
+  - boost=1.74.0=py39h5472131_3
+  - boost-cpp=1.74.0=hc6e9bd1_2
+  - bzip2=1.0.8=h7f98852_4
+  - ca-certificates=2020.12.5=ha878542_0
+  - certifi=2020.12.5=py39hf3d152e_1
+  - checkv=0.7.0=py_1
+  - diamond=2.0.9=hdcc8f71_0
+  - hmmer=3.3.2=h1b792b2_1
+  - icu=68.1=h58526e2_0
+  - importlib-metadata=3.10.1=py39hf3d152e_0
+  - iniconfig=1.1.1=pyh9f0ad1d_0
+  - ld_impl_linux-64=2.35.1=hea4e1c9_2
+  - libblas=3.9.0=8_openblas
+  - libcblas=3.9.0=8_openblas
+  - libffi=3.3=h58526e2_2
+  - libgcc-ng=9.3.0=h2828fa1_19
+  - libgfortran-ng=9.3.0=hff62375_19
+  - libgfortran5=9.3.0=hff62375_19
+  - libgomp=9.3.0=h2828fa1_19
+  - liblapack=3.9.0=8_openblas
+  - libopenblas=0.3.12=pthreads_h4812303_1
+  - libstdcxx-ng=9.3.0=h6de172a_19
+  - lz4-c=1.9.3=h9c3ff4c_0
+  - more-itertools=8.7.0=pyhd8ed1ab_0
+  - ncurses=6.2=h58526e2_4
+  - numpy=1.20.2=py39hdbf815f_0
+  - openssl=1.1.1k=h7f98852_0
+  - packaging=20.9=pyh44b312d_0
+  - pip=21.0.1=pyhd8ed1ab_0
+  - pluggy=0.13.1=py39hf3d152e_4
+  - prodigal=2.6.3=h779adbc_3
+  - psutil=5.8.0=py39h3811e60_1
+  - py=1.10.0=pyhd3deb0d_0
+  - pyparsing=2.4.7=pyh9f0ad1d_0
+  - pytest=6.2.3=py39hf3d152e_0
+  - python=3.9.2=hffdb5ce_0_cpython
+  - python_abi=3.9=1_cp39
+  - readline=8.0=he28a2e2_2
+  - setuptools=49.6.0=py39hf3d152e_3
+  - sqlite=3.35.4=h74cdb3f_0
+  - tk=8.6.10=h21135ba_1
+  - toml=0.10.2=pyhd8ed1ab_0
+  - tzdata=2021a=he74cb21_0
+  - wheel=0.36.2=pyhd3deb0d_0
+  - xz=5.2.5=h516909a_1
+  - zipp=3.4.1=pyhd8ed1ab_0
+  - zlib=1.2.11=h516909a_1010
+  - zstd=1.4.9=ha95c52a_0
+prefix: /home/u29/schackartk/.conda/envs/checkv_env
+

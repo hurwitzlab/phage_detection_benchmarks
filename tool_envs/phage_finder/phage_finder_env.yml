@@ -1,0 +1,13 @@
+name: phage_finder_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - libgcc-ng=9.3.0=h2828fa1_19
+  - libgomp=9.3.0=h2828fa1_19
+  - perl=5.32.0=h36c2ea0_0
+prefix: /home/u29/schackartk/.conda/envs/phage_finder_env
+

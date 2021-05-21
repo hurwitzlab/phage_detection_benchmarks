@@ -1,0 +1,7 @@
+name: phanotate_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+prefix: /home/u29/schackartk/.conda/envs/phanotate_env
+

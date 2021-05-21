@@ -1,0 +1,7 @@
+name: prophet_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+prefix: /home/u29/schackartk/.conda/envs/prophet_env
+
