@@ -61,7 +61,7 @@ def get_args() -> Args:
         parser.error(f'length "{args.length}" must be greater than 0')
 
     if args.overlap > args.length:
-        parser.error(f'overlap "{args.overlap}" must be less than length "{args.length}"')
+        parser.error(f'overlap "{args.overlap}" cannot be greater than length "{args.length}"')
 
     return Args(args.genome, args.out_dir, args.length, args.overlap)
 
@@ -99,9 +99,9 @@ def main() -> None:
             min_overlap = 2*length - seq_len
 
             if length >= seq_len:
-                die(f'Error: length "{length}" greater than sequence ({seq_record.id}) length ({seq_len}).')
+                die(f'Error: length "{length}" greater than sequence ({seq_record.id}) length ({seq_len})')
             elif overlap < min_overlap:
-                die(f'Error: overlap "{overlap}" must be greater than minimum overlap: {min_overlap}. \n\tminimum overlap =  2 * length - seq_len (2*{length}-{seq_len}={min_overlap})')
+                die(f'Error: overlap "{overlap}" less than minimum overlap: {min_overlap} \n\tminimum overlap =  2 * length - seq_len (2*{length}-{seq_len}={min_overlap})')
 
 
 
