@@ -57,6 +57,12 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
+    if args.length <= 0:
+        parser.error(f'length "{args.length}" must be greater than 0')
+
+    if args.overlap > args.length:
+        parser.error(f'overlap "{args.overlap}" must be less than length "{args.length}"')
+
     return Args(args.genome, args.out_dir, args.length, args.overlap)
 
 
@@ -89,8 +95,13 @@ def main() -> None:
     for fh in files:
         for seq_record in SeqIO.parse(fh, "fasta"):
             
-            if length >= len(seq_record):
-                die(f'Error: --length "{length}" greater than sequence ({seq_record.id}) length ({len(seq_record)}).')
+            seq_len = len(seq_record)
+            min_overlap = 2*length - seq_len
+
+            if length >= seq_len:
+                die(f'Error: length "{length}" greater than sequence ({seq_record.id}) length ({seq_len}).')
+            elif overlap < min_overlap:
+                die(f'Error: overlap "{overlap}" must be greater than minimum overlap: {min_overlap}. \n\tminimum overlap =  2 * length - seq_len (2*{length}-{seq_len}={min_overlap})')
 
 
 
