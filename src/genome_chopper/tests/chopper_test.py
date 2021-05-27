@@ -35,6 +35,7 @@ def test_no_args() -> None:
     assert rv != 0
     assert re.match("usage", out, re.IGNORECASE)
 
+
 # --------------------------------------------------
 def test_bad_file() -> None:
     """ Dies with nonexistent file """
@@ -42,6 +43,7 @@ def test_bad_file() -> None:
     rv, out = getstatusoutput(f'{RUN} foo')
     assert rv != 0
     assert out.lower().startswith('usage:')
+
 
 # --------------------------------------------------
 def test_bad_length() -> None:
@@ -58,6 +60,7 @@ def test_bad_length() -> None:
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 6400')
     assert rv != 0
     assert out.lower().startswith('error:')
+
 
 # --------------------------------------------------
 def test_bad_overlap() -> None:

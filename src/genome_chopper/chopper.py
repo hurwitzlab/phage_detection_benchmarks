@@ -6,12 +6,12 @@ Purpose: Chop a genome into simulated contigs
 """
 
 import argparse
-from Bio import SeqIO, SeqFeature
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
 import os
 import sys
 from typing import List, NamedTuple, TextIO
+from Bio import SeqIO  # , SeqFeature
+# from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
 
 class Args(NamedTuple):
@@ -55,7 +55,7 @@ def get_args() -> Args:
                         help='Overlap length (b)',
                         metavar='INT',
                         type=int,
-                        default='10') 
+                        default='10')
 
     args = parser.parse_args()
 
@@ -63,7 +63,8 @@ def get_args() -> Args:
         parser.error(f'length "{args.length}" must be greater than 0')
 
     if args.overlap > args.length:
-        parser.error(f'overlap "{args.overlap}" cannot be greater than length "{args.length}"')
+        parser.error(f'overlap "{args.overlap}"'
+                     f' cannot be greater than length "{args.length}"')
 
     return Args(args.genome, args.out_dir, args.length, args.overlap)
 
@@ -96,20 +97,23 @@ def main() -> None:
 
     for fh in files:
         seq_record = SeqIO.read(fh, "fasta")
-            
+
         seq_len = len(seq_record)
         min_overlap = 2*length - seq_len
 
         if length >= seq_len:
-            die(f'Error: length "{length}" greater than sequence ({seq_record.id}) length ({seq_len})')
+            die(f'Error: length "{length}" greater than'
+                f' sequence ({seq_record.id}) length ({seq_len})')
         elif overlap < min_overlap:
-            die(f'Error: overlap "{overlap}" less than minimum overlap: {min_overlap} \n\tminimum overlap =  2 * length - seq_len (2*{length}-{seq_len}={min_overlap})')
+            die(f'Error: overlap "{overlap}" less than minimum overlap:'
+                f' {min_overlap} \n\tminimum overlap =  2 * length - seq_len'
+                f' (2*{length}-{seq_len}={min_overlap})')
 
         print(f'Sequence id is: {seq_record}')
 
 
 # --------------------------------------------------
-def chop(in_record:SeqRecord, frag: int, overlap: int) -> SeqRecord:
+def chop(in_record: SeqRecord, frag: int, overlap: int) -> SeqRecord:
     """ Chop sequence from seq_record """
 
     starts, stops = get_positions(len(in_record.seq), frag, overlap)
@@ -155,15 +159,8 @@ def test_get_positions():
 def find_gc(seq: str) -> float:
     """ Calculate GC Content """
 
-    if not seq:
-        return 0
-
-    gc = 0
-    for base in seq.upper():
-        if base in ('C', 'G'):
-            gc += 1
-
-    return (gc * 100) / len(seq)
+    return (seq.upper().count('C') + seq.upper().count('G')
+            ) * 100 / len(seq) if seq else 0
 
 
 # --------------------------------------------------
@@ -178,6 +175,7 @@ def test_find_gc():
     assert find_gc('CGCG') == 100.
     assert find_gc('ATAT') == 0.
     assert find_gc('ATGC') == 50.
+
 
 # --------------------------------------------------
 if __name__ == '__main__':
