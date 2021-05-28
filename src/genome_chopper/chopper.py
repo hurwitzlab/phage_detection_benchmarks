@@ -8,7 +8,7 @@ Purpose: Chop a genome into simulated contigs
 import argparse
 import os
 import sys
-from typing import Dict, List, NamedTuple, TextIO, TypedDict
+from typing import List, NamedTuple, TextIO, TypedDict
 from Bio import SeqIO
 # from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -125,23 +125,24 @@ def main() -> None:
         out_file_base = os.path.splitext(os.path.basename(fh.name))[0]
         out_file = os.path.join(out_dir,  out_file_base + '_frags.gb')
 
-        n_rec = SeqIO.write(frag_recs.values(), out_file, "gb")
+        n_rec = SeqIO.write(frag_recs, out_file, "gb")
 
         print(f'Done. Wrote {n_rec} records to "{out_file}".')
 
 
 # --------------------------------------------------
-def chop(record: SeqRecord, frag: int, overlap: int) -> Dict[str, SeqRecord]:
+def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
     """ Chop sequence from seq_record """
 
-    starts, stops = get_positions(len(record.seq), frag, overlap)
+    starts, stops = get_positions(len(record.seq), frag_len, overlap)
 
-    frag_recs = {}
+    frag_recs = []
     n_frag = 0
 
     for start, stop in zip(starts, stops):
         n_frag += 1
         frag = record.seq[start: stop]
+
         frag_annotations = SeqAnnotations(molecule_type='DNA',
                                           parent_id=record.id,
                                           parent_name=record.name,
@@ -156,7 +157,7 @@ def chop(record: SeqRecord, frag: int, overlap: int) -> Dict[str, SeqRecord]:
                              annotations=frag_annotations
                              )
 
-        frag_recs[frag_rec.id] = frag_rec
+        frag_recs.append(frag_rec)
 
     return frag_recs
 
