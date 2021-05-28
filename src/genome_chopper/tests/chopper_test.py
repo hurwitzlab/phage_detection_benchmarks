@@ -4,10 +4,12 @@ from subprocess import getstatusoutput
 import platform
 import os
 import re
+import shutil
 
 PRG = './chopper.py'
 RUN = f'python {PRG}' if platform.system() == 'Windows' else PRG
 TEST1 = ('./tests/inputs/input1.fasta')
+TEST2 = ('./tests/inputs/input2.fasta')
 
 
 # --------------------------------------------------
@@ -77,3 +79,25 @@ def test_bad_overlap() -> None:
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 3300 -v 100')
     assert rv != 0
     assert out.lower().startswith('error:')
+
+
+# --------------------------------------------------
+def test_okay() -> None:
+    """ Runs on good input """
+
+    out_dir = "out_test"
+    try:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
+
+        rv, out = getstatusoutput(f'{RUN} {TEST2} -l 6 -v 3 -o {out_dir}')
+
+        assert rv == 0
+        assert out == 'Done. Wrote 2 records to "out_test/input2_frags.gb".'
+        assert os.path.isdir(out_dir)
+        out_file = os.path.join(out_dir, 'input2_frags.gb')
+        assert os.path.isfile(out_file)
+
+    finally:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)

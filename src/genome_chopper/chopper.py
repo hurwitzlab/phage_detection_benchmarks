@@ -121,7 +121,13 @@ def main() -> None:
                 f' (2*{length}-{seq_len}={min_overlap})')
 
         frag_recs = chop(seq_record, length, overlap)
-        print(frag_recs.keys())
+
+        out_file_base = os.path.splitext(os.path.basename(fh.name))[0]
+        out_file = os.path.join(out_dir,  out_file_base + '_frags.gb')
+
+        n_rec = SeqIO.write(frag_recs.values(), out_file, "gb")
+
+        print(f'Done. Wrote {n_rec} records to "{out_file}".')
 
 
 # --------------------------------------------------
@@ -145,7 +151,6 @@ def chop(record: SeqRecord, frag: int, overlap: int) -> Dict[str, SeqRecord]:
                                           )
 
         frag_rec = SeqRecord(frag, id=f'{record.id}_frag{n_frag}',
-                             name=f'{record.name} fragment {n_frag}',
                              description=f'Fragment {n_frag}'
                                          f' of {record. description}',
                              annotations=frag_annotations
