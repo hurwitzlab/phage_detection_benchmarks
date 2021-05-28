@@ -8,7 +8,7 @@ Purpose: Chop a genome into simulated contigs
 import argparse
 import os
 import sys
-from typing import List, NamedTuple, TextIO, TypedDict
+from typing import Dict, List, NamedTuple, TextIO, TypedDict
 from Bio import SeqIO
 # from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -125,29 +125,29 @@ def main() -> None:
 
 
 # --------------------------------------------------
-def chop(in_record: SeqRecord, frag: int, overlap: int) -> SeqRecord:
+def chop(record: SeqRecord, frag: int, overlap: int) -> Dict[str, SeqRecord]:
     """ Chop sequence from seq_record """
 
-    starts, stops = get_positions(len(in_record.seq), frag, overlap)
+    starts, stops = get_positions(len(record.seq), frag, overlap)
 
     frag_recs = {}
     n_frag = 0
 
     for start, stop in zip(starts, stops):
         n_frag += 1
-        frag = in_record.seq[start: stop]
+        frag = record.seq[start: stop]
         frag_annotations = SeqAnnotations(molecule_type='DNA',
-                                          parent_id=in_record.id,
-                                          parent_name=in_record.name,
+                                          parent_id=record.id,
+                                          parent_name=record.name,
                                           frag_start=start - 1,
                                           frag_end=stop - 1,
                                           gc_pct=find_gc(frag)
                                           )
 
-        frag_rec = SeqRecord(frag, id=f'{in_record.id}_frag{n_frag}',
-                             name=f'{in_record.name} fragment {n_frag}',
+        frag_rec = SeqRecord(frag, id=f'{record.id}_frag{n_frag}',
+                             name=f'{record.name} fragment {n_frag}',
                              description=f'Fragment {n_frag}'
-                                         f' of {in_record. description}',
+                                         f' of {record. description}',
                              annotations=frag_annotations
                              )
 
