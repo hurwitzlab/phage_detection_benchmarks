@@ -8,9 +8,8 @@ Purpose: Chop a genome into simulated contigs
 import argparse
 import os
 import sys
-from typing import List, NamedTuple, TextIO
-from Bio import SeqIO, SeqFeature
-from Bio.SeqFeature import FeatureLocation
+from typing import List, NamedTuple, TextIO, TypedDict
+from Bio import SeqIO
 # from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -21,6 +20,17 @@ class Args(NamedTuple):
     out_dir: str
     length: int
     overlap: int
+
+
+# --------------------------------------------------
+class SeqAnnotations(TypedDict):
+    """ SeqRecord Annotations """
+    molecule_type: str
+    parent_id: str
+    parent_name: str
+    frag_start: int
+    frag_end: int
+    gc_pct: float
 
 
 # --------------------------------------------------
@@ -110,7 +120,8 @@ def main() -> None:
                 f' {min_overlap} \n\tminimum overlap =  2 * length - seq_len'
                 f' (2*{length}-{seq_len}={min_overlap})')
 
-        chop(seq_record, length, overlap)
+        frag_recs = chop(seq_record, length, overlap)
+        print(frag_recs.keys())
 
 
 # --------------------------------------------------
@@ -119,21 +130,31 @@ def chop(in_record: SeqRecord, frag: int, overlap: int) -> SeqRecord:
 
     starts, stops = get_positions(len(in_record.seq), frag, overlap)
 
-    frags = {}
+    frag_recs = {}
     n_frag = 0
 
     for start, stop in zip(starts, stops):
         n_frag += 1
         frag = in_record.seq[start: stop]
-        start_pos = SeqFeature.ExactPosition(start - 1)
-        stop_pos = SeqFeature.ExactPosition(stop - 1)
-        frag_location = FeatureLocation(start_pos, stop_pos)
-        loc_feature = SeqFeature.SeqFeature(frag_location)
-        frag_rec = SeqRecord(frag, features=[loc_feature],
-                             annotations={'molecule_type': 'DNA'},
-                             id = f'{in_record.id}_frag{n_frag}'
+        frag_annotations = SeqAnnotations(molecule_type='DNA',
+                                          parent_id=in_record.id,
+                                          parent_name=in_record.name,
+                                          frag_start=start - 1,
+                                          frag_end=stop - 1,
+                                          gc_pct=find_gc(frag)
+                                          )
+
+        frag_rec = SeqRecord(frag, id=f'{in_record.id}_frag{n_frag}',
+                             name=f'{in_record.name} fragment {n_frag}',
+                             description=f'Fragment {n_frag}'
+                                         f' of {in_record. description}',
+                             annotations=frag_annotations
                              )
-        print(frag_rec)
+
+        frag_recs[frag_rec.id] = frag_rec
+
+    return frag_recs
+
 
 # --------------------------------------------------
 def get_positions(length: int, frag: int, overlap: int) -> List:
