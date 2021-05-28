@@ -9,7 +9,8 @@ import argparse
 import os
 import sys
 from typing import List, NamedTuple, TextIO
-from Bio import SeqIO  # , SeqFeature
+from Bio import SeqIO, SeqFeature
+from Bio.SeqFeature import FeatureLocation
 # from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -109,7 +110,7 @@ def main() -> None:
                 f' {min_overlap} \n\tminimum overlap =  2 * length - seq_len'
                 f' (2*{length}-{seq_len}={min_overlap})')
 
-        print(f'Sequence id is: {seq_record}')
+        chop(seq_record, length, overlap)
 
 
 # --------------------------------------------------
@@ -118,9 +119,21 @@ def chop(in_record: SeqRecord, frag: int, overlap: int) -> SeqRecord:
 
     starts, stops = get_positions(len(in_record.seq), frag, overlap)
 
-    for start, stop in zip(starts, stops):
-        frag = in_record.seq[start, stop]
+    frags = {}
+    n_frag = 0
 
+    for start, stop in zip(starts, stops):
+        n_frag += 1
+        frag = in_record.seq[start: stop]
+        start_pos = SeqFeature.ExactPosition(start - 1)
+        stop_pos = SeqFeature.ExactPosition(stop - 1)
+        frag_location = FeatureLocation(start_pos, stop_pos)
+        loc_feature = SeqFeature.SeqFeature(frag_location)
+        frag_rec = SeqRecord(frag, features=[loc_feature],
+                             annotations={'molecule_type': 'DNA'},
+                             id = f'{in_record.id}_frag{n_frag}'
+                             )
+        print(frag_rec)
 
 # --------------------------------------------------
 def get_positions(length: int, frag: int, overlap: int) -> List:
