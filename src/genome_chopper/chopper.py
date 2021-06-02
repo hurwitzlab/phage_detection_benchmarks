@@ -220,18 +220,15 @@ def test_find_gc():
 
 # --------------------------------------------------
 def write_annotations(frag_recs, out_file):
-    """ Write fragment annotations to .csv """
+    """ Write fragment annotations to .tsv """
 
     with open(out_file, 'wt') as out_fh:
         print('id\tparent_id\tparent_name\tfrag_start\tfrag_end\tgc_pct',
               file=out_fh)
 
         for rec in frag_recs:
-            meta = rec.annotations
-            print(f'{rec.id}\t{meta["parent_id"]}\t{meta["parent_name"]}\t'
-                  f'{meta["frag_start"]}\t{meta["frag_end"]}\t'
-                  f'{meta["gc_pct"]}',
-                  file=out_fh)
+            print(rec.id, *rec.annotations.values(),
+                  sep='\t', file=out_fh)
 
         out_fh.close()
 
