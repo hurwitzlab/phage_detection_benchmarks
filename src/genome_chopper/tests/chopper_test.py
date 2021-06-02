@@ -93,7 +93,8 @@ def test_okay() -> None:
         rv, out = getstatusoutput(f'{RUN} {TEST2} -l 6 -v 3 -o {out_dir}')
 
         assert rv == 0
-        assert out == 'Done. Wrote 2 records to "out_test/input2_frags.fasta".'
+        assert out == ('Wrote 2 records to "out_test/input2_frags.fasta".\n'
+                       'Done. Created fragments from 1 file.')
         assert os.path.isdir(out_dir)
         out_file1 = os.path.join(out_dir, 'input2_frags.fasta')
         out_file2 = os.path.join(out_dir, 'input2_frags.tsv')

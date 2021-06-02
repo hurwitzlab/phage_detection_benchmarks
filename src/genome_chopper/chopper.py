@@ -129,7 +129,10 @@ def main() -> None:
 
         write_annotations(frag_recs, out_file_tsv)
 
-        print(f'Done. Wrote {n_rec} records to "{out_file_fa}".')
+        print(f'Wrote {n_rec} records to "{out_file_fa}".')
+
+    print(f'Done. Created fragments from {len(files)} '
+          f'file{"s" if len(files)!= 1 else ""}.')
 
 
 # --------------------------------------------------
@@ -223,11 +226,11 @@ def write_annotations(frag_recs, out_file):
     """ Write fragment annotations to .tsv """
 
     with open(out_file, 'wt') as out_fh:
-        print('id\tparent_id\tparent_name\tfrag_start\tfrag_end\tgc_pct',
+        print('id', 'name', *frag_recs[0].annotations.keys(),
               file=out_fh)
 
         for rec in frag_recs:
-            print(rec.id, *rec.annotations.values(),
+            print(rec.id, rec.description, *rec.annotations.values(),
                   sep='\t', file=out_fh)
 
         out_fh.close()
