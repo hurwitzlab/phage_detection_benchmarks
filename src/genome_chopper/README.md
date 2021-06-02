@@ -32,3 +32,29 @@ optional arguments:
   -v INT, --overlap INT
                         Overlap length (b) (default: 10)
 ```
+
+## Input
+
+Input files must be FASTA format. Multiple input files are allowed.
+
+## Output
+
+For each input file 2 files are generated: a FASTA file and a .tsv file.
+
+The FASTA file contains all fragments generated from the input file. Each record corresponds to a fragment. Fragments are named based on the input record id followed by "_fragn" where n is the nth fragment generated from the input sequence.
+
+The .tsv file contains metadata about the fragments. It is formatted in a table, with the first row being a header, and each subsequent row corresponding to a fragment. Information includes parent sequence and where on that sequence the fragment is located.
+
+## Parameters
+
+`-l|--length`: length of the fragments to be generated in number of nucleotides
+
+`-v|--overlap`: amount of overlap between adjacent fragments in nucleotides
+
+**Note:** When generating long fragments from short sequences, there is a limit to how small the overlap can be. 
+
+*Minimum overlap = 2 * (fragment length) - (input sequence length)*. If the provided overlap is below the minimum, an error message is generated.
+
+# Authorship
+
+Kenneth Schackart (schackartk1@gmail.com)
