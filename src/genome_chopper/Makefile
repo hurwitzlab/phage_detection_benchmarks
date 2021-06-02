@@ -2,4 +2,4 @@
 
 test:
 	python3 -m pytest -xv --flake8 --pylint
-	python3 -m pytest -xv --flake8 --pylint chopper.py
+	python3 -m pytest -xv chopper.py
