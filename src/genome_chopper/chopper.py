@@ -25,7 +25,6 @@ class Args(NamedTuple):
 # --------------------------------------------------
 class SeqAnnotations(TypedDict):
     """ SeqRecord Annotations """
-    molecule_type: str
     parent_id: str
     parent_name: str
     frag_start: int
@@ -123,16 +122,19 @@ def main() -> None:
         frag_recs = chop(seq_record, length, overlap)
 
         out_file_base = os.path.splitext(os.path.basename(fh.name))[0]
-        out_file = os.path.join(out_dir,  out_file_base + '_frags.gb')
+        out_file_fa = os.path.join(out_dir,  out_file_base + '_frags.fasta')
+        out_file_tsv = os.path.join(out_dir,  out_file_base + '_frags.tsv')
 
-        n_rec = SeqIO.write(frag_recs, out_file, "gb")
+        n_rec = SeqIO.write(frag_recs, out_file_fa, "fasta")
 
-        print(f'Done. Wrote {n_rec} records to "{out_file}".')
+        write_annotations(frag_recs, out_file_tsv)
+
+        print(f'Done. Wrote {n_rec} records to "{out_file_fa}".')
 
 
 # --------------------------------------------------
 def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
-    """ Chop sequence from seq_record """
+    """ Chop sequence from record """
 
     starts, stops = get_positions(len(record.seq), frag_len, overlap)
 
@@ -143,18 +145,17 @@ def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
         n_frag += 1
         frag = record.seq[start: stop]
 
-        frag_annotations = SeqAnnotations(molecule_type='DNA',
-                                          parent_id=record.id,
-                                          parent_name=record.name,
-                                          frag_start=start - 1,
-                                          frag_end=stop - 1,
+        frag_annotations = SeqAnnotations(parent_id=record.id,
+                                          parent_name=record.description,
+                                          frag_start=start + 1,
+                                          frag_end=stop + 1,
                                           gc_pct=find_gc(frag)
                                           )
 
         frag_rec = SeqRecord(frag, id=f'{record.id}_frag{n_frag}',
                              description=f'Fragment {n_frag}'
                                          f' of {record. description}',
-                             annotations=frag_annotations
+                                         annotations=frag_annotations
                              )
 
         frag_recs.append(frag_rec)
@@ -215,6 +216,24 @@ def test_find_gc():
     assert find_gc('CGCG') == 100.
     assert find_gc('ATAT') == 0.
     assert find_gc('ATGC') == 50.
+
+
+# --------------------------------------------------
+def write_annotations(frag_recs, out_file):
+    """ Write fragment annotations to .csv """
+
+    with open(out_file, 'wt') as out_fh:
+        print('id\tparent_id\tparent_name\tfrag_start\tfrag_end\tgc_pct',
+              file=out_fh)
+
+        for rec in frag_recs:
+            meta = rec.annotations
+            print(f'{rec.id}\t{meta["parent_id"]}\t{meta["parent_name"]}\t'
+                  f'{meta["frag_start"]}\t{meta["frag_end"]}\t'
+                  f'{meta["gc_pct"]}',
+                  file=out_fh)
+
+        out_fh.close()
 
 
 # --------------------------------------------------
