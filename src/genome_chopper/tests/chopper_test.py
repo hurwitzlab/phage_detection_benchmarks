@@ -93,10 +93,11 @@ def test_okay() -> None:
         rv, out = getstatusoutput(f'{RUN} {TEST2} -l 6 -v 3 -o {out_dir}')
 
         assert rv == 0
-        assert out == 'Done. Wrote 2 records to "out_test/input2_frags.gb".'
+        assert out == 'Done. Wrote 2 records to "out_test/input2_frags.fasta".'
         assert os.path.isdir(out_dir)
-        out_file = os.path.join(out_dir, 'input2_frags.gb')
+        out_file = os.path.join(out_dir, 'input2_frags.fasta')
         assert os.path.isfile(out_file)
+        assert open(out_file).read().count('>') == 2
 
     finally:
         if os.path.isdir(out_dir):
