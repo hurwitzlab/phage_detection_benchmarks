@@ -14,3 +14,21 @@ The genome is input as FASTA file. Genome is then cut into small, overlapping pi
 
 # Usage
 
+```console
+$ ./chopper.py
+
+usage: chopper.py [-h] [-o DIR] [-l INT] [-v INT] FILE [FILE ...]
+
+Chop a genome into simulated contigs
+
+positional arguments:
+  FILE                  Input DNA file(s), each with only 1 record
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o DIR, --out_dir DIR
+                        Output directory (default: out)
+  -l INT, --length INT  Segment length (b) (default: 100)
+  -v INT, --overlap INT
+                        Overlap length (b) (default: 10)
+```
