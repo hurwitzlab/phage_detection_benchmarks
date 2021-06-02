@@ -95,9 +95,12 @@ def test_okay() -> None:
         assert rv == 0
         assert out == 'Done. Wrote 2 records to "out_test/input2_frags.fasta".'
         assert os.path.isdir(out_dir)
-        out_file = os.path.join(out_dir, 'input2_frags.fasta')
-        assert os.path.isfile(out_file)
-        assert open(out_file).read().count('>') == 2
+        out_file1 = os.path.join(out_dir, 'input2_frags.fasta')
+        out_file2 = os.path.join(out_dir, 'input2_frags.tsv')
+        assert os.path.isfile(out_file1)
+        assert os.path.isfile(out_file2)
+        assert open(out_file1).read().count('>') == 2
+        assert open(out_file2).read().count('\n') == 3
 
     finally:
         if os.path.isdir(out_dir):
