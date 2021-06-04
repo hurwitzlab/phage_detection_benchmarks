@@ -8,7 +8,7 @@ Purpose: Chop a genome into simulated contigs
 import argparse
 import os
 import sys
-from typing import Dict, List, NamedTuple, TextIO, TypedDict
+from typing import Dict, List, NamedTuple, TextIO, Tuple, TypedDict
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from collections import defaultdict
@@ -175,7 +175,7 @@ def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
 
 
 # --------------------------------------------------
-def get_positions(length: int, frag: int, overlap: int) -> List:
+def get_positions(length: int, frag: int, overlap: int) -> Tuple:
     """ Get starting and stopping positions """
 
     starts = [0]
@@ -208,11 +208,11 @@ def test_get_positions():
 
 
 # --------------------------------------------------
-def find_tetra(seq: str) -> Dict[str, int]:
+def find_tetra(seq: str) -> Dict[str, float]:
     """ Calculate Tetranucleotide Frequency """
 
     counts: Dict[str, int] = defaultdict(int)
-    freqs: Dict[str, int] = defaultdict(int)
+    freqs: Dict[str, float] = defaultdict(int)
 
     for base in seq:
         counts[base.upper()] += 1
