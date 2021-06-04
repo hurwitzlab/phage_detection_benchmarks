@@ -106,3 +106,35 @@ def test_okay() -> None:
     finally:
         if os.path.isdir(out_dir):
             shutil.rmtree(out_dir)
+
+
+# --------------------------------------------------
+def test_multi_file() -> None:
+    """ Runs with multiple inputs """
+
+    out_dir = "out_test"
+
+    try:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
+
+        rv, out = getstatusoutput(f'{RUN} -l 6 -v 3 -o'
+                                  f' {out_dir} {TEST1} {TEST2}')
+
+        assert rv == 0
+        assert out == ('Wrote 2130 records to "out_test/input1_frags.fasta".\n'
+                       'Wrote 2 records to "out_test/input2_frags.fasta".\n'
+                       'Done. Created fragments from 2 files.')
+        assert os.path.isdir(out_dir)
+        out_file1 = os.path.join(out_dir, 'input1_frags.fasta')
+        out_file2 = os.path.join(out_dir, 'input1_frags.tsv')
+        out_file3 = os.path.join(out_dir, 'input2_frags.fasta')
+        out_file4 = os.path.join(out_dir, 'input2_frags.tsv')
+        assert os.path.isfile(out_file1)
+        assert os.path.isfile(out_file2)
+        assert os.path.isfile(out_file3)
+        assert os.path.isfile(out_file4)
+
+    finally:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
