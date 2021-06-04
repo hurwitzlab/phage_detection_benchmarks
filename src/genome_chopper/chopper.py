@@ -8,10 +8,10 @@ Purpose: Chop a genome into simulated contigs
 import argparse
 import os
 import sys
-from typing import List, NamedTuple, TextIO, TypedDict
+from typing import Dict, List, NamedTuple, TextIO, TypedDict
 from Bio import SeqIO
-# from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+from collections import defaultdict
 
 
 class Args(NamedTuple):
@@ -29,7 +29,10 @@ class SeqAnnotations(TypedDict):
     parent_name: str
     frag_start: int
     frag_end: int
-    gc_pct: float
+    a_pct: float
+    c_pct: float
+    g_pct: float
+    t_pct: float
 
 
 # --------------------------------------------------
@@ -148,11 +151,16 @@ def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
         n_frag += 1
         frag = record.seq[start: stop]
 
+        freqs = find_tetra(frag)
+
         frag_annotations = SeqAnnotations(parent_id=record.id,
                                           parent_name=record.description,
                                           frag_start=start + 1,
                                           frag_end=stop + 1,
-                                          gc_pct=find_gc(frag)
+                                          a_pct=freqs['A'],
+                                          c_pct=freqs['C'],
+                                          g_pct=freqs['G'],
+                                          t_pct=freqs['T']
                                           )
 
         frag_rec = SeqRecord(frag, id=f'{record.id}_frag{n_frag}',
@@ -200,25 +208,31 @@ def test_get_positions():
 
 
 # --------------------------------------------------
-def find_gc(seq: str) -> float:
-    """ Calculate GC Content """
+def find_tetra(seq: str) -> Dict[str, int]:
+    """ Calculate Tetranucleotide Frequency """
 
-    return (seq.upper().count('C') + seq.upper().count('G')
-            ) * 100 / len(seq) if seq else 0
+    counts: Dict[str, int] = defaultdict(int)
+    freqs: Dict[str, int] = defaultdict(int)
+
+    for base in seq:
+        counts[base.upper()] += 1
+
+    for base, count in counts.items():
+        freqs[base] = count / len(seq)
+
+    return freqs
 
 
 # --------------------------------------------------
-def test_find_gc():
-    """ Test find_gc """
+def test_find_tetra():
+    """ Test find_tetra """
 
-    assert find_gc('') == 0.
-    assert find_gc('C') == 100.
-    assert find_gc('G') == 100.
-    assert find_gc('A') == 0.
-    assert find_gc('T') == 0.
-    assert find_gc('CGCG') == 100.
-    assert find_gc('ATAT') == 0.
-    assert find_gc('ATGC') == 50.
+    assert find_tetra('') == {}
+    assert find_tetra('A') == {'A': 1}
+    assert find_tetra('C') == {'C': 1}
+    assert find_tetra('G') == {'G': 1}
+    assert find_tetra('T') == {'T': 1}
+    assert find_tetra('ACCGGGTTTT') == {'A': 0.1, 'C': 0.2, 'G': 0.3, 'T': 0.4}
 
 
 # --------------------------------------------------
