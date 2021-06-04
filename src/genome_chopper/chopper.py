@@ -212,7 +212,7 @@ def find_tetra(seq: str) -> Dict[str, float]:
     """ Calculate Tetranucleotide Frequency """
 
     counts: Dict[str, int] = defaultdict(int)
-    freqs: Dict[str, float] = defaultdict(int)
+    freqs: Dict[str, float] = defaultdict(float)
 
     for base in seq:
         counts[base.upper()] += 1
