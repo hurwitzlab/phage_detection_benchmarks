@@ -1,0 +1,4 @@
+*.out
+tool_envs/marvel/MARVEL/
+tool_envs/phamers/PHAMERS/
+tool_envs/virmine/virmine
