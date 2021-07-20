@@ -1,4 +1,16 @@
-*.out
+# Cloned git repos
+tool_envs/deepvirfinder/DeepVirFinder/
 tool_envs/marvel/MARVEL/
-tool_envs/phamers/PHAMERS/
+tool_envs/metaphinder/MetaPhinder/
+tool_envs/phage_finder/phage_finder_v2.1/
+tool_envs/phamers/PhaMers/
+tool_envs/rnn-virseeker/RNN-VirSeeker/
+tool_envs/vibrant/VIBRANT
 tool_envs/virmine/virmine
+
+# Output files
+*.out
+*.swp
+
+# Data
+data/
