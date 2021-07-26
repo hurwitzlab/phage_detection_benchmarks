@@ -45,7 +45,7 @@ source config.txt
 out_dir="$out_path/deepvirfinder_out/"
 
 # Run the tool
-python $dvf_path -i $mock_community_path -o $out_dir -l 1500
+python $dvf_path -i $mock_community_path -o $out_dir -l 1500 --core 4
 
 # Confirm Completion
 echo "Done."
