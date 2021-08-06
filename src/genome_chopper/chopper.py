@@ -163,7 +163,7 @@ def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
                                           t_pct=freqs['T']
                                           )
 
-        frag_rec = SeqRecord(frag, id=f'{record.id}_frag{n_frag}',
+        frag_rec = SeqRecord(frag, id=f'frag_{n_frag}_{record.id}',
                              description=f'Fragment {n_frag}'
                                          f' of {record. description}',
                                          annotations=frag_annotations
