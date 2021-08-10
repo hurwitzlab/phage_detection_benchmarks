@@ -1,19 +1,28 @@
 configfile: "config/config.yaml"
 
-def get_input_genomes(wildcards):
-	return config["genomes"][wildcards.base]
+def get_archaea_genomes(wildcards):
+	return config["archaea"][wildcards.base]
+
+def get_bacteria_genomes(wildcards):
+	return config["bacteria"][wildcards.base]
+
+def get_fungi_genomes(wildcards):
+	return config["fungi"][wildcards.base]
+
+def get_viral_genomes(wildcards):
+	return config["viral"][wildcards.base] 
 
 rule all:
 	input:
-		expand("out/{length}/{genome}_frags.fasta", length=config["lengths"], genome=config["genomes"]),
-		expand("out/{length}/{genome}_frags.tsv", length=config["lengths"], genome=config["genomes"])
+		expand("../../data/chopped/archaea/{length}/{archaea}_frags.fasta", length=config["lengths"], archaea=config["archaea"]),
+		expand("../../data/chopped/archaea/{length}/{archaea}_frags.tsv", length=config["lengths"], genome=config["archaea"])
 
-rule chop:
+rule chop_archaea:
 	input:
-		get_input_genomes
+		get_archaea_genomes
 	output:
-		fasta="out/{length}/{base}_frags.fasta",
-		tsv="out/{length}/{base}_frags.tsv"
+		fasta="../../data/chopped/archaea/{length}/{base}_frags.fasta",
+		tsv="../../data/chopped/archaea/{length}/{base}_frags.tsv"
 	params:
 		chopper=config["chopper"],
 	shell:
@@ -21,5 +30,7 @@ rule chop:
 		source ~/.bashrc
 		conda activate genome_chopper_env
 		
-		{params.chopper} -l {wildcards.length} -v 0 -o out/{wildcards.length} {input}
+		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/archaea/{wildcards.length} {input}
 		"""
+
+rule chop_bacteria:
