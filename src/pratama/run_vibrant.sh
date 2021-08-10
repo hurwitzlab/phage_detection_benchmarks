@@ -30,7 +30,7 @@
 source ~/.bashrc
 
 # Activate a conda environment
-source activate marvel_env
+source activate vibrant_env
 
 # Get current directory to help establish paths
 DIR="/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/src/pratama"
