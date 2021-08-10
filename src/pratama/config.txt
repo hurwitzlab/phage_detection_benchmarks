@@ -1,3 +1,15 @@
 mock_community_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/data/pratama/mock_communities/mock-bulk1_10k-1.fa'
+
+small_community_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/data/pratama/mock_communities/small.fa'
+
 out_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/data/raw_results/pratama'
+
 dvf_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/tool_envs/deepvirfinder/DeepVirFinder/dvf.py'
+
+metaphinder_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/tool_envs/metaphinder/MetaPhinder/MetaPhinder.py'
+
+metaphinder_db_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/tool_envs/metaphinder/MetaPhinder/database'
+
+marvel_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/tool_envs/marvel/MARVEL'
+
+vibrant_path='/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/tool_envs/vibrant/VIBRANT'
