@@ -40,5 +40,5 @@ DIR="/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/t
 
 cd $DIR
 
-python dvf.py -i ./DeepVirFinder/test/crAssphage.fa -o ./test/ -l 300
+python DeepVirFinder/dvf.py -i ./DeepVirFinder/test/crAssphage.fa -o ./test/ -l 300
 
