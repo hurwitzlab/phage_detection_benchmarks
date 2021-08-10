@@ -149,7 +149,7 @@ def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
 
     for start, stop in zip(starts, stops):
         n_frag += 1
-        frag = record.seq[start: stop]
+        frag = record.seq[start: stop+1]
 
         freqs = find_tetra(frag)
 
