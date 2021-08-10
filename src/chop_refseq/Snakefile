@@ -14,8 +14,14 @@ def get_viral_genomes(wildcards):
 
 rule all:
 	input:
-		expand("../../data/chopped/archaea/{length}/{archaea}_frags.fasta", length=config["lengths"], archaea=config["archaea"]),
-		expand("../../data/chopped/archaea/{length}/{archaea}_frags.tsv", length=config["lengths"], genome=config["archaea"])
+		expand("../../data/chopped/archaea/{length}/{genome}_frags.fasta", length=config["lengths"], genome=config["archaea"]),
+		expand("../../data/chopped/archaea/{length}/{genome}_frags.tsv", length=config["lengths"], genome=config["archaea"]),
+		expand("../../data/chopped/bacteria/{length}/{genome}_frags.fasta", length=config["lengths"], genome=config["bacteria"]),
+		expand("../../data/chopped/bacteria/{length}/{genome}_frags.tsv", length=config["lengths"], genome=config["bacteria"]),
+		expand("../../data/chopped/fungi/{length}/{genome}_frags.fasta", length=config["lengths"], genome=config["fungi"]),
+		expand("../../data/chopped/fungi/{length}/{genome}_frags.tsv", length=config["lengths"], genome=config["fungi"]),
+		expand("../../data/chopped/viral/{length}/{genome}_frags.fasta", length=config["lengths"], genome=config["viral"]),
+		expand("../../data/chopped/viral/{length}/{genome}_frags.tsv", length=config["lengths"], genome=config["viral"])
 
 rule chop_archaea:
 	input:
@@ -34,3 +40,50 @@ rule chop_archaea:
 		"""
 
 rule chop_bacteria:
+	input:
+		get_bacteria_genomes
+	output:
+		fasta="../../data/chopped/bacteria/{length}/{base}_frags.fasta",
+		tsv="../../data/chopped/bacteria/{length}/{base}_frags.tsv"
+	params:
+		chopper=config["chopper"],
+	shell:
+		"""
+		source ~/.bashrc
+		conda activate genome_chopper_env
+		
+		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/bacteria/{wildcards.length} {input}
+		"""
+		
+rule chop_fungi:
+	input:
+		get_fungi_genomes
+	output:
+		fasta="../../data/chopped/fungi/{length}/{base}_frags.fasta",
+		tsv="../../data/chopped/fungi/{length}/{base}_frags.tsv"
+	params:
+		chopper=config["chopper"],
+	shell:
+		"""
+		source ~/.bashrc
+		conda activate genome_chopper_env
+		
+		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/fungi/{wildcards.length} {input}
+		"""
+		
+rule chop_viral:
+	input:
+		get_viral_genomes
+	output:
+		fasta="../../data/chopped/viral/{length}/{base}_frags.fasta",
+		tsv="../../data/chopped/viral/{length}/{base}_frags.tsv"
+	params:
+		chopper=config["chopper"],
+	shell:
+		"""
+		source ~/.bashrc
+		conda activate genome_chopper_env
+		
+		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/viral/{wildcards.length} {input}
+		"""
+		
