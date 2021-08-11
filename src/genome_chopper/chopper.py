@@ -241,7 +241,7 @@ def write_annotations(frag_recs, out_file):
 
     with open(out_file, 'wt') as out_fh:
         print('id', 'name', *frag_recs[0].annotations.keys(),
-              file=out_fh)
+              sep='\t', file=out_fh)
 
         for rec in frag_recs:
             print(rec.id, rec.description, *rec.annotations.values(),
