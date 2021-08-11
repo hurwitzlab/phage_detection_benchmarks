@@ -1,0 +1,9 @@
+chopper:
+        python3 ../genome_chopper/chopper.py
+genomes:
+        input1: "../genome_chopper/tests/inputs/input1.fasta"
+        input2: "../genome_chopper/tests/inputs/input2.fasta"
+lengths:
+        2: "2"
+        3: "3"
+        4: "4"

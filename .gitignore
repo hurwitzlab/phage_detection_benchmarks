@@ -1,0 +1,23 @@
+# Cloned git repos
+tool_envs/deepvirfinder/DeepVirFinder/
+tool_envs/marvel/MARVEL/
+tool_envs/metaphinder/MetaPhinder/
+tool_envs/phage_finder/phage_finder_v2.1/
+tool_envs/phamers/PhaMers/
+tool_envs/rnn-virseeker/RNN-VirSeeker/
+tool_envs/vibrant/VIBRANT
+tool_envs/virmine/virmine
+
+# Output files
+*.out
+*.swp
+
+# Data
+data/
+tool_envs/deepvirfinder/test/
+tool_envs/phigaro/test_data
+tool_envs/phispy/Streptococcus.phages/
+tool_envs/phispy/Streptococcus_pyogenes_M1_GAS.gb
+tool_envs/vibrant/my_output/
+tool_envs/virsorter2/db/
+tool_envs/virsorter2/test.fa

@@ -149,7 +149,7 @@ def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
 
     for start, stop in zip(starts, stops):
         n_frag += 1
-        frag = record.seq[start: stop]
+        frag = record.seq[start: stop+1]
 
         freqs = find_tetra(frag)
 
@@ -163,7 +163,7 @@ def chop(record: SeqRecord, frag_len: int, overlap: int) -> List[SeqRecord]:
                                           t_pct=freqs['T']
                                           )
 
-        frag_rec = SeqRecord(frag, id=f'{record.id}_frag{n_frag}',
+        frag_rec = SeqRecord(frag, id=f'frag_{n_frag}_{record.id}',
                              description=f'Fragment {n_frag}'
                                          f' of {record. description}',
                                          annotations=frag_annotations
