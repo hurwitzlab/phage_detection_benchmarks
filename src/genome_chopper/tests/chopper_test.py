@@ -93,15 +93,15 @@ def test_okay() -> None:
         rv, out = getstatusoutput(f'{RUN} {TEST2} -l 6 -v 3 -o {out_dir}')
 
         assert rv == 0
-        assert out == ('Wrote 2 records to "out_test/input2_frags.fasta".\n'
+        assert out == ('Wrote 4 records to "out_test/input2_frags.fasta".\n'
                        'Done. Created fragments from 1 file.')
         assert os.path.isdir(out_dir)
         out_file1 = os.path.join(out_dir, 'input2_frags.fasta')
         out_file2 = os.path.join(out_dir, 'input2_frags.tsv')
         assert os.path.isfile(out_file1)
         assert os.path.isfile(out_file2)
-        assert open(out_file1).read().count('>') == 2
-        assert open(out_file2).read().count('\n') == 3
+        assert open(out_file1).read().count('>') == 4
+        assert open(out_file2).read().count('\n') == 5
 
     finally:
         if os.path.isdir(out_dir):
@@ -123,7 +123,7 @@ def test_multi_file() -> None:
 
         assert rv == 0
         assert out == ('Wrote 2130 records to "out_test/input1_frags.fasta".\n'
-                       'Wrote 2 records to "out_test/input2_frags.fasta".\n'
+                       'Wrote 4 records to "out_test/input2_frags.fasta".\n'
                        'Done. Created fragments from 2 files.')
         assert os.path.isdir(out_dir)
         out_file1 = os.path.join(out_dir, 'input1_frags.fasta')

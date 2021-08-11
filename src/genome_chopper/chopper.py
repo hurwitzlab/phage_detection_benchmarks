@@ -109,20 +109,24 @@ def main() -> None:
         os.makedirs(out_dir)
 
     for fh in files:
-        seq_record = SeqIO.read(fh, "fasta")
 
-        seq_len = len(seq_record)
-        min_overlap = 2*length - seq_len
+        frag_recs = []
 
-        if length >= seq_len:
-            die(f'Error: length "{length}" greater than'
-                f' sequence ({seq_record.id}) length ({seq_len})')
-        elif overlap < min_overlap:
-            die(f'Error: overlap "{overlap}" less than minimum overlap:'
-                f' {min_overlap} \n\tminimum overlap =  2 * length - seq_len'
-                f' (2*{length}-{seq_len}={min_overlap})')
+        for seq_record in SeqIO.parse(fh, "fasta"):
 
-        frag_recs = chop(seq_record, length, overlap)
+            seq_len = len(seq_record)
+            min_overlap = 2*length - seq_len
+
+            if length >= seq_len:
+                die(f'Error: length "{length}" greater than'
+                    f' sequence ({seq_record.id}) length ({seq_len})')
+            elif overlap < min_overlap:
+                die(f'Error: overlap "{overlap}" less than minimum overlap: '
+                    f'{min_overlap}\n\tminimum overlap =  2 * length - seq_len'
+                    f' (2*{length}-{seq_len}={min_overlap})')
+
+            for frags in chop(seq_record, length, overlap):
+                frag_recs.append(frags)
 
         out_file_base = os.path.splitext(os.path.basename(fh.name))[0]
         out_file_fa = os.path.join(out_dir,  out_file_base + '_frags.fasta')
