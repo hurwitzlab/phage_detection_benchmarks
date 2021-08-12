@@ -1,0 +1,15 @@
+chopper:
+        python3 ../genome_chopper/chopper.py
+archaea:
+        GCF_000006175.1_ASM617v2_genomic: "../../data/refseq/archaea/GCF_000006175.1_ASM617v2_genomic.fna"
+bacteria:
+        GCF_000005825.2_ASM582v2_genomic: "../../data/refseq/bacteria/GCF_000005825.2_ASM582v2_genomic.fna"
+fungi:
+        GCF_000002515.2_ASM251v1_genomic: "../../data/refseq/fungi/GCF_000002515.2_ASM251v1_genomic.fna"
+viral:
+        GCF_000427115.1_CBEV_1_genomic: "../../data/refseq/viral/GCF_000427115.1_CBEV_1_genomic.fna"
+lengths:
+        500: "500"
+        1000: "1000"
+        3000: "3000"
+        5000: "5000"
