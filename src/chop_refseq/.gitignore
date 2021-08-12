@@ -1,3 +1,4 @@
 old/
 .snakemake/
 collections/*.txt
+collections/config.yaml
