@@ -118,12 +118,14 @@ def main() -> None:
             min_overlap = 2*length - seq_len
 
             if length >= seq_len:
-                die(f'Error: length "{length}" greater than'
-                    f' sequence ({seq_record.id}) length ({seq_len})')
+                warn(f'Warning: length "{length}" greater than'
+                    f' sequence ({seq_record.id}) length ({seq_len}). Skipping.')
+                continue
             elif overlap < min_overlap:
-                die(f'Error: overlap "{overlap}" less than minimum overlap: '
+                warn(f'Warning: overlap "{overlap}" less than minimum overlap: '
                     f'{min_overlap}\n\tminimum overlap =  2 * length - seq_len'
-                    f' (2*{length}-{seq_len}={min_overlap})')
+                    f' (2*{length}-{seq_len}={min_overlap}). Skipping.')
+                continue
 
             for frags in chop(seq_record, length, overlap):
                 frag_recs.append(frags)
@@ -243,15 +245,17 @@ def test_find_tetra():
 def write_annotations(frag_recs, out_file):
     """ Write fragment annotations to .tsv """
 
-    with open(out_file, 'wt') as out_fh:
-        print('id', 'name', *frag_recs[0].annotations.keys(),
-              sep='\t', file=out_fh)
+    if len(frag_recs) != 0:
 
-        for rec in frag_recs:
-            print(rec.id, rec.description, *rec.annotations.values(),
-                  sep='\t', file=out_fh)
+        with open(out_file, 'wt') as out_fh:
+            print('id', 'name', *frag_recs[0].annotations.keys(),
+                sep='\t', file=out_fh)
 
-        out_fh.close()
+            for rec in frag_recs:
+                print(rec.id, rec.description, *rec.annotations.values(),
+                    sep='\t', file=out_fh)
+
+            out_fh.close()
 
 
 # --------------------------------------------------

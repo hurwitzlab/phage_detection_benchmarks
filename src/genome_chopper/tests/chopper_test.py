@@ -60,8 +60,7 @@ def test_bad_length() -> None:
     assert out.lower().startswith('usage:')
 
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 6400')
-    assert rv != 0
-    assert out.lower().startswith('error:')
+    assert out.lower().startswith('warning:')
 
 
 # --------------------------------------------------
@@ -77,8 +76,7 @@ def test_bad_overlap() -> None:
     assert out.lower().startswith('usage:')
 
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 3300 -v 100')
-    assert rv != 0
-    assert out.lower().startswith('error:')
+    assert out.lower().startswith('warning:')
 
 
 # --------------------------------------------------
