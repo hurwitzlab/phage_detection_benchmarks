@@ -51,14 +51,17 @@ def test_bad_file() -> None:
 def test_bad_length() -> None:
     """ Dies with bad length """
 
+    # String for length argument
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l foo')
     assert rv != 0
     assert out.lower().startswith('usage:')
 
+    # Fragment length = 0
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 0')
     assert rv != 0
     assert out.lower().startswith('usage:')
 
+    # Fragment length longer than sequence
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 6400')
     assert out.lower().startswith('warning:')
 
@@ -67,14 +70,17 @@ def test_bad_length() -> None:
 def test_bad_overlap() -> None:
     """ Dies with bad overlap """
 
+    # String for overlap
     rv, out = getstatusoutput(f'{RUN} {TEST1} -v foo')
     assert rv != 0
     assert out.lower().startswith('usage:')
 
+    # Overlap longer than fragment length
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 200 -v 250')
     assert rv != 0
     assert out.lower().startswith('usage:')
 
+    # Overlap too large for given sequence and fragment lengths
     rv, out = getstatusoutput(f'{RUN} {TEST1} -l 3300 -v 100')
     assert out.lower().startswith('warning:')
 
@@ -92,7 +98,7 @@ def test_okay() -> None:
 
         assert rv == 0
         assert out == ('Wrote 4 records to "out_test/input2_frags.fasta".\n'
-                       'Done. Created fragments from 1 file.')
+                       'Done. Processed 1 file.')
         assert os.path.isdir(out_dir)
         out_file1 = os.path.join(out_dir, 'input2_frags.fasta')
         out_file2 = os.path.join(out_dir, 'input2_frags.tsv')
@@ -122,7 +128,7 @@ def test_multi_file() -> None:
         assert rv == 0
         assert out == ('Wrote 2130 records to "out_test/input1_frags.fasta".\n'
                        'Wrote 4 records to "out_test/input2_frags.fasta".\n'
-                       'Done. Created fragments from 2 files.')
+                       'Done. Processed 2 files.')
         assert os.path.isdir(out_dir)
         out_file1 = os.path.join(out_dir, 'input1_frags.fasta')
         out_file2 = os.path.join(out_dir, 'input1_frags.tsv')
@@ -132,6 +138,30 @@ def test_multi_file() -> None:
         assert os.path.isfile(out_file2)
         assert os.path.isfile(out_file3)
         assert os.path.isfile(out_file4)
+
+    finally:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
+
+
+# --------------------------------------------------
+def test_blank_out() -> None:
+    """ Outputs blank file for short sequence"""
+
+    out_dir = "out_test"
+    try:
+        # Use -b flag to write blank files when length longer than sequence
+        rv, out = getstatusoutput(f'{RUN} {TEST1} -l 6400 -b -o {out_dir}')
+        assert rv == 0
+        assert out.lower().startswith('warning:')
+
+        assert os.path.isdir(out_dir)
+        out_file1 = os.path.join(out_dir, 'input1_frags.fasta')
+        out_file2 = os.path.join(out_dir, 'input1_frags.tsv')
+        assert os.path.isfile(out_file1)
+        assert os.path.isfile(out_file2)
+        assert open(out_file1).read().count('>') == 0
+        assert open(out_file2).read().count('\n') == 1
 
     finally:
         if os.path.isdir(out_dir):
