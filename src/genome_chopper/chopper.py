@@ -20,6 +20,7 @@ class Args(NamedTuple):
     out_dir: str
     length: int
     overlap: int
+    blank: bool
 
 
 # --------------------------------------------------
@@ -45,7 +46,7 @@ def get_args() -> Args:
 
     parser.add_argument('genome',
                         metavar='FILE',
-                        help='Input DNA file(s), each with only 1 record',
+                        help='Input DNA file(s)',
                         type=argparse.FileType('rt'),
                         nargs='+')
 
@@ -70,6 +71,11 @@ def get_args() -> Args:
                         type=int,
                         default='10')
 
+    parser.add_argument('-b',
+                        '--blank',
+                        help='Write blank when sequence shorter than -l',
+                        action='store_true')
+
     args = parser.parse_args()
 
     if args.length <= 0:
@@ -79,7 +85,8 @@ def get_args() -> Args:
         parser.error(f'overlap "{args.overlap}"'
                      f' cannot be greater than length "{args.length}"')
 
-    return Args(args.genome, args.out_dir, args.length, args.overlap)
+    return Args(args.genome, args.out_dir, args.length,
+                args.overlap, args.blank)
 
 
 # --------------------------------------------------
@@ -104,6 +111,7 @@ def main() -> None:
     out_dir = args.out_dir
     length = args.length
     overlap = args.overlap
+    write_blank = args.blank
 
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
@@ -117,14 +125,15 @@ def main() -> None:
             seq_len = len(seq_record)
             min_overlap = 2*length - seq_len
 
-            if length >= seq_len:
-                warn(f'Warning: length "{length}" greater than'
-                    f' sequence ({seq_record.id}) length ({seq_len}). Skipping.')
+            if length > seq_len:
+                warn(f'Warning: length "{length}" greater than sequence'
+                     f' ({seq_record.id}) length ({seq_len}). Skipping.')
                 continue
-            elif overlap < min_overlap:
-                warn(f'Warning: overlap "{overlap}" less than minimum overlap: '
-                    f'{min_overlap}\n\tminimum overlap =  2 * length - seq_len'
-                    f' (2*{length}-{seq_len}={min_overlap}). Skipping.')
+            if overlap < min_overlap:
+                warn(f'Warning: overlap "{overlap}" less than minimum'
+                     f'overlap: {min_overlap}\n\tminimum '
+                     f'overlap =  2 * length - seq_len '
+                     f'(2*{length}-{seq_len}={min_overlap}). Skipping.')
                 continue
 
             for frags in chop(seq_record, length, overlap):
@@ -134,13 +143,19 @@ def main() -> None:
         out_file_fa = os.path.join(out_dir,  out_file_base + '_frags.fasta')
         out_file_tsv = os.path.join(out_dir,  out_file_base + '_frags.tsv')
 
-        n_rec = SeqIO.write(frag_recs, out_file_fa, "fasta")
+        if len(frag_recs) > 0:
+            n_rec = SeqIO.write(frag_recs, out_file_fa, "fasta")
+            print(f'Wrote {n_rec} records to "{out_file_fa}".')
 
-        write_annotations(frag_recs, out_file_tsv)
+        if len(frag_recs) == 0:
+            if write_blank:
+                with open(out_file_fa, 'wt') as out_fh:
+                    print('', file=out_fh)
+                print(f'Wrote 0 records to "{out_file_fa}".')
 
-        print(f'Wrote {n_rec} records to "{out_file_fa}".')
+        write_annotations(frag_recs, out_file_tsv, write_blank)
 
-    print(f'Done. Created fragments from {len(files)} '
+    print(f'Done. Processed {len(files)} '
           f'file{"s" if len(files)!= 1 else ""}.')
 
 
@@ -242,20 +257,23 @@ def test_find_tetra():
 
 
 # --------------------------------------------------
-def write_annotations(frag_recs, out_file):
+def write_annotations(frag_recs, out_file, write_blank):
     """ Write fragment annotations to .tsv """
 
     if len(frag_recs) != 0:
 
         with open(out_file, 'wt') as out_fh:
             print('id', 'name', *frag_recs[0].annotations.keys(),
-                sep='\t', file=out_fh)
+                  sep='\t', file=out_fh)
 
             for rec in frag_recs:
                 print(rec.id, rec.description, *rec.annotations.values(),
-                    sep='\t', file=out_fh)
+                      sep='\t', file=out_fh)
 
-            out_fh.close()
+    elif len(frag_recs) == 0 and write_blank:
+
+        with open(out_file, 'wt') as out_fh:
+            print('', file=out_fh)
 
 
 # --------------------------------------------------
