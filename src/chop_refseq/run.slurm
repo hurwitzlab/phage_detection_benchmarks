@@ -9,18 +9,18 @@
 ### Number of nodes
 #SBATCH --nodes=1
 ### Number of CPUs per node 
-#SBATCH --ntasks=7
+#SBATCH --ntasks=94
 ### Amount of memory per node
-#SBATCH --mem=64gb
+#SBATCH --mem-per-cpu=5gb
 ### Job walltime (HHH:MM:SS)
 #SBATCH --time=168:00:00
 ### OPTIONAL:
 ### Job name
 # SBATCH --job-name=Chop_genomes
 ### Standard output filename
-### SBATCH -o out_filename.txt
+# SBATCH -o out/cluster_job.out
 ### Standard error filename
-### SBATCH -e error_filename.txt
+# SBATCH -e err/cluster_job.err
 ### Email notifications (BEGIN|END|FAIL|ALL)
 # SBATCH --mail-type=ALL
 ### Email addresss
@@ -41,4 +41,4 @@ DIR="/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/s
 
 cd $DIR
 
-snakemake --cluster "sbatch -A {cluster.group} -p {cluster.partition} -t {cluster.time} --mem={cluster.m}" --cluster-config config/cluster.yaml -j 60 --latency-wait 15
+snakemake --cluster "sbatch -A {cluster.group} -p {cluster.partition} -t {cluster.time} --mem={cluster.m} -e {cluster.e} -o {cluster.o}" --cluster-config config/cluster.yaml -j 60 --latency-wait 15 --keep-going
