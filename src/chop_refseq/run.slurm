@@ -2,18 +2,18 @@
 
 ### REQUIRED: 
 ### Research group/PI
-#SBATCH --account=bhurwitz
+###SBATCH --account=bhurwitz
 ### Job queue (standard|windfall|high_pri)
 ### If windfall, omit --account
-#SBATCH --partition=standard
+#SBATCH --partition=windfall
 ### Number of nodes
 #SBATCH --nodes=1
 ### Number of CPUs per node 
-#SBATCH --ntasks=94
+#SBATCH --ntasks=1
 ### Amount of memory per node
 #SBATCH --mem-per-cpu=5gb
 ### Job walltime (HHH:MM:SS)
-#SBATCH --time=168:00:00
+#SBATCH --time=72:00:00
 ### OPTIONAL:
 ### Job name
 # SBATCH --job-name=Chop_genomes
@@ -41,4 +41,4 @@ DIR="/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/s
 
 cd $DIR
 
-snakemake --cluster "sbatch -A {cluster.group} -p {cluster.partition} -t {cluster.time} --mem={cluster.m} -e {cluster.e} -o {cluster.o}" --cluster-config config/cluster.yaml -j 60 --latency-wait 15 --keep-going
+snakemake --cluster "sbatch -p {cluster.partition} -t {cluster.time} --mem-per-cpu={cluster.mem-per} --nodes={cluster.nodes} -e {cluster.e} -o {cluster.o}" --cluster-config config/cluster.yaml -j 94 --latency-wait 15 --keep-going
