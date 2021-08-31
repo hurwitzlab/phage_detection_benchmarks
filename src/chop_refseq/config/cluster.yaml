@@ -1,9 +1,10 @@
 __default__:
-        partition: 'standard'
+        partition: 'windfall'
         group: 'bhurwitz'
         M: 'schackartk@email.arizona.edu'
-        time: '24:00:00'
-        n: "5"
-        m: "64gb"
+        time: '00:10:00'
+        nodes: '1'
+        mem-per: '5gb'
+        tasks: '94'
         o: 'out/{rule}.{wildcards}.out'
         e: 'err/{rule}.{wildcards}.err'
