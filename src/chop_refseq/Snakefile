@@ -36,7 +36,7 @@ rule chop_archaea:
 		source ~/.bashrc
 		conda activate genome_chopper_env
 		
-		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/archaea/{wildcards.length} {input}
+		{params.chopper} -b -l {wildcards.length} -v 0 -o ../../data/chopped/archaea/{wildcards.length} {input}
 		"""
 
 rule chop_bacteria:
@@ -52,7 +52,7 @@ rule chop_bacteria:
 		source ~/.bashrc
 		conda activate genome_chopper_env
 		
-		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/bacteria/{wildcards.length} {input}
+		{params.chopper} -b -l {wildcards.length} -v 0 -o ../../data/chopped/bacteria/{wildcards.length} {input}
 		"""
 		
 rule chop_fungi:
@@ -68,7 +68,7 @@ rule chop_fungi:
 		source ~/.bashrc
 		conda activate genome_chopper_env
 		
-		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/fungi/{wildcards.length} {input}
+		{params.chopper} -b -l {wildcards.length} -v 0 -o ../../data/chopped/fungi/{wildcards.length} {input}
 		"""
 		
 rule chop_viral:
@@ -84,6 +84,6 @@ rule chop_viral:
 		source ~/.bashrc
 		conda activate genome_chopper_env
 		
-		{params.chopper} -l {wildcards.length} -v 0 -o ../../data/chopped/viral/{wildcards.length} {input}
+		{params.chopper} -b -l {wildcards.length} -v 0 -o ../../data/chopped/viral/{wildcards.length} {input}
 		"""
 		
