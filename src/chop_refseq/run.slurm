@@ -2,10 +2,10 @@
 
 ### REQUIRED: 
 ### Research group/PI
-###SBATCH --account=bhurwitz
+#SBATCH --account=bhurwitz
 ### Job queue (standard|windfall|high_pri)
 ### If windfall, omit --account
-#SBATCH --partition=windfall
+#SBATCH --partition=standard
 ### Number of nodes
 #SBATCH --nodes=1
 ### Number of CPUs per node 
@@ -41,4 +41,4 @@ DIR="/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/s
 
 cd $DIR
 
-snakemake --cluster "sbatch -p {cluster.partition} -t {cluster.time} --mem-per-cpu={cluster.mem-per} --nodes={cluster.nodes} -e {cluster.e} -o {cluster.o}" --cluster-config config/cluster.yaml -j 94 --latency-wait 15 --keep-going
+snakemake --cluster "sbatch -A {cluster.group} -p {cluster.partition} -t {cluster.time} --mem-per-cpu={cluster.mem-per-cpu} --nodes={cluster.nodes} --ntasks={cluster.ntasks} -e {cluster.e} -o {cluster.o}" --cluster-config config/cluster.yaml -j 94 --latency-wait 15 --keep-going
