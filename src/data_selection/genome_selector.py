@@ -6,16 +6,20 @@ Purpose: Select genomes for analysis
 """
 
 import argparse
+import fnmatch
+import os
+import random
 import sys
-from typing import NamedTuple, TextIO
+from Bio import SeqIO
+from typing import NamedTuple
 
 
 class Args(NamedTuple):
     """ Command-line arguments """
-    config: TextIO
+    dir: str
     num: int
-    kingdom: list
     seed: bool
+    out: str
 
 
 # --------------------------------------------------
@@ -26,26 +30,25 @@ def get_args() -> Args:
         description='Select genomes for analysis',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('config',
-                        help='Config file with genome locations',
-                        metavar='FILE',
-                        type=argparse.FileType('rt'),
+    parser.add_argument('dir',
+                        help='Directory containing genome fragments',
+                        metavar='dir',
+                        type=str,
                         default=None)
+
+    parser.add_argument('-o',
+                        '--out',
+                        help='Output directory',
+                        metavar='dir',
+                        type=str,
+                        default='out')
 
     parser.add_argument('-n',
                         '--num',
                         help='Number of fragments to select',
                         metavar='int',
-                        type=str,
-                        default='100')
-
-    parser.add_argument('-k',
-                        '--kingdom',
-                        help='Which kingdom to select from',
-                        metavar='str',
-                        type=str,
-                        nargs='+',
-                        default='all')
+                        type=int,
+                        default=3)
 
     parser.add_argument('-s',
                         '--seed',
@@ -54,31 +57,49 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    kingdoms = ['archaea', 'bacteria', 'fungi', 'viral', 'all']
+    if not os.path.isdir(args.dir):
+        die(f'Input directory "{args.dir}" does not exist.')
 
-    if args.kingdom == 'all':
-        args.kingdom = kingdoms[:-1]
-
-    if not all(elem in kingdoms  for elem in args.kingdom):
-        die(f'kingdoms "{args.kingdom}" must be in: {kingdoms}')
-
-    return Args(args.config, args.num, args.kingdom, args.seed)
+    return Args(args.dir, args.num, args.seed, args.out)
 
 
 # --------------------------------------------------
 def main() -> None:
-    """ Make a jazz noise here """
+    """ Where the magic happens """
 
     args = get_args()
-    config_fh = args.config
+    in_dir = args.dir
     num_frags = args.num
-    kingdoms = args.kingdom
-    seed_on = args.seed
+    out_dir = args.out
 
-    print(f'config file = "{config_fh}"')
-    print(f'num frags = "{num_frags}"')
-    print(f'kingdoms = "{kingdoms}"')
-    print(f'seed = "{seed_on}"')
+    if not os.path.isdir(out_dir):
+        os.makedirs(out_dir)
+    
+    if args.seed:
+        random.seed(123)
+
+    filenames = os.listdir(in_dir)
+    filepaths = [os.path.join(in_dir, fn) for fn in filenames]
+    frag_files = [fn for fn in filepaths if fnmatch.fnmatch(fn, '*.fasta')]
+
+    frag_recs = []
+
+    for fh in frag_files:
+
+        for seq_record in SeqIO.parse(fh, "fasta"):
+
+            frag_recs.append(seq_record)
+
+    if num_frags >= len(frag_recs):
+        warn(f'Requested number of fragments ({num_frags}) '
+             f'is greater than number of fragments present.\n'
+             f'Returning all {len(frag_recs)} fragments.')
+
+        chosen = frag_recs
+    else:
+        chosen = random.sample(frag_recs, k=num_frags)
+
+    print(chosen.pop())
 
 
 # --------------------------------------------------
@@ -89,7 +110,7 @@ def warn(msg) -> None:
 
 # --------------------------------------------------
 def die(msg='Error') -> None:
-    """ Warn with a messsage """
+    """ warn() and exit """
     warn(msg)
     sys.exit(1)
 
