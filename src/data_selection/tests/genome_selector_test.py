@@ -27,6 +27,6 @@ def test_usage():
 def test_ok():
     """ OK """
 
-    retval, out = getstatusoutput(f'{PRG} foo')
+    retval, out = getstatusoutput(f'{PRG} ')
     assert retval == 0
     assert out.splitlines()[-1] == 'positional = "foo"'
