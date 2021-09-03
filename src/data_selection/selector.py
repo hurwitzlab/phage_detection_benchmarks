@@ -2,7 +2,7 @@
 """
 Author : Kenneth Schackart <schackartk1@gmail.com>
 Date   : 2021-09-02
-Purpose: Select genomes for analysis
+Purpose: Select genome fragments for analysis
 """
 
 import argparse
@@ -27,11 +27,11 @@ def get_args() -> Args:
     """ Get command-line arguments """
 
     parser = argparse.ArgumentParser(
-        description='Select genomes for analysis',
+        description='Select genome fragments for analysis',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('dir',
-                        help='Directory containing genome fragments',
+                        help='Directory containing genome fragment files',
                         metavar='dir',
                         type=str,
                         default=None)
@@ -58,7 +58,11 @@ def get_args() -> Args:
     args = parser.parse_args()
 
     if not os.path.isdir(args.dir):
-        die(f'Input directory "{args.dir}" does not exist.')
+        parser.error(f'Input directory "{args.dir}" does not exist.')
+
+    if args.num <= 0:
+        parser.error(f'Number of fragments ({args.length})'
+                     f' must be greater than 0')
 
     return Args(args.dir, args.num, args.seed, args.out)
 
