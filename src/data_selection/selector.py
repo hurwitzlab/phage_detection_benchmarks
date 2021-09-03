@@ -74,7 +74,7 @@ def main() -> None:
 
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
-    
+
     if args.seed:
         random.seed(123)
 
@@ -99,7 +99,11 @@ def main() -> None:
     else:
         chosen = random.sample(frag_recs, k=num_frags)
 
-    print(chosen.pop())
+    out_file = os.path.join(out_dir, 'selected_frags.fasta')
+
+    n_rec = SeqIO.write(chosen, out_file, 'fasta')
+
+    print(f'Done. Wrote {n_rec} records to {out_file}.')
 
 
 # --------------------------------------------------

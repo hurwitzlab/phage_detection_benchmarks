@@ -3,7 +3,7 @@
 import os
 from subprocess import getstatusoutput
 
-PRG = './genome_selector.py'
+PRG = './selector.py'
 
 
 # --------------------------------------------------
@@ -24,9 +24,18 @@ def test_usage():
 
 
 # --------------------------------------------------
+def test_bad_input():
+    """ Fails on bad input directory """
+
+    retval, out = getstatusoutput(f'{PRG} gargle')
+    assert retval != 0
+    assert out.lower().startswith('input directory')
+
+
+# --------------------------------------------------
 def test_ok():
     """ OK """
 
-    retval, out = getstatusoutput(f'{PRG} ')
+    retval, out = getstatusoutput(f'{PRG}')
     assert retval == 0
     assert out.splitlines()[-1] == 'positional = "foo"'
