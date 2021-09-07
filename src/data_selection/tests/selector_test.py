@@ -1,6 +1,8 @@
 """ Tests """
 
 import os
+import random
+import re
 import shutil
 from subprocess import getstatusoutput
 
@@ -32,6 +34,7 @@ def test_no_input() -> None:
     retval, out = getstatusoutput(f'{PRG}')
     assert retval != 0
     assert out.lower().startswith('usage:')
+    assert re.search('required: dir', out)
 
 
 # --------------------------------------------------
@@ -41,19 +44,24 @@ def test_bad_input() -> None:
     retval, out = getstatusoutput(f'{PRG} gargle')
     assert retval != 0
     assert out.lower().startswith('usage:')
+    assert re.search('directory "gargle" does not exist', out)
 
 
 # --------------------------------------------------
 def test_bad_number() -> None:
     """ Fails on bad num_frags """
 
-    retval, out = getstatusoutput(f'{PRG} TEST1 -n foo')
+    retval, out = getstatusoutput(f'{PRG} {TEST1} -n foo')
     assert retval != 0
     assert out.lower().startswith('usage:')
+    assert re.search('invalid int value: \'foo\'', out)
 
-    retval, out = getstatusoutput(f'{PRG} TEST1 -n 0')
+    bad_num = random.randint(-100, 0)
+
+    retval, out = getstatusoutput(f'{PRG} {TEST1} -n {bad_num}')
     assert retval != 0
     assert out.lower().startswith('usage:')
+    assert re.search(r'Number of fragments \(-?\d+\)', out)
 
 
 # --------------------------------------------------
