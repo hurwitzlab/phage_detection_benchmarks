@@ -20,6 +20,8 @@ class Args(NamedTuple):
     num: int
     seed: bool
     out: str
+    level: str
+    replace: bool
 
 
 # --------------------------------------------------
@@ -50,6 +52,19 @@ def get_args() -> Args:
                         type=int,
                         default=3)
 
+    parser.add_argument('-l',
+                        '--level',
+                        help='Level at which to sample',
+                        metavar='int',
+                        type=str,
+                        choices=['file', 'fragment'],
+                        default='file')
+
+    parser.add_argument('-r',
+                        '--replace',
+                        help='Randomly select files with replacement',
+                        action='store_true')
+
     parser.add_argument('-s',
                         '--seed',
                         help='Use seed to fix randomness',
@@ -61,10 +76,14 @@ def get_args() -> Args:
         parser.error(f'Input directory "{args.dir}" does not exist.')
 
     if args.num <= 0:
-        parser.error(f'Number of fragments ({args.length})'
+        parser.error(f'Number of fragments ({args.num})'
                      f' must be greater than 0')
 
-    return Args(args.dir, args.num, args.seed, args.out)
+    if args.replace and not args.level == 'file':
+        parser.error('--replace can only be used when --level is "file".')
+
+    return Args(args.dir, args.num, args.seed,
+                args.out, args.level, args.replace)
 
 
 # --------------------------------------------------
