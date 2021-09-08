@@ -6,7 +6,7 @@
 
 ```
 ./selector.py -h
-usage: selector.py [-h] [-o dir] [-n int] [-s] dir
+usage: selector.py [-h] [-o dir] [-n int] [-r] [-s] dir
 
 Select genome fragments for analysis
 
@@ -17,6 +17,7 @@ optional arguments:
   -h, --help         show this help message and exit
   -o dir, --out dir  Output directory (default: out)
   -n int, --num int  Number of fragments to select (default: 3)
+  -r, --replace      Randomly select files with replacement (default: False)
   -s, --seed         Use seed to fix randomness (default: False)
 ```
 
@@ -26,16 +27,17 @@ optional arguments:
 
 * `--out`: Output directory to write the file `selected_frags.fasta`. This directory is created if not already present.
 
-* `--num`: Number of fragments to select. Currently all fragments from all files in `dir` are pooled into a list before random selection. `--num` dictates how many of fragments are selected from this list. When `--num` is greater than the total number of fragments in the list, all fragments are returned, with a warning.
+* `--num`: Number of fragments to select.
+
+* `--replace`: When selecting files from which to draw, allow replacement. This is useful when the number of desired fragments is similar to  or greater than the number of files.
 
 * `--seed`: Boolean flag for setting the random seed to fix random behavior during fragment selection.
 
-#### Upcoming
+## Rationale
 
-* `--level`: Level at which to make random selection.
-    
-    * `--level fragment` will pool all fragments from all files before selection.
-    
-    * `--level file` will randomly select a file, then randomly select a fragment from within the file.
+A directory that contains many FASTA files that contain genome fragments is provided. This program randomly selects files (replacement is controlled by `--replace`) then randomly selects a fragment from each of those files. When selecting a fragment from a file, if the selected fragment is already present, it checks to see if all fragments in the file have already been selected. If not, then it selects a new fragment until it finds one that has not yet been selected.
 
-* `--file-replace`: When argument `--level file`, then should file selection be done with replacement? If replacement is used, fragments will not be selected more than once.
+Once all files have been drawn from (some may be repeatedly drawn from if `--replace`), then it checks if the number of selected fragments is equal to the requested number. If there are less selected then requested, there are 2 possibilities:
+
+* If `--replace == False`, the program warns and returns a number of fragments equal to the number of files. 
+* If `--replace == True`, the program will randomly select another file, and try to find a fragment that has not been selected yet. It will repeat this 25 times before giving up and returning the maximum number of unique fragments it could find.
