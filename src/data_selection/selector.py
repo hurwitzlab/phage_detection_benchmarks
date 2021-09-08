@@ -20,7 +20,6 @@ class Args(NamedTuple):
     num: int
     seed: bool
     out: str
-    level: str
     replace: bool
 
 
@@ -52,14 +51,6 @@ def get_args() -> Args:
                         type=int,
                         default=3)
 
-    parser.add_argument('-l',
-                        '--level',
-                        help='Level at which to sample',
-                        metavar='int',
-                        type=str,
-                        choices=['file', 'fragment'],
-                        default='file')
-
     parser.add_argument('-r',
                         '--replace',
                         help='Randomly select files with replacement',
@@ -79,11 +70,8 @@ def get_args() -> Args:
         parser.error(f'Number of fragments ({args.num})'
                      f' must be greater than 0')
 
-    if args.replace and not args.level == 'file':
-        parser.error('--replace can only be used when --level is "file".')
-
     return Args(args.dir, args.num, args.seed,
-                args.out, args.level, args.replace)
+                args.out, args.replace)
 
 
 # --------------------------------------------------
@@ -94,6 +82,7 @@ def main() -> None:
     in_dir = args.dir
     num_frags = args.num
     out_dir = args.out
+    replacement = args.replace
 
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
@@ -105,26 +94,11 @@ def main() -> None:
     filepaths = [os.path.join(in_dir, fn) for fn in filenames]
     frag_files = [fn for fn in filepaths if fnmatch.fnmatch(fn, '*.fasta')]
 
-    frag_recs = []
-
-    for fh in frag_files:
-
-        for seq_record in SeqIO.parse(fh, "fasta"):
-
-            frag_recs.append(seq_record)
-
-    if num_frags >= len(frag_recs):
-        warn(f'Requested number of fragments ({num_frags}) '
-             f'is greater than number of fragments present.\n'
-             f'Returning all {len(frag_recs)} fragments.')
-
-        chosen = frag_recs
-    else:
-        chosen = random.sample(frag_recs, k=num_frags)
+    chosen_frags = select_frags(frag_files, num_frags, replacement)
 
     out_file = os.path.join(out_dir, 'selected_frags.fasta')
 
-    n_rec = SeqIO.write(chosen, out_file, 'fasta')
+    n_rec = SeqIO.write(chosen_frags, out_file, 'fasta')
 
     print(f'Done. Wrote {n_rec} records to {out_file}.')
 
@@ -140,6 +114,84 @@ def die(msg='Error') -> None:
     """ warn() and exit """
     warn(msg)
     sys.exit(1)
+
+
+# --------------------------------------------------
+def select_frags(frag_files, num_frags, replacement) -> list:
+    """ Make fragment selection """
+
+    chosen_files = select_files(frag_files, num_frags, replacement)
+
+    chosen_frags = []
+    chosen_frag_ids = []
+
+    for fh in chosen_files:
+
+        chosen_frags, chosen_frag_ids = check_frags(fh,
+                                                    chosen_frags,
+                                                    chosen_frag_ids)
+
+    tries = 0
+
+    while len(chosen_frag_ids) < num_frags and tries < 25 and replacement:
+        tries = tries + 1
+
+        if tries == 24:
+            warn(f'Unable to find {num_frags} unique fragments. '
+                 f'Returning {len(chosen_frag_ids)} fragments.')
+
+        fh = random.choice(frag_files)
+
+        chosen_frags, chosen_frag_ids = check_frags(fh,
+                                                    chosen_frags,
+                                                    chosen_frag_ids)
+
+    return chosen_frags
+
+
+# --------------------------------------------------
+def select_files(frag_files, num_frags, replacement) -> list:
+    """ Make file selection"""
+
+    if replacement:
+        chosen_files = random.choices(frag_files, k=num_frags)
+
+    elif not replacement and num_frags > len(frag_files):
+        warn(f'Number of requested fragments ({num_frags}) '
+             f'is greater than number of files.\n'
+             f'Consider allowing --replacement. '
+             f'Returning 1 fragment from all '
+             f'{len(frag_files)} files.')
+
+        chosen_files = frag_files
+
+    else:
+        chosen_files = random.sample(frag_files, k=num_frags)
+
+    return chosen_files
+
+
+# --------------------------------------------------
+def check_frags(fh, chosen_frags, chosen_frag_ids) -> list:
+    """ Try to find unique frag in file """
+
+    frag_recs = []
+
+    for seq_record in SeqIO.parse(fh, 'fasta'):
+        frag_recs.append(seq_record)
+
+    if all(frag.id in chosen_frag_ids for frag in frag_recs):
+        return chosen_frags, chosen_frag_ids
+
+    chosen_frag = random.choice(frag_recs)
+
+    while chosen_frag.id in chosen_frag_ids:
+        chosen_frag = random.choice(frag_recs)
+
+    chosen_frags.append(chosen_frag)
+    chosen_frag_ids.append(chosen_frag.id)
+
+    return chosen_frags, chosen_frag_ids
 
 
 # --------------------------------------------------
