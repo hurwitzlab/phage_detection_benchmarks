@@ -120,7 +120,7 @@ def test_warns_too_many() -> None:
         # With replacement, number of frags limited to all frags in all files
         rv, out = getstatusoutput(f'{PRG} {TEST2} -n 100 -o {out_dir} -r')
 
-        assert re.search(r'Unable to find \d+ unique', out)
+        assert re.search(r'Directory does not have \d+ unique', out)
         assert rv == 0
         assert os.path.isdir(out_dir)
         assert os.path.isfile(out_file)

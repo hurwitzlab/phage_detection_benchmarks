@@ -120,31 +120,38 @@ def die(msg='Error') -> None:
 def select_frags(frag_files, num_frags, replacement) -> list:
     """ Make fragment selection """
 
+    # Initially choose a number of files equal to number of fragments
     chosen_files = select_files(frag_files, num_frags, replacement)
 
+    # Lists for chosen fragments and their id's for list comparison
     chosen_frags = []
     chosen_frag_ids = []
 
     for fh in chosen_files:
 
-        chosen_frags, chosen_frag_ids = check_frags(fh,
-                                                    chosen_frags,
-                                                    chosen_frag_ids)
+        # Randomly select fragments from each file, without repeats
+        chosen_frags, chosen_frag_ids, _ = check_frags(fh,
+                                                       chosen_frags,
+                                                       chosen_frag_ids)
 
-    tries = 0
+    # Use variable to track files whose fragments have not been exhausted
+    unexhausted_files = frag_files
 
-    while len(chosen_frag_ids) < num_frags and tries < 25 and replacement:
-        tries = tries + 1
+    while len(chosen_frag_ids) < num_frags and replacement:
 
-        if tries == 24:
-            warn(f'Unable to find {num_frags} unique fragments. '
+        fh = random.choice(unexhausted_files)
+
+        chosen_frags, chosen_frag_ids, exhausted = check_frags(fh,
+                                                               chosen_frags,
+                                                               chosen_frag_ids)
+
+        if exhausted:
+            unexhausted_files.remove(fh)
+
+        if len(unexhausted_files) == 0:
+            warn(f'Directory does not have {num_frags} unique fragments. '
                  f'Returning {len(chosen_frag_ids)} fragments.')
-
-        fh = random.choice(frag_files)
-
-        chosen_frags, chosen_frag_ids = check_frags(fh,
-                                                    chosen_frags,
-                                                    chosen_frag_ids)
+            break
 
     return chosen_frags
 
@@ -172,7 +179,7 @@ def select_files(frag_files, num_frags, replacement) -> list:
 
 
 # --------------------------------------------------
-def check_frags(fh, chosen_frags, chosen_frag_ids) -> list:
+def check_frags(fh, chosen_frags, chosen_frag_ids) -> tuple:
     """ Try to find unique frag in file """
 
     frag_recs = []
@@ -181,7 +188,10 @@ def check_frags(fh, chosen_frags, chosen_frag_ids) -> list:
         frag_recs.append(seq_record)
 
     if all(frag.id in chosen_frag_ids for frag in frag_recs):
-        return chosen_frags, chosen_frag_ids
+        exhausted = True
+        return chosen_frags, chosen_frag_ids, exhausted
+
+    exhausted = False
 
     chosen_frag = random.choice(frag_recs)
 
@@ -191,7 +201,7 @@ def check_frags(fh, chosen_frags, chosen_frag_ids) -> list:
     chosen_frags.append(chosen_frag)
     chosen_frag_ids.append(chosen_frag.id)
 
-    return chosen_frags, chosen_frag_ids
+    return chosen_frags, chosen_frag_ids, exhausted
 
 
 # --------------------------------------------------
