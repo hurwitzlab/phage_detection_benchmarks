@@ -1,0 +1,5 @@
+id	name	parent_id	parent_name	frag_start	frag_end	a_pct	c_pct	g_pct	t_pct
+frag_1_NC_038167.1	Fragment 1 of NC_038167.1 Windows defender trojan horse, complete genome	NC_038167.1	NC_038167.1 Windows defender trojan horse, complete genome	1	10	0.6	0.0	0.2	0.2
+frag_2_NC_038167.1	Fragment 2 of NC_038167.1 Windows defender trojan horse, complete genome	NC_038167.1	NC_038167.1 Windows defender trojan horse, complete genome	11	20	0.4	0.3	0.0	0.3
+frag_3_NC_038167.1	Fragment 3 of NC_038167.1 Windows defender trojan horse, complete genome	NC_038167.1	NC_038167.1 Windows defender trojan horse, complete genome	21	30	0.4	0.3	0.0	0.3
+frag_4_NC_038167.1	Fragment 4 of NC_038167.1 Windows defender trojan horse, complete genome	NC_038167.1	NC_038167.1 Windows defender trojan horse, complete genome	31	40	0.4	0.1	0.1	0.4

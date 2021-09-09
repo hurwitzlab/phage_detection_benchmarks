@@ -1,0 +1,4 @@
+id	name	parent_id	parent_name	frag_start	frag_end	a_pct	c_pct	g_pct	t_pct
+frag_1_NC_023471.1	Fragment 1 of NC_023471.1 Wrinkly bacteria like thing, complete genome	NC_023471.1	NC_023471.1 Wrinkly bacteria like thing, complete genome	1	50	0.58	0.08	0.1	0.24
+frag_2_NC_023471.1	Fragment 2 of NC_023471.1 Wrinkly bacteria like thing, complete genome	NC_023471.1	NC_023471.1 Wrinkly bacteria like thing, complete genome	51	100	0.38	0.16	0.14	0.32
+frag_3_NC_023471.1	Fragment 3 of NC_023471.1 Wrinkly bacteria like thing, complete genome	NC_023471.1	NC_023471.1 Wrinkly bacteria like thing, complete genome	101	150	0.3	0.18	0.2	0.32

@@ -1,0 +1,19 @@
+id	name	parent_id	parent_name	frag_start	frag_end	a_pct	c_pct	g_pct	t_pct
+frag_1_NC_023481.1	Fragment 1 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	1	10	0.5	0.1	0.0	0.4
+frag_2_NC_023481.1	Fragment 2 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	11	20	0.4	0.1	0.0	0.5
+frag_3_NC_023481.1	Fragment 3 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	21	30	0.5	0.1	0.0	0.4
+frag_4_NC_023481.1	Fragment 4 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	31	40	0.6	0.0	0.4	0.0
+frag_5_NC_023481.1	Fragment 5 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	41	50	0.7	0.2	0.0	0.1
+frag_6_NC_023481.1	Fragment 6 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	51	60	0.2	0.3	0.2	0.3
+frag_7_NC_023481.1	Fragment 7 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	61	70	0.6	0.0	0.1	0.3
+frag_8_NC_023481.1	Fragment 8 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	71	80	0.7	0.0	0.0	0.3
+frag_9_NC_023481.1	Fragment 9 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	81	90	0.4	0.1	0.1	0.4
+frag_10_NC_023481.1	Fragment 10 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	91	100	0.3	0.2	0.2	0.3
+frag_11_NC_023481.1	Fragment 11 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	101	110	0.2	0.3	0.3	0.2
+frag_12_NC_023481.1	Fragment 12 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	111	120	0.1	0.1	0.4	0.4
+frag_13_NC_023481.1	Fragment 13 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	121	130	0.3	0.3	0.1	0.3
+frag_14_NC_023481.1	Fragment 14 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	131	140	0.3	0.1	0.4	0.2
+frag_15_NC_023481.1	Fragment 15 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	141	150	0.3	0.1	0.2	0.4
+frag_16_NC_023481.1	Fragment 16 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	151	160	0.4	0.3	0.0	0.3
+frag_17_NC_023481.1	Fragment 17 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	161	170	0.2	0.2	0.3	0.3
+frag_18_NC_023481.1	Fragment 18 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	171	180	0.2	0.1	0.3	0.4

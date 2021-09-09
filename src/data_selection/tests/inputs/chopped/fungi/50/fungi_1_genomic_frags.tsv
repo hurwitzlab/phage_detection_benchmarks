@@ -1,0 +1,4 @@
+id	name	parent_id	parent_name	frag_start	frag_end	a_pct	c_pct	g_pct	t_pct
+frag_1_NC_048843.1	Fragment 1 of NC_048843.1 Saccharomyces tilapia, complete genome	NC_048843.1	NC_048843.1 Saccharomyces tilapia, complete genome	1	50	0.44	0.14	0.06	0.36
+frag_2_NC_048843.1	Fragment 2 of NC_048843.1 Saccharomyces tilapia, complete genome	NC_048843.1	NC_048843.1 Saccharomyces tilapia, complete genome	51	100	0.52	0.1	0.14	0.24
+frag_3_NC_048843.1	Fragment 3 of NC_048843.1 Saccharomyces tilapia, complete genome	NC_048843.1	NC_048843.1 Saccharomyces tilapia, complete genome	101	150	0.3	0.2	0.22	0.28

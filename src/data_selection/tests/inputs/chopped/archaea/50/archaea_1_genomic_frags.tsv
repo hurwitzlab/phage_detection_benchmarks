@@ -1,0 +1,4 @@
+id	name	parent_id	parent_name	frag_start	frag_end	a_pct	c_pct	g_pct	t_pct
+frag_1_NC_023481.1	Fragment 1 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	1	50	0.54	0.1	0.08	0.28
+frag_2_NC_023481.1	Fragment 2 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	51	100	0.44	0.12	0.12	0.32
+frag_3_NC_023481.1	Fragment 3 of NC_023481.1 I may be archaic but im not old, complete genome	NC_023481.1	NC_023481.1 I may be archaic but im not old, complete genome	101	150	0.24	0.18	0.28	0.3

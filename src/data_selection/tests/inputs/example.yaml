@@ -1,0 +1,12 @@
+archaea:
+  archaea_1_genomic: "tests/inputs/genomes/archaea_1_genomic.fna"
+  archaea_2_genomic: "tests/inputs/genomes/archaea_2_genomic.fna"
+bacteria:
+  bacteria_1_genomic: "tests/inputs/genomes/bacteria_1_genomic.fna"
+  bacteria_2_genomic: "tests/inputs/genomes/bacteria_2_genomic.fna"
+fungi:
+  fungi_1_genomic: "tests/inputs/genomes/fungi_1_genomic.fna"
+  fungi_2_genomic: "tests/inputs/genomes/fungi_2_genomic.fna"
+viral:
+  viral_1_genomic: "tests/inputs/genomes/viral_1_genomic.fna"
+  viral_2_genomic: "tests/inputs/genomes/viral_2_genomic.fna"
