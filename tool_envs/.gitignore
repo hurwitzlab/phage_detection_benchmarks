@@ -1,0 +1,18 @@
+# Cloned git repos
+deepvirfinder/DeepVirFinder/
+marvel/MARVEL/
+metaphinder/MetaPhinder/
+phage_finder/phage_finder_v2.1/
+phamers/PhaMers/
+rnn-virseeker/RNN-VirSeeker/
+vibrant/VIBRANT
+virmine/virmine
+
+# Data
+deepvirfinder/test/
+phigaro/test_data
+phispy/Streptococcus.phages/
+phispy/Streptococcus_pyogenes_M1_GAS.gb
+vibrant/my_output/
+virsorter2/db/
+virsorter2/test.fa
