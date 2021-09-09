@@ -40,4 +40,4 @@ A directory that contains many FASTA files that contain genome fragments is prov
 Once all files have been drawn from (some may be repeatedly drawn from if `--replace`), then it checks if the number of selected fragments is equal to the requested number. If there are less selected then requested, there are 2 possibilities:
 
 * If `--replace == False`, the program warns and returns a number of fragments equal to the number of files. 
-* If `--replace == True`, the program will randomly select another file, and try to find a fragment that has not been selected yet. It will repeat this 25 times before giving up and returning the maximum number of unique fragments it could find.
+* If `--replace == True`, the program will randomly select another file, and try to find a fragment that has not been selected yet. It will repeat this until all files have been exhausted, and return what it finds with a warning.
