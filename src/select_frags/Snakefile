@@ -1,0 +1,20 @@
+rule all:
+	input:
+		expand("{selected}/{k}/{l}/selected_frags.fasta", selected=config["selected_dir"], k=config["kingdoms"], l=config["lengths"])
+
+rule select_frags:
+	input:
+		config["chopped_dir"]+"/{kingdom}/{length}",
+	output:
+		config["selected_dir"]+"/{kingdom}/{length}/selected_frags.fasta",
+	params:
+		selector=config["selector"],
+		selected_dir=config["selected_dir"],
+		num_frags=config["num_frags"]
+	shell:
+		"""
+		source ~/.bashrc
+		conda activate selector_env
+
+		{params.selector} -n {params.num_frags} -r -o {params.selected_dir}/{wildcards.kingdom}/{wildcards.length} {input}
+		"""
