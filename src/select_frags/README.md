@@ -7,7 +7,7 @@ This includes providing a `run.slurm` script, a `Snakefile`, and `config` files.
 ## Usage
 
 ```
-snakemake --cores 1 --configfile config/config.yaml
+snakemake -j 16 --configfile config/config.yaml
 ```
 
 ## Making Changes
