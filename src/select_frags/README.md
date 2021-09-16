@@ -166,6 +166,8 @@ Clearly, the individual jobs are "completing", but they are not generating any o
 
 Also, the output to terminal, and the log file, have nothing about `X/17 (X%) done`, unlike when it is ran not as cluster.
 
+There are no errors generated. Nothing is written to `out/` or `err/`. And the snakemake process doesn't die, I have to interrupt it. No errors are present in the log except that I killed it manually.
+
 ## What else I have tried
 
 * Originally, I ran this using a SLURM script, and using a config/cluster.yaml type file. But I figured running bare in interactive is the best way to trace down an issue.
