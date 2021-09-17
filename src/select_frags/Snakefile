@@ -14,7 +14,7 @@ rule select_frags:
 	shell:
 		"""
 		source ~/.bashrc
-		conda activate selector_env
-
+		source activate selector_env
+		
 		{params.selector} -n {params.num_frags} -r -o {params.selected_dir}/{wildcards.kingdom}/{wildcards.length} {input}
 		"""
