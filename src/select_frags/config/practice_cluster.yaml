@@ -1,10 +1,10 @@
 __default__:
-        partition: 'standard'
+        partition: 'windfall'
         group: 'bhurwitz'
         M: 'schackartk@email.arizona.edu'
         time: '00:05:00'
         nodes: '1'
         ntasks: '5'
         mem-per-cpu: '5gb'
-        o: 'out/{rule}/{wildcards}.out'
-        e: 'err/{rule}/{wildcards}.err'
+        o: 'out/{rule}.{wildcards}.out'
+        e: 'err/{rule}.{wildcards}.err'
