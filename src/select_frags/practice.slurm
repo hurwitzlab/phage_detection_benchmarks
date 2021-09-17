@@ -32,11 +32,7 @@ source ~/.bashrc
 # Activate a conda environment
 source activate snakemake_env
 
-DIR="/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/src/select_frags/"
-
-cd $DIR
-
 # Run snakemake cluster
 snakemake --cluster \
-"sbatch -A {cluster.group} -p {cluster.partition} -t {cluster.time} --mem-per-cpu=5gb --nodes=1 --ntasks={cluster.ntasks} -e {cluster.e} -o {cluster.o}" \
+"sbatch -p {cluster.partition} -t {cluster.time} --mem-per-cpu=5gb --nodes=1 --ntasks={cluster.ntasks} -e {cluster.e} -o {cluster.o}" \
 --cluster-config config/practice_cluster.yaml -j 16 --latency-wait 15 --configfile config/practice_config.yaml
