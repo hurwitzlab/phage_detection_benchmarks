@@ -1,0 +1,11 @@
+genome_selector:
+        python3 ../genome_selection/genome_selector.py
+genome_dir:
+        ../genome_selection/tests/inputs/genomes
+selected_dir:
+        ../../data/selected_genomes
+num_genomes:
+        3
+classes:
+        non_viral: "non_viral"
+        viral: "viral"

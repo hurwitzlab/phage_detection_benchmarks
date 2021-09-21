@@ -1,0 +1,20 @@
+rule all:
+	input:
+		expand("{selected}/{c}/selected_genomes.fasta", selected=config["selected_dir"], c=config["class"])
+
+rule select_genomes:
+	input:
+		config["genome_dir"]+"/{class}",
+	output:
+		config["selected_dir"]+"/{class}/selected_genomes.fasta",
+	params:
+		selector=config["genome_selector"],
+		selected_dir=config["selected_dir"],
+		num=config["num_genomes"]
+	shell:
+		"""
+		source ~/.bashrc
+		source activate selector_env
+		
+		{params.selector} -n {params.num} -o {params.selected_dir}/{wildcards.class} {input}
+		"""
