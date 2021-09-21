@@ -2,7 +2,7 @@
 """
 Author : Kenneth Schackart <schackartk1@gmail.com>
 Date   : 2021-09-02
-Purpose: Select genome fragments for analysis
+Purpose: Select genomes for read simulation
 """
 
 import argparse
@@ -20,7 +20,6 @@ class Args(NamedTuple):
     num: int
     seed: bool
     out: str
-    replace: bool
 
 
 # --------------------------------------------------
@@ -32,7 +31,7 @@ def get_args() -> Args:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('dir',
-                        help='Directory containing genome fragment files',
+                        help='Directory containing genome files',
                         metavar='dir',
                         type=str,
                         default=None)
@@ -46,15 +45,10 @@ def get_args() -> Args:
 
     parser.add_argument('-n',
                         '--num',
-                        help='Number of fragments to select',
+                        help='Number of genomes to select',
                         metavar='int',
                         type=int,
-                        default=3)
-
-    parser.add_argument('-r',
-                        '--replace',
-                        help='Randomly select files with replacement',
-                        action='store_true')
+                        default=1)
 
     parser.add_argument('-s',
                         '--seed',
@@ -67,11 +61,11 @@ def get_args() -> Args:
         parser.error(f'Input directory "{args.dir}" does not exist.')
 
     if args.num <= 0:
-        parser.error(f'Number of fragments ({args.num})'
+        parser.error(f'Number of genomes ({args.num})'
                      f' must be greater than 0')
 
     return Args(args.dir, args.num, args.seed,
-                args.out, args.replace)
+                args.out)
 
 
 # --------------------------------------------------
@@ -82,7 +76,6 @@ def main() -> None:
     in_dir = args.dir
     num_frags = args.num
     out_dir = args.out
-    replacement = args.replace
 
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
@@ -92,15 +85,20 @@ def main() -> None:
 
     filenames = os.listdir(in_dir)
     filepaths = [os.path.join(in_dir, fn) for fn in filenames]
-    frag_files = [fn for fn in filepaths if fnmatch.fnmatch(fn, '*.fasta')]
+    fasta_files = [fn for fn in filepaths if fnmatch.fnmatch(fn, '*.fna')]
 
-    chosen_frags = select_frags(frag_files, num_frags, replacement)
+    chosen_genomes, chosen_files = select_genomes(fasta_files, num_frags)
 
-    out_file = os.path.join(out_dir, 'selected_frags.fasta')
+    out_fasta = os.path.join(out_dir, 'selected_genomes.fasta')
+    out_txt = os.path.join(out_dir, 'selected_genome_files.txt')
 
-    n_rec = SeqIO.write(chosen_frags, out_file, 'fasta')
+    n_rec = SeqIO.write(chosen_genomes, out_fasta, 'fasta')
 
-    print(f'Done. Wrote {n_rec} records to {out_file}.')
+    with open(out_txt, 'w') as output:
+        for f in chosen_files:
+            output.write(f+'\n')
+
+    print(f'Done. Wrote {n_rec} records to {out_fasta}.')
 
 
 # --------------------------------------------------
@@ -117,91 +115,36 @@ def die(msg='Error') -> None:
 
 
 # --------------------------------------------------
-def select_frags(frag_files, num_frags, replacement) -> list:
-    """ Make fragment selection """
+def select_genomes(files, num) -> tuple:
+    """ Make genome selection """
 
-    # Initially choose a number of files equal to number of fragments
-    chosen_files = select_files(frag_files, num_frags, replacement)
+    chosen_files = select_files(files, num)
 
-    # Lists for chosen fragments and their id's for list comparison
-    chosen_frags = []
-    chosen_frag_ids = []
+    chosen_genomes = []
 
     for fh in chosen_files:
 
-        # Randomly select fragments from each file, without repeats
-        chosen_frags, chosen_frag_ids, _ = check_frags(fh,
-                                                       chosen_frags,
-                                                       chosen_frag_ids)
+        for seq_record in SeqIO.parse(fh, 'fasta'):
+            chosen_genomes.append(seq_record)
 
-    # Use variable to track files whose fragments have not been exhausted
-    unexhausted_files = frag_files
-
-    while len(chosen_frag_ids) < num_frags and replacement:
-
-        fh = random.choice(unexhausted_files)
-
-        chosen_frags, chosen_frag_ids, exhausted = check_frags(fh,
-                                                               chosen_frags,
-                                                               chosen_frag_ids)
-
-        if exhausted:
-            unexhausted_files.remove(fh)
-
-        if len(unexhausted_files) == 0:
-            warn(f'Directory does not have {num_frags} unique fragments. '
-                 f'Returning {len(chosen_frag_ids)} fragments.')
-            break
-
-    return chosen_frags
+    return chosen_genomes, chosen_files
 
 
 # --------------------------------------------------
-def select_files(frag_files, num_frags, replacement) -> list:
+def select_files(files, num) -> list:
     """ Make file selection"""
 
-    if replacement:
-        chosen_files = random.choices(frag_files, k=num_frags)
-
-    elif not replacement and num_frags > len(frag_files):
-        warn(f'Number of requested fragments ({num_frags}) '
+    if num > len(files):
+        warn(f'Number of requested genomes ({num}) '
              f'is greater than number of files.\n'
-             f'Consider allowing --replacement. '
-             f'Returning 1 fragment from all '
-             f'{len(frag_files)} files.')
+             f'Returning all {len(files)} files.')
 
-        chosen_files = frag_files
+        chosen_files = files
 
     else:
-        chosen_files = random.sample(frag_files, k=num_frags)
+        chosen_files = random.sample(files, k=num)
 
     return chosen_files
-
-
-# --------------------------------------------------
-def check_frags(fh, chosen_frags, chosen_frag_ids) -> tuple:
-    """ Try to find unique frag in file """
-
-    frag_recs = []
-
-    for seq_record in SeqIO.parse(fh, 'fasta'):
-        frag_recs.append(seq_record)
-
-    if all(frag.id in chosen_frag_ids for frag in frag_recs):
-        exhausted = True
-        return chosen_frags, chosen_frag_ids, exhausted
-
-    exhausted = False
-
-    chosen_frag = random.choice(frag_recs)
-
-    while chosen_frag.id in chosen_frag_ids:
-        chosen_frag = random.choice(frag_recs)
-
-    chosen_frags.append(chosen_frag)
-    chosen_frag_ids.append(chosen_frag.id)
-
-    return chosen_frags, chosen_frag_ids, exhausted
 
 
 # --------------------------------------------------
