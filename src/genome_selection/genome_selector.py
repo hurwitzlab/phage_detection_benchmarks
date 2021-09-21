@@ -27,11 +27,11 @@ def get_args() -> Args:
     """ Get command-line arguments """
 
     parser = argparse.ArgumentParser(
-        description='Select genome fragments for analysis',
+        description='Select genomes for analysis',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('dir',
-                        help='Directory containing genome files',
+                        help='Directory containing genome files (.fna)',
                         metavar='dir',
                         type=str,
                         default=None)
@@ -74,7 +74,7 @@ def main() -> None:
 
     args = get_args()
     in_dir = args.dir
-    num_frags = args.num
+    num = args.num
     out_dir = args.out
 
     if not os.path.isdir(out_dir):
@@ -87,7 +87,7 @@ def main() -> None:
     filepaths = [os.path.join(in_dir, fn) for fn in filenames]
     fasta_files = [fn for fn in filepaths if fnmatch.fnmatch(fn, '*.fna')]
 
-    chosen_genomes, chosen_files = select_genomes(fasta_files, num_frags)
+    chosen_genomes, chosen_files = select_genomes(fasta_files, num)
 
     out_fasta = os.path.join(out_dir, 'selected_genomes.fasta')
     out_txt = os.path.join(out_dir, 'selected_genome_files.txt')
