@@ -6,6 +6,6 @@ selected_dir:
         ../../data/selected_genomes
 num_genomes:
         3
-classes:
+class:
         non_viral: "non_viral"
         viral: "viral"
