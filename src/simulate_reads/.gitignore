@@ -2,3 +2,4 @@
 out/*
 err/*
 practice_inputs/
+.snakemake/
