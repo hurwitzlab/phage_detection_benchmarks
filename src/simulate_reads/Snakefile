@@ -1,6 +1,8 @@
 rule all:
 	input:
-		expand("{selected}/{c}/selected_genomes.fasta", selected=config["selected_dir"], c=config["class"])
+		expand("{s}/{c}/{m}_reads_R1.fastq", s=config["simulated_dir"], m=config["model"], c=config["class"]),
+		expand("{s}/{c}/{m}_reads_R2.fastq", s=config["simulated_dir"], m=config["model"], c=config["class"]),
+		expand("{s}/{c}/{m}_reads_abundance.txt", s=config["simulated_dir"], m=config["model"], c=config["class"])
 
 rule select_genomes:
 	input:
@@ -16,5 +18,26 @@ rule select_genomes:
 		source ~/.bashrc
 		source activate selector_env
 		
-		{params.selector} -n {params.num} -o {params.selected_dir}/{wildcards.class} {input}
+		{params.selector} -s -n {params.num} -o {params.selected_dir}/{wildcards.class} {input}
 		"""
+
+rule simulate_reads:
+	input:
+		config["selected_dir"]+"/{class}/selected_genomes.fasta",
+	output:
+		config["simulated_dir"]+"/{class}/{model}_reads_R1.fastq",
+		config["simulated_dir"]+"/{class}/{model}_reads_R2.fastq",
+		config["simulated_dir"]+"/{class}/{model}_reads_abundance.txt"
+	params:
+		simulator=config["simulator"],
+		simulated_dir=config["simulated_dir"],
+		cpus=config["simulator_cpus"],
+		model=config["model"]
+	shell:
+		"""
+		source ~/.bashrc
+		source activate insilicoseq_env
+
+		{params.simulator} {params.cpus} --model {params.model} --output {params.simulated_dir}/{wildcards.class}/{params.model}_reads --genomes {input}
+		"""
+

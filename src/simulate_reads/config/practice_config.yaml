@@ -1,5 +1,9 @@
 genome_selector:
         python3 ../genome_selection/genome_selector.py
+simulator:
+         iss generate
+simulator_cpus:
+        --cpus 8
 genome_dir:
         ../genome_selection/tests/inputs/genomes
 selected_dir:
@@ -9,3 +13,7 @@ num_genomes:
 class:
         non_viral: "non_viral"
         viral: "viral"
+simulated_dir:
+        ../../data/simulated_reads
+model:
+        miseq
