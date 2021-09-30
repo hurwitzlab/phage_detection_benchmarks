@@ -1,21 +1,18 @@
-genome_selector:
-        python3 ../genome_selection/genome_selector.py
 simulator:
          iss generate
 simulator_cpus:
         --cpus 8
-genome_dir:
-        practice_inputs
-selected_dir:
-        ../../data/selected_genomes
-num_genomes:
-        3
-class:
-        archaea: "archaea"
-        bacteria: "bacteria"
-        fungi: "fungi"
-        viral: "viral"
+genomes:
+        practice_inputs/cat_genomes.fasta
+abundances:
+        a: "profiles/profile_a.txt"
+        b: "profiles/profile_b.txt"
+        c: "profiles/profile_c.txt"
 simulated_dir:
         ../../data/simulated_reads
 model:
-        miseq
+        miseq: "miseq"
+        hiseq: "hiseq"
+        novaseq: "novaseq"
+n_reads:
+        --n_reads 0.5k
