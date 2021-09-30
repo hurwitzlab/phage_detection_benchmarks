@@ -5,9 +5,9 @@ simulator_cpus:
 genomes:
         practice_inputs/cat_genomes.fasta
 abundances:
-        profiles/profile_a.txt: "a"
-        profiles/profile_b.txt: "b"
-        profiles/profile_c.txt: "c"
+        a: "profiles/profile_a.txt"
+        b: "profiles/profile_b.txt"
+        c: "profiles/profile_c.txt"
 simulated_dir:
         ../../data/simulated_reads
 model:
