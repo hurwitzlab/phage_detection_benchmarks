@@ -2,8 +2,8 @@ simulator:
          iss generate
 simulator_cpus:
         --cpus 8
-genomes:
-        practice_inputs/cat_genomes.fasta
+genomes_dir:
+        practice_inputs
 abundances:
         a: "profiles/profile_a.txt"
         b: "profiles/profile_b.txt"

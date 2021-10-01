@@ -1,3 +1,5 @@
+IDS, = glob_wildcards(config["genomes_dir"] + "/{id}.fna")
+
 rule all:
     input:
         expand(
@@ -13,9 +15,20 @@ rule all:
             a=config["abundances"],
         ),
 
+rule cat_genomes:
+	input: expand("{dir}/{id}.fna", dir=config["genomes_dir"], id=IDS),
+	output: config["genomes_dir"] + "/cat_genomes.fasta",
+	params: genomes_dir=config["genomes_dir"],
+	shell:
+		"""
+		cd {params.genomes_dir}
+		./cat_genomes.sh
+		"""
+
 rule simulate_reads:
     input:
-        genomes=config["genomes"],
+        genomes=config["genomes_dir"] + "/cat_genomes.fasta",
+	abundances="profiles/profile_{abundance}.txt"
     output:
         config["simulated_dir"] + "/{abundance}_{model}_reads_R1.fastq",
         config["simulated_dir"] + "/{abundance}_{model}_reads_R2.fastq",
@@ -29,5 +42,5 @@ rule simulate_reads:
         source ~/.bashrc
         source activate insilicoseq_env
 
-        {params.simulator} {params.cpus} {params.reads} --model {wildcards.model} --abundance_file profiles/profile_{wildcards.abundance}.txt --output {params.simulated_dir}/{wildcards.abundance}_{wildcards.model}_reads --genomes {input.genomes}
+        {params.simulator} {params.cpus} {params.reads} --model {wildcards.model} --abundance_file {input.abundances} --output {params.simulated_dir}/{wildcards.abundance}_{wildcards.model}_reads --genomes {input.genomes}
         """
