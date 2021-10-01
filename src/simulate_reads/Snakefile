@@ -1,4 +1,5 @@
-IDS, = glob_wildcards(config["genomes_dir"] + "/{id}.fna")
+(IDS,) = glob_wildcards(config["genomes_dir"] + "/{id}.fna")
+
 
 rule all:
     input:
@@ -15,20 +16,25 @@ rule all:
             a=config["abundances"],
         ),
 
+
 rule cat_genomes:
-	input: expand("{dir}/{id}.fna", dir=config["genomes_dir"], id=IDS),
-	output: config["genomes_dir"] + "/cat_genomes.fasta",
-	params: genomes_dir=config["genomes_dir"],
-	shell:
-		"""
-		cd {params.genomes_dir}
-		./cat_genomes.sh
-		"""
+    input:
+        expand("{dir}/{id}.fna", dir=config["genomes_dir"], id=IDS),
+    output:
+        config["genomes_dir"] + "/cat_genomes.fasta",
+    params:
+        genomes_dir=config["genomes_dir"],
+    shell:
+        """
+        cd {params.genomes_dir}
+        ./cat_genomes.sh
+        """
+
 
 rule simulate_reads:
     input:
         genomes=config["genomes_dir"] + "/cat_genomes.fasta",
-	abundances="profiles/profile_{abundance}.txt"
+        abundances="profiles/profile_{abundance}.txt",
     output:
         config["simulated_dir"] + "/{abundance}_{model}_reads_R1.fastq",
         config["simulated_dir"] + "/{abundance}_{model}_reads_R2.fastq",
