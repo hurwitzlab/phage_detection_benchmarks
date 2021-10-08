@@ -1,0 +1,10 @@
+in_dir: "../../data/selected_fragss_small"
+out_dir: "../../data/classified_chopped_small"
+
+deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
+deepvirfinder_cores: 5
+
+phamers: "python ../../tool_envs/phamers/PhaMers/scripts/phamer.py"
+
+phigaro: "phigaro"
+phigaro_threads: 4

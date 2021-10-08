@@ -1,0 +1,43 @@
+rule all:
+	
+
+rule deepvirfinder:
+	input: 
+		input_file = 
+	output:
+	params:
+		dvf = config["deepvirfinder"]
+		cores = config["deepvirfinder_cores"]
+	shell:
+		"""
+		source activate deepvirfinder_env
+
+		{params.dvf} -i {input_file} -o {output} -c {params.cores}
+		"""
+
+rule phamers:
+	input:
+		input_dir = 
+	output:
+	params:
+		phamers = config["phamers"]
+	shell:
+		"""
+		source activate phamers_env
+
+		{params.phamers} -in {input.in_dir}
+		"""
+
+rule phigaro:
+	input:
+		in_file = 
+	output:
+		out_file = config["out_dir"] + 
+	params:
+		phigaro = config["phigaro"]
+	shelll:
+		"""
+		source activate phigaro_env
+		
+		{params.phigaro} -f {input.in_file} -o tsv -t {params.threads}
+		"""
