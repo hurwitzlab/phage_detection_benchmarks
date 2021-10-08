@@ -1,43 +1,27 @@
 rule all:
-	
+    input:
+        expand(
+            "{d}/{k}/{l}/dvf_out/selected_frags.fasta_gt1bp_dvfpred.txt",
+            d=config["out_dir"],
+            k=config["kingdoms"],
+            l=config["lengths"],
+        ),
+
 
 rule deepvirfinder:
-	input: 
-		input_file = 
-	output:
-	params:
-		dvf = config["deepvirfinder"]
-		cores = config["deepvirfinder_cores"]
-	shell:
-		"""
-		source activate deepvirfinder_env
+    input:
+        config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
+    output:
+        config["out_dir"]
+        + "/{kingdom}/{length}/dvf_out/selected_frags.fasta_gt1bp_dvfpred.txt",
+    params:
+        dvf=config["deepvirfinder"],
+        cores=config["deepvirfinder_cores"],
+        in_dir=config["in_dir"],
+        out_dir=config["out_dir"],
+    shell:
+        """
+        source activate deepvirfinder_env
 
-		{params.dvf} -i {input_file} -o {output} -c {params.cores}
-		"""
-
-rule phamers:
-	input:
-		input_dir = 
-	output:
-	params:
-		phamers = config["phamers"]
-	shell:
-		"""
-		source activate phamers_env
-
-		{params.phamers} -in {input.in_dir}
-		"""
-
-rule phigaro:
-	input:
-		in_file = 
-	output:
-		out_file = config["out_dir"] + 
-	params:
-		phigaro = config["phigaro"]
-	shelll:
-		"""
-		source activate phigaro_env
-		
-		{params.phigaro} -f {input.in_file} -o tsv -t {params.threads}
-		"""
+        {params.dvf} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out -c {params.cores}
+        """

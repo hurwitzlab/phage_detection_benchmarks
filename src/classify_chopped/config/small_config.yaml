@@ -1,4 +1,4 @@
-in_dir: "../../data/selected_fragss_small"
+in_dir: "../../data/selected_frags_small"
 out_dir: "../../data/classified_chopped_small"
 
 deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
@@ -8,3 +8,7 @@ phamers: "python ../../tool_envs/phamers/PhaMers/scripts/phamer.py"
 
 phigaro: "phigaro"
 phigaro_threads: 4
+
+kingdoms: ["archaea", "bacteria", "fungi", "viral"]
+
+lengths: [500, 1000, 3000, 5000 ]
