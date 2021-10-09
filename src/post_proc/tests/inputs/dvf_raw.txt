@@ -1,0 +1,3 @@
+name    len     score   pvalue
+frag_2913_NZ_CP034566.1 Fragment 2913 of NZ_CP034566.1 Vibrio parahaemolyticus strain D3112 chromosome 2, complete sequence     500     0.05368553847074509     0.49001862687915104
+frag_4291_NZ_CP026592.1 Fragment 4291 of NZ_CP026592.1 Clostridioides difficile strain CD-10-00484 chromosome, complete genome  500     0.9977540969848633      0.003603078138817287
