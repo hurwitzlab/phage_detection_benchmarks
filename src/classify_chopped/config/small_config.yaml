@@ -9,6 +9,8 @@ phamers: "python ../../tool_envs/phamers/PhaMers/scripts/phamer.py"
 phigaro: "phigaro"
 phigaro_threads: 4
 
+seeker: "predict-metagenome"
+
 kingdoms: ["archaea", "bacteria", "fungi", "viral"]
 
 lengths: [500, 1000, 3000, 5000 ]

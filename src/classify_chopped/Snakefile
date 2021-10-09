@@ -6,9 +6,15 @@ rule all:
             k=config["kingdoms"],
             l=config["lengths"],
         ),
+        expand(
+            "{d}/{k}/{l}/seeker_out/pred.txt",
+            d=config["out_dir"],
+            k=config["kingdoms"],
+            l=config["lengths"],
+        ),
 
 
-rule deepvirfinder:
+rule pred_deepvirfinder:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
     output:
@@ -24,4 +30,22 @@ rule deepvirfinder:
         source activate deepvirfinder_env
 
         {params.dvf} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out -c {params.cores}
+        """
+
+
+rule pred_seeker:
+    input:
+        config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/seeker_out/pred.txt",
+    params:
+        seeker=config["seeker"],
+        in_dir=config["in_dir"],
+        out_dir=config["out_dir"],
+    shell:
+        """
+        source activate seeker_env
+
+
+        {params.seeker} {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out/pred.txt
         """
