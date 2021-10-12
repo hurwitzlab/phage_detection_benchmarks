@@ -2,6 +2,7 @@
 
 import os
 import re
+import shutil
 from subprocess import getstatusoutput
 
 PRG = './reformat.py'
@@ -79,3 +80,44 @@ def test_bad_tool():
     assert retval != 0
     assert out.lower().startswith('usage:')
     assert re.search('required: -t', out)
+
+
+def run(tool: str) -> None:
+    """ Run the program with given tool """
+
+    out_dir = 'out_test'
+    in_file = f'tests/inputs/{tool}_raw.txt'
+
+    try:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
+
+        rv, out = getstatusoutput(f'{PRG} -l 500 -a bacteria -t {tool}'
+                                  f' -o {out_dir} {in_file}')
+
+        assert rv == 0
+        out_file = os.path.join(out_dir, f'{tool}_pred_formatted.csv')
+        assert out == (f'Done. Wrote to {out_file}')
+        assert os.path.isdir(out_dir)
+        assert os.path.isfile(out_file)
+        header = ('record,length,actual,prediction,'
+                  'lifecycle,value,stat,stat_name\n')
+        assert open(out_file).readlines()[0] == header
+
+    finally:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
+
+
+# --------------------------------------------------
+def test_reformat_dvf() -> None:
+    """ Reformats DeepVirFinder """
+
+    run('dvf')
+
+
+# --------------------------------------------------
+def test_reformat_seeker() -> None:
+    """ Reformats Seeker """
+
+    run('seeker')

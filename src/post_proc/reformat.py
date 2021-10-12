@@ -7,6 +7,7 @@ Purpose: Post processing tool predictions
 
 import argparse
 import numpy as np
+import os
 import pandas as pd
 from typing import NamedTuple, TextIO
 
@@ -74,20 +75,31 @@ def get_args() -> Args:
 def main() -> None:
     """ Do the stuff """
 
+    # Parse rguments
     args = get_args()
-
     tool = args.tool
+    out_dir = args.out_dir
 
+    # Reformat based on tool
     reformatted = reformatters[tool](args)
 
+    # Reorder columns
     cols = [
-        'record', 'length', 'actual', 'prediction', 'value', 'stat',
-        'stat_name'
+        'record', 'length', 'actual', 'prediction', 'lifecycle', 'value',
+        'stat', 'stat_name'
     ]
-
     final_df = reformatted[cols]
 
-    print(final_df)
+    # Dataframe write operattions
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
+
+    out_file = os.path.join(out_dir, f'{tool}_pred_formatted.csv')
+
+    with open(out_file, 'wt') as out:
+        final_df.to_csv(out, index=False)
+
+    print(f'Done. Wrote to {out_file}')
 
 
 # --------------------------------------------------
@@ -116,6 +128,7 @@ def reformat_dvf(args: Args):
     index_range = range(len(df.index))
     df['actual'] = pd.Series([args.actual for x in index_range])
     df['stat_name'] = pd.Series(['p' for x in index_range])
+    df['lifecycle'] = pd.Series([None for x in index_range])
 
     return df
 
@@ -140,6 +153,7 @@ def reformat_seeker(args: Args):
     # Add empty columns
     df['stat'] = pd.Series([None for x in index_range])
     df['stat_name'] = pd.Series([None for x in index_range])
+    df['lifecycle'] = pd.Series([None for x in index_range])
 
     return df
 
