@@ -1,3 +1,51 @@
-name    len     score   pvalue
-frag_2913_NZ_CP034566.1 Fragment 2913 of NZ_CP034566.1 Vibrio parahaemolyticus strain D3112 chromosome 2, complete sequence     500     0.05368553847074509     0.49001862687915104
-frag_4291_NZ_CP026592.1 Fragment 4291 of NZ_CP026592.1 Clostridioides difficile strain CD-10-00484 chromosome, complete genome  500     0.9977540969848633      0.003603078138817287
+name	len	score	pvalue
+frag_2913_NZ_CP034566.1 Fragment 2913 of NZ_CP034566.1 Vibrio parahaemolyticus strain D3112 chromosome 2, complete sequence	500	0.05368553847074509	0.49001862687915104
+frag_4291_NZ_CP026592.1 Fragment 4291 of NZ_CP026592.1 Clostridioides difficile strain CD-10-00484 chromosome, complete genome	500	0.9977540969848633	0.003603078138817287
+frag_1201_NZ_CP011346.1 Fragment 1201 of NZ_CP011346.1 Bacillus velezensis strain JJ-D34 chromosome, complete genome	500	0.11199985444545746	0.39663963574102995
+frag_339_NC_017042.1 Fragment 339 of NC_017042.1 Rickettsia rhipicephali str. 3-7-female6-CWPP, complete sequence	500	0.002168395323678851	0.7800428982671358
+frag_2761_NZ_CP029003.1 Fragment 2761 of NZ_CP029003.1 Actinobacillus pleuropneumoniae serovar 1 str. 4074 chromosome, complete genome	500	0.0030206269584596157	0.758386799375341
+frag_1995_NZ_CP013672.1 Fragment 1995 of NZ_CP013672.1 Streptococcus pyogenes strain AP53 chromosome, complete genome	500	0.1474795937538147	0.35933883986528437
+frag_6380_NZ_CP045144.1 Fragment 6380 of NZ_CP045144.1 Ancylobacter sp. TS-1 chromosome, complete genome	500	0.0030729048885405064	0.7573331577263919
+frag_7484_NZ_CP063354.1 Fragment 7484 of NZ_CP063354.1 Serratia marcescens strain SCQ1 chromosome, complete genome	500	0.0022789889480918646	0.7772018288208621
+frag_1394_NZ_CP060719.1 Fragment 1394 of NZ_CP060719.1 Thermomonas carbonis strain KCTC 42013 chromosome, complete genome	500	0.00011358911433489993	0.9094432632787071
+frag_2271_NC_020300.1 Fragment 2271 of NC_020300.1 Bartonella australis Aust/NH1, complete sequence	500	0.018334904685616493	0.6086285725037159
+frag_6352_NZ_CP048409.1 Fragment 6352 of NZ_CP048409.1 Draconibacterium halophilum strain M1 chromosome, complete genome	500	0.03910968452692032	0.5272441626371145
+frag_2744_NZ_CP027006.1 Fragment 2744 of NZ_CP027006.1 Akkermansia muciniphila strain EB-AMDK-30 chromosome, complete genome	500	0.0002743465593084693	0.8810513838454157
+frag_5507_NZ_CP030063.1 Fragment 5507 of NZ_CP030063.1 [Brevibacterium] frigoritolerans strain ZB201705 chromosome, complete genome	500	0.0143637266010046	0.632354324634518
+frag_2696_NZ_CP031685.1 Fragment 2696 of NZ_CP031685.1 Haemophilus influenzae strain P650-8603 chromosome, complete genome	500	0.3235210180282593	0.23907317164951364
+frag_3205_NZ_CP045135.1 Fragment 3205 of NZ_CP045135.1 Acinetobacter indicus strain XG01 chromosome, complete genome	500	0.1324179470539093	0.3745131611130971
+frag_723_NZ_CP046045.1 Fragment 723 of NZ_CP046045.1 Acinetobacter towneri strain 19110F47 chromosome, complete genome	500	0.0177567508071661	0.6117894974505635
+frag_268_NZ_CP069907.1 Fragment 268 of NZ_CP069907.1 Klebsiella pneumoniae strain FDAARGOS_1313 chromosome, complete genome	500	0.05685489624738693	0.48301002841069446
+frag_5766_NZ_CP045298.1 Fragment 5766 of NZ_CP045298.1 Paenibacillus brasilensis strain KACC 13842 chromosome, complete genome	500	0.4200115203857422	0.18768932623379556
+frag_4359_NZ_CP015938.1 Fragment 4359 of NZ_CP015938.1 Legionella pneumophila strain C7_O chromosome	500	0.7884082794189453	0.05094169222374833
+frag_5234_NZ_CP068157.1 Fragment 5234 of NZ_CP068157.1 Corynebacterium striatum strain FDAARGOS_1116 chromosome, complete genome	500	0.10389725118875504	0.40664923140604714
+frag_5956_NZ_CP017421.1 Fragment 5956 of NZ_CP017421.1 Arthrobacter sp. ZXY-2 chromosome, complete genome	500	0.10729401558637619	0.40227473705996347
+frag_3098_NZ_CP013338.1 Fragment 3098 of NZ_CP013338.1 Raoultella ornithinolytica strain Yangling I2 chromosome, complete genome	500	0.0007547964341938496	0.8378708912679448
+frag_4714_NZ_CP071869.1 Fragment 4714 of NZ_CP071869.1 Polaribacter sp. SM13 chromosome, complete genome	500	0.4951225221157074	0.1415925040922689
+frag_4105_NZ_CP070501.1 Fragment 4105 of NZ_CP070501.1 Agrococcus sp. Marseille-Q4369 chromosome, complete genome	500	0.0006726186838932335	0.8437035503960564
+frag_3755_NZ_CP063759.1 Fragment 3755 of NZ_CP063759.1 Klebsiella pneumoniae strain FRPDR chromosome, complete genome	500	0.3832404613494873	0.20770851756383
+frag_211_NZ_CP009929.1 Fragment 211 of NZ_CP009929.1 Burkholderia mallei strain FMH chromosome 1, complete sequence	500	9.089583727472927e-06	0.9601497676343863
+frag_9605_NZ_CP037943.1 Fragment 9605 of NZ_CP037943.1 Escherichia coli strain CFSAN027343 chromosome, complete genome	500	0.0018840152770280838	0.7891399650040453
+frag_3324_NZ_CP065956.1 Fragment 3324 of NZ_CP065956.1 Methylacidiphilum sp. IT5 chromosome, complete genome	500	0.2114226222038269	0.30776684415511113
+frag_8107_NZ_CP035188.1 Fragment 8107 of NZ_CP035188.1 Bacillus licheniformis strain SRCM103914 chromosome, complete genome	500	0.8437149524688721	0.04045231330787033
+frag_245_NZ_CP009923.1 Fragment 245 of NZ_CP009923.1 Chlamydia trachomatis strain L2b/CS19/08 chromosome, complete genome	500	0.02370094321668148	0.5823721989124913
+frag_3964_NZ_CP049703.1 Fragment 3964 of NZ_CP049703.1 Parageobacillus toebii NBRC 107807 strain DSM 14590 chromosome, complete genome	500	0.004757264629006386	0.7264294718621235
+frag_8789_NZ_CP039250.1 Fragment 8789 of NZ_CP039250.1 Sphingopyxis sp. PAMC25046 chromosome, complete genome	500	0.0022021434269845486	0.77920562945681
+frag_7558_NC_010473.1 Fragment 7558 of NC_010473.1 Escherichia coli str. K-12 substr. DH10B, complete sequence	500	1.0967943126161117e-05	0.9574686259383995
+frag_10322_NZ_CP063003.1 Fragment 10322 of NZ_CP063003.1 Klebsiella pneumoniae strain CriePir154 chromosome, complete genome	500	0.001806899905204773	0.7916329564055767
+frag_1104_NZ_LT906440.1 Fragment 1104 of NZ_LT906440.1 Neisseria gonorrhoeae strain NCTC13798 chromosome 1, complete sequence	500	0.023722480982542038	0.5823157538241547
+frag_1455_NZ_LT962938.1 Fragment 1455 of NZ_LT962938.1 Brucella melitensis isolate 1 chromosome 1	500	0.004290679935365915	0.7342188940525692
+frag_3824_NZ_CP046752.1 Fragment 3824 of NZ_CP046752.1 Photobacterium damselae strain 9046-81 chromosome 1, complete sequence	500	0.019562991335988045	0.6019021994769422
+frag_362_NZ_LR134474.1 Fragment 362 of NZ_LR134474.1 Kurthia zopfii strain NCTC404 chromosome 1, complete sequence	500	0.4875800609588623	0.14737812564676664
+frag_7477_NC_010002.1 Fragment 7477 of NC_010002.1 Delftia acidovorans SPH-1, complete sequence	500	0.7050193548202515	0.06723550772356959
+frag_7283_NZ_CP017593.1 Fragment 7283 of NZ_CP017593.1 Mycobacterium tuberculosis strain Beijing-like/35049 chromosome, complete genome	500	0.007509948685765266	0.6900223898850402
+frag_8916_NZ_CP063708.1 Fragment 8916 of NZ_CP063708.1 Salmonella enterica subsp. enterica serovar Enteritidis strain A1636 chromosome, complete genome	500	0.00025091099087148905	0.884419274116164
+frag_1260_NZ_CP010827.1 Fragment 1260 of NZ_CP010827.1 Corynebacterium singulare strain IBS B52218 chromosome, complete genome	500	0.9154846668243408	0.02709364240155036
+frag_3102_NC_014212.1 Fragment 3102 of NC_014212.1 Meiothermus silvanus DSM 9946, complete sequence	500	0.6915097236633301	0.07022709740540745
+frag_167_NZ_CP017617.1 Fragment 167 of NZ_CP017617.1 Salmonella enterica subsp. enterica serovar Typhimurium strain 22495 chromosome, complete genome	500	0.5386984944343567	0.11535494553048975
+frag_1583_NZ_CP064049.1 Fragment 1583 of NZ_CP064049.1 Enterococcus faecium strain VRE3370 chromosome, complete genome	500	0.22442609071731567	0.29867918493292445
+frag_689_NZ_CP055233.1 Fragment 689 of NZ_CP055233.1 Bradyrhizobium diazoefficiens strain 113-2 chromosome, complete genome	500	0.0005321498611010611	0.8543434495474985
+frag_4456_NZ_CP056245.1 Fragment 4456 of NZ_CP056245.1 Citrobacter freundii strain RHBSTW-00915 chromosome, complete genome	500	0.24606502056121826	0.2843327249807146
+frag_4201_NZ_CP009551.1 Fragment 4201 of NZ_CP009551.1 Burkholderia pseudomallei PB08298010 chromosome I, complete sequence	500	0.006253410130739212	0.7046134452200418
+frag_7116_NZ_CP010595.1 Fragment 7116 of NZ_CP010595.1 Phaeobacter inhibens strain P10 chromosome, complete genome	500	0.8153437376022339	0.045852226758734876
+frag_2884_NC_013939.1 Fragment 2884 of NC_013939.1 Deferribacter desulfuricans SSM1, complete sequence	500	0.4475727677345276	0.1723268546915276
