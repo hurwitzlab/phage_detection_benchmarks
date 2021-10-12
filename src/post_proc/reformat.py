@@ -85,8 +85,8 @@ def main() -> None:
 
     # Reorder columns
     cols = [
-        'record', 'length', 'actual', 'prediction', 'lifecycle', 'value',
-        'stat', 'stat_name'
+        'tool', 'record', 'length', 'actual', 'prediction', 'lifecycle',
+        'value', 'stat', 'stat_name'
     ]
     final_df = reformatted[cols]
 
@@ -126,6 +126,7 @@ def reformat_dvf(args: Args):
 
     # Add constant columns
     index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
     df['actual'] = pd.Series([args.actual for x in index_range])
     df['stat_name'] = pd.Series(['p' for x in index_range])
     df['lifecycle'] = pd.Series([None for x in index_range])
@@ -147,6 +148,7 @@ def reformat_seeker(args: Args):
 
     # Add constant columns
     index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
     df['length'] = pd.Series([args.length for x in index_range])
     df['actual'] = pd.Series([args.actual for x in index_range])
 

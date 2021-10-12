@@ -101,7 +101,7 @@ def run(tool: str) -> None:
         assert out == (f'Done. Wrote to {out_file}')
         assert os.path.isdir(out_dir)
         assert os.path.isfile(out_file)
-        header = ('record,length,actual,prediction,'
+        header = ('tool,record,length,actual,prediction,'
                   'lifecycle,value,stat,stat_name\n')
         assert open(out_file).readlines()[0] == header
 
