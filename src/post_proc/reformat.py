@@ -2,11 +2,12 @@
 """
 Author : Kenneth Schackart <schackartk1@gmail.com>
 Date   : 2021-10-08
-Purpose: Post processing DeepVirFinder predictions
+Purpose: Post processing tool predictions
 """
 
 import argparse
-# import pandas as pd
+import numpy as np
+import pandas as pd
 from typing import NamedTuple, TextIO
 
 
@@ -24,11 +25,11 @@ def get_args() -> Args:
     """ Get command-line arguments """
 
     parser = argparse.ArgumentParser(
-        description='Post processing DeepVirFinder predictions',
+        description='Post processing for tool predictions',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('file',
-                        help='DVF Predictions',
+                        help='Classification output',
                         metavar='FILE',
                         type=argparse.FileType('rt'),
                         default=None)
@@ -79,26 +80,71 @@ def main() -> None:
 
     reformatted = reformatters[tool](args)
 
-    print(reformatted)
+    cols = [
+        'record', 'length', 'actual', 'prediction', 'value', 'stat',
+        'stat_name'
+    ]
+
+    final_df = reformatted[cols]
+
+    print(final_df)
 
 
 # --------------------------------------------------
 def reformat_dvf(args: Args):
     """ Reformat DeepVirFinder output """
 
-    return args.tool
+    raw_df = pd.read_csv(args.file, sep='\t')
+
+    # Rename columns that are present
+    df = raw_df.rename(
+        {
+            'name': 'record',
+            'len': 'length',
+            'score': 'value',
+            'pvalue': 'stat'
+        },
+        axis='columns')
+
+    # Shorten record to just ID
+    df['record'] = df['record'].str.split().str.get(0)
+
+    # Add prediction column
+    df['prediction'] = np.where(df['value'] < 0.5, 'non-viral', 'viral')
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['actual'] = pd.Series([args.actual for x in index_range])
+    df['stat_name'] = pd.Series(['p' for x in index_range])
+
+    return df
 
 
 # --------------------------------------------------
 def reformat_seeker(args: Args):
     """ Reformat Seeker output """
 
-    return args.tool
+    raw_df = pd.read_csv(args.file, sep='\t')
+
+    # Rename columns that are present
+    df = raw_df.rename({'name': 'record', 'score': 'value'}, axis='columns')
+
+    # Lower case predictions column
+    df['prediction'] = df['prediction'].str.lower()
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['length'] = pd.Series([args.length for x in index_range])
+    df['actual'] = pd.Series([args.actual for x in index_range])
+
+    # Add empty columns
+    df['stat'] = pd.Series([None for x in index_range])
+    df['stat_name'] = pd.Series([None for x in index_range])
+
+    return df
 
 
-reformatters = {'dvf': reformat_dvf,
-                'seeker': reformat_seeker}
-
+reformatters = {'dvf': reformat_dvf, 'seeker': reformat_seeker}
 
 # --------------------------------------------------
 if __name__ == '__main__':
