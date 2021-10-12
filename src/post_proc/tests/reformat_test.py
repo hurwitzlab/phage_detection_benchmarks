@@ -104,6 +104,9 @@ def run(tool: str) -> None:
         header = ('tool,record,length,actual,prediction,'
                   'lifecycle,value,stat,stat_name\n')
         assert open(out_file).readlines()[0] == header
+        orig_lines = open(in_file).read().count('\n')
+        new_lines = open(in_file).read().count('\n')
+        assert new_lines == orig_lines
 
     finally:
         if os.path.isdir(out_dir):
