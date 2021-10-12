@@ -8,7 +8,8 @@ Purpose: Combine all predictions from a tool
 import argparse
 import os
 import pandas as pd
-from typing import NamedTuple, TextIO
+import sys
+from typing import List, NamedTuple, TextIO
 
 
 class Args(NamedTuple):
@@ -30,7 +31,7 @@ def get_args() -> Args:
                         help='Files to be merged',
                         type=argparse.FileType('rt'),
                         nargs='+')
-    
+
     parser.add_argument('-o',
                         '--out_dir',
                         metavar='DIR',
@@ -49,23 +50,30 @@ def main() -> None:
 
     args = get_args()
     out_dir = args.out_dir
-    
-    rows = []
 
-    for file_num, file in enumerate(args.files, start=1):
-        start = 0 if file_num == 1 else 1
-        
-        rows.extend(map(lambda l: str.split(l.rstrip(), sep=','),
-                        file.readlines()[start:]))
+    # Assumed column names for combining dataframes
+    header = ('tool,record,length,actual,prediction,'
+              'lifecycle,value,stat,stat_name\n')
 
-    # Create header
-    col_names = rows[0]
-    
+    # Rows of combined dataframe
+    rows: List = []
+
+    # Get rows of new dataframe
+    for file in args.files:
+
+        file_header = file.readline()
+
+        if file_header != header:
+            sys.exit(f'File {file.name}: unexpected column names.')
+
+        rows.extend(
+            map(lambda l: str.split(l.rstrip(), sep=','), file.readlines()))
+
     # Move to dataframe
-    combined_df = pd.DataFrame(rows[1:])
+    combined_df = pd.DataFrame(rows)
 
     # Add header
-    combined_df.columns = col_names
+    combined_df.columns = header.rstrip().split(',')
 
     # Dataframe write operattions
     if not os.path.isdir(out_dir):
@@ -77,7 +85,6 @@ def main() -> None:
         combined_df.to_csv(out, index=False)
 
     print(f'Done. Wrote to {out_file}')
-
 
 
 # --------------------------------------------------
