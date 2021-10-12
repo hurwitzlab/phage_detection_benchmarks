@@ -32,6 +32,8 @@ Output will be csv file.
 | ------ | ------ | ------ | ---------- | --------- | ----- | ---- | --------- |
 frag_x   | 500    | viral  | viral      | prophage  | 0.23  | 0.03 | p         |
 frag_y   | 3000   | viral  | bacteria   |           | 0.87  |      |           |
+frag_i   | 500    | viral  | viral      | lytic     | 0.11  | 0.01 | p         |
+frag_j   | 1000   | viral  | bacteria   |           | 0.69  |      |           |
 
 * `record`: record ID (produced by chopper.py, *e.g.* frag_7116_NZ_CP010595.1). Not the full name and description.
 
