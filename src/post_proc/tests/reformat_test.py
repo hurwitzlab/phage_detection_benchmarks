@@ -82,6 +82,7 @@ def test_bad_tool():
     assert re.search('required: -t', out)
 
 
+# --------------------------------------------------
 def run(tool: str) -> None:
     """ Run the program with given tool """
 
