@@ -105,7 +105,7 @@ def run(tool: str) -> None:
                   'lifecycle,value,stat,stat_name\n')
         assert open(out_file).readlines()[0] == header
         orig_lines = open(in_file).read().count('\n')
-        new_lines = open(in_file).read().count('\n')
+        new_lines = open(out_file).read().count('\n')
         assert new_lines == orig_lines
 
     finally:
