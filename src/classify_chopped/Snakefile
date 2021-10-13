@@ -1,11 +1,6 @@
 rule all:
     input:
-        expand(
-            "{d}/{k}/{l}/dvf_out/selected_frags.fasta_gt1bp_dvfpred.txt",
-            d=config["out_dir"],
-            k=config["kingdoms"],
-            l=config["lengths"],
-        ),
+        config["out_dir"] + "/dvf_out/combined.csv",
         expand(
             "{d}/{k}/{l}/seeker_out/pred.txt",
             d=config["out_dir"],
@@ -30,6 +25,44 @@ rule pred_deepvirfinder:
         source activate deepvirfinder_env
 
         {params.dvf} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out -c {params.cores}
+        """
+
+
+rule reformat_dvf:
+    input:
+        config["out_dir"]
+        + "/{kingdom}/{length}/dvf_out/selected_frags.fasta_gt1bp_dvfpred.txt",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/dvf_out/dvf_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t dvf -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out
+        """
+
+
+rule combine_dvf:
+    input:
+        expand(
+            "{out_dir}/{kingdom}/{length}/dvf_out/dvf_pred_formatted.csv",
+            out_dir=config["out_dir"],
+            kingdom=config["kingdoms"],
+            length=config["lengths"],
+        ),
+    output:
+        config["out_dir"] + "/dvf_out/combined.csv",
+    params:
+        out_dir=config["out_dir"],
+        combine=config["combine"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.combine} -o {params.out_dir}/dvf_out {input}
         """
 
 
