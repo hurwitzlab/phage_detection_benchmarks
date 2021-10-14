@@ -122,3 +122,26 @@ rule combine_seeker:
 
         {params.combine} -o {params.out_dir}/seeker_out {input}
         """
+
+rule pred_virsorter:
+    input:
+        config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-boundary.tsv",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-combined.fa",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-score.tsv",
+    params:
+        virsorter=config["virsorter"],
+        in_dir=config["in_dir"],
+        out_dir=config["out_dir"],
+    log:
+        "logs/virsorter/{kingdom}_{length}.log",
+    benchmark:
+        "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
+    shell:
+        """
+        source activate virsorter2_env
+
+
+        ({params.virsorter} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out) 2> {log}
+        """
