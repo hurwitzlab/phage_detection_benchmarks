@@ -1,7 +1,7 @@
 rule all:
     input:
         config["out_dir"] + "/dvf_out/combined.csv",
-        config]"out_dir"] + "/seeker_out/combined.csv",
+        config["out_dir"] + "/seeker_out/combined.csv",
 
 
 rule pred_deepvirfinder:
@@ -15,11 +15,15 @@ rule pred_deepvirfinder:
         cores=config["deepvirfinder_cores"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
+    log:
+        "logs/dvf/{kingdom}_{length}.log",
+    benchmark:
+        "benchmarks/dvf/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate deepvirfinder_env
 
-        {params.dvf} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out -c {params.cores}
+        ({params.dvf} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out -c {params.cores}) 2> {log}
         """
 
 
@@ -36,7 +40,7 @@ rule reformat_dvf:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t dvf -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t dvf -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out {input}
         """
 
 
@@ -70,19 +74,22 @@ rule pred_seeker:
         seeker=config["seeker"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
+    log:
+        "logs/seeker/{kingdom}_{length}.log",
+    benchmark:
+        "benchmarks/seeker/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate seeker_env
 
 
-        {params.seeker} {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out/pred.txt
+        ({params.seeker} {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out/pred.txt) 2> {log}
         """
 
 
-rule reformat_dvf:
+rule reformat_seeker:
     input:
-        config["out_dir"]
-        + "/{kingdom}/{length}/seeker_out/pred.txt",
+        config["out_dir"] + "/{kingdom}/{length}/seeker_out/pred.txt",
     output:
         config["out_dir"] + "/{kingdom}/{length}/seeker_out/seeker_pred_formatted.csv",
     params:
@@ -92,7 +99,7 @@ rule reformat_dvf:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t seeker -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t seeker -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out {input}
         """
 
 
