@@ -18,6 +18,7 @@ The table below shows which steps have been written into the pipeline for each t
 
 Tool          | Pre-process | Running      | Post-process
 ------------- | ----------- | ------------ | ------------
-DeepVirFinder | *NA*        | Yes          | *In progress*
-Seeker        | *NA*        | Yes          | *In progress*
+DeepVirFinder | *NA*        | Yes          | Yes
+Seeker        | *NA*        | Yes          | Yes
+VirSorter2    | *NA*        | Yes          | *In progress*
 
