@@ -125,3 +125,10 @@ def test_reformat_seeker() -> None:
     """ Reformats Seeker """
 
     run('seeker')
+
+
+# --------------------------------------------------
+def test_reformat_virsorter() -> None:
+    """ Reformats VirSorter2 """
+
+    run('virsorter')

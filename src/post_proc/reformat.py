@@ -63,7 +63,7 @@ def get_args() -> Args:
                         help='Classifier tool',
                         metavar='TOOL',
                         type=str,
-                        choices=['dvf', 'seeker'],
+                        choices=['dvf', 'seeker', 'virsorter'],
                         required=True)
 
     args = parser.parse_args()
@@ -160,7 +160,48 @@ def reformat_seeker(args: Args):
     return df
 
 
-reformatters = {'dvf': reformat_dvf, 'seeker': reformat_seeker}
+# --------------------------------------------------
+def reformat_virsorter(args: Args):
+    """ Reformat VirSorter2 output """
+
+    raw_df = pd.read_csv(args.file, sep='\t')
+
+    # Rename columns that are present
+    df = raw_df.rename(
+        {
+            'seqname': 'record',
+            'max_score': 'value',
+            'max_score_group': 'prediction'
+        },
+        axis='columns')
+
+    # Remove extra columns
+    df = df.drop(
+        columns=['dsDNAphage', 'ssDNA', 'hallmark', 'viral', 'cellular'])
+
+    # Clean up record names
+    df['record'] = df['record'].str.replace(r'[\|]{2}.*$', '', regex=True)
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
+    df['length'] = pd.Series([args.length for x in index_range])
+    df['actual'] = pd.Series([args.actual for x in index_range])
+
+    # Add empty columns
+    df['stat'] = pd.Series([None for x in index_range])
+    df['stat_name'] = pd.Series([None for x in index_range])
+    df['lifecycle'] = pd.Series([None for x in index_range])
+
+    return df
+
+
+# --------------------------------------------------
+reformatters = {
+    'dvf': reformat_dvf,
+    'seeker': reformat_seeker,
+    'virsorter': reformat_virsorter
+}
 
 # --------------------------------------------------
 if __name__ == '__main__':
