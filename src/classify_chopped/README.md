@@ -20,5 +20,10 @@ Tool          | Pre-process | Running      | Post-process
 ------------- | ----------- | ------------ | ------------
 DeepVirFinder | *NA*        | Yes          | Yes
 Seeker        | *NA*        | Yes          | Yes
-VirSorter2    | *NA*        | Yes          | *In progress*
+VirSorter2    | *NA*        | Yes          | Yes
 
+## Logging and Benchmarking
+
+Stdout from the rules are forwarded to logs/{tool}/{rule}.log
+
+Resource configuration from prediction steps are output to benchmarks/{tool}/{rule}_benchmark.txt
