@@ -1,0 +1,18 @@
+selector:
+        python3 ../data_selection/selector.py
+chopped_dir:
+        ../../data/chopped
+selected_dir:
+        ../../data/selected_frags_small
+num_frags:
+        50
+kingdoms:
+        archaea: "archaea"
+        bacteria: "bacteria"
+        fungi: "fungi"
+        viral: "viral"
+lengths:
+        500: "500"
+        1000: "1000"
+        3000: "3000"
+        5000: "5000"
