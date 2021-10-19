@@ -131,4 +131,33 @@ def test_reformat_seeker() -> None:
 def test_reformat_virsorter() -> None:
     """ Reformats VirSorter2 """
 
+    # Run with typical output
     run('virsorter')
+
+    # Run with empty virsorter output (no viral found)
+    tool = 'virsorter'
+    out_dir = 'out_test'
+    in_file = f'tests/inputs/{tool}_raw_empty.txt'
+
+    try:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
+
+        rv, out = getstatusoutput(f'{PRG} -l 500 -a bacteria -t {tool}'
+                                  f' -o {out_dir} {in_file}')
+
+        assert rv == 0
+        out_file = os.path.join(out_dir, f'{tool}_pred_formatted.csv')
+        assert out == (f'Done. Wrote to {out_file}')
+        assert os.path.isdir(out_dir)
+        assert os.path.isfile(out_file)
+        header = ('tool,record,length,actual,prediction,'
+                  'lifecycle,value,stat,stat_name\n')
+        assert open(out_file).readlines()[0] == header
+        orig_lines = open(in_file).read().count('\n')
+        new_lines = open(out_file).read().count('\n')
+        assert new_lines == orig_lines
+
+    finally:
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)

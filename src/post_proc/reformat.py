@@ -153,9 +153,9 @@ def reformat_seeker(args: Args):
     df['actual'] = pd.Series([args.actual for x in index_range])
 
     # Add empty columns
-    df['stat'] = pd.Series([None for x in index_range])
-    df['stat_name'] = pd.Series([None for x in index_range])
-    df['lifecycle'] = pd.Series([None for x in index_range])
+    df['stat'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat_name'] = pd.Series([None for x in index_range], dtype=str)
+    df['lifecycle'] = pd.Series([None for x in index_range], dtype=str)
 
     return df
 
@@ -166,7 +166,14 @@ def reformat_virsorter(args: Args):
 
     raw_df = pd.read_csv(args.file, sep='\t')
 
+    index_range = range(len(raw_df.index))
+
+    if len(raw_df) == 0:
+        # pylint: disable=unsupported-assignment-operation
+        raw_df['max_score'] = pd.Series(['' for x in index_range], dtype=str)
+
     # Rename columns that are present
+    # pylint: disable=no-member
     df = raw_df.rename(
         {
             'seqname': 'record',
@@ -184,14 +191,14 @@ def reformat_virsorter(args: Args):
 
     # Add constant columns
     index_range = range(len(df.index))
-    df['tool'] = pd.Series([args.tool for x in index_range])
-    df['length'] = pd.Series([args.length for x in index_range])
-    df['actual'] = pd.Series([args.actual for x in index_range])
+    df['tool'] = pd.Series([args.tool for x in index_range], dtype=str)
+    df['length'] = pd.Series([args.length for x in index_range], dtype=str)
+    df['actual'] = pd.Series([args.actual for x in index_range], dtype=str)
 
     # Add empty columns
-    df['stat'] = pd.Series([None for x in index_range])
-    df['stat_name'] = pd.Series([None for x in index_range])
-    df['lifecycle'] = pd.Series([None for x in index_range])
+    df['stat'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat_name'] = pd.Series([None for x in index_range], dtype=str)
+    df['lifecycle'] = pd.Series([None for x in index_range], dtype=str)
 
     return df
 
