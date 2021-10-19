@@ -2,6 +2,12 @@ rule all:
     input:
         config["out_dir"] + "/dvf_out/combined.csv",
         config["out_dir"] + "/seeker_out/combined.csv",
+        expand(
+            "{o}/{k}/{l}/virsorter_out/final-viral-score.tsv",
+            o=config["out_dir"],
+            k=config["kingdoms"],
+            l=config["lengths"],
+        ),
 
 
 rule pred_deepvirfinder:
@@ -122,6 +128,7 @@ rule combine_seeker:
 
         {params.combine} -o {params.out_dir}/seeker_out {input}
         """
+
 
 rule pred_virsorter:
     input:
