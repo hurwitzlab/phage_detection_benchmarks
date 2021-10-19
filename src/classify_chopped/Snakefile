@@ -9,6 +9,28 @@ rule all:
             l=config["lengths"],
         ),
 
+rule combine_preds:
+    input:
+        expand(
+            "{out_dir}/{kingdom}/{length}/{tool}_out/{tool}_pred_formatted.csv",
+            out_dir=config["out_dir"],
+            kingdom=config["kingdoms"],
+            length=config["lengths"],
+            tool=config["tools"]
+        ),
+    output:
+        expand("{out_dir}/{tool}_out/combined.csv",
+            out_dir=config["out_dir"],
+            tool=config["tools"]),
+    params:
+        out_dir=config["out_dir"],
+        combine=config["combine"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.combine} -o {params.out_dir}/{wildcards.tool}_out {input}
+        """
 
 rule pred_deepvirfinder:
     input:
@@ -49,28 +71,6 @@ rule reformat_dvf:
         {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t dvf -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out {input}
         """
 
-
-rule combine_dvf:
-    input:
-        expand(
-            "{out_dir}/{kingdom}/{length}/dvf_out/dvf_pred_formatted.csv",
-            out_dir=config["out_dir"],
-            kingdom=config["kingdoms"],
-            length=config["lengths"],
-        ),
-    output:
-        config["out_dir"] + "/dvf_out/combined.csv",
-    params:
-        out_dir=config["out_dir"],
-        combine=config["combine"],
-    shell:
-        """
-        source activate snakemake_env
-
-        {params.combine} -o {params.out_dir}/dvf_out {input}
-        """
-
-
 rule pred_seeker:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
@@ -108,28 +108,6 @@ rule reformat_seeker:
         {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t seeker -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out {input}
         """
 
-
-rule combine_seeker:
-    input:
-        expand(
-            "{out_dir}/{kingdom}/{length}/seeker_out/seeker_pred_formatted.csv",
-            out_dir=config["out_dir"],
-            kingdom=config["kingdoms"],
-            length=config["lengths"],
-        ),
-    output:
-        config["out_dir"] + "/seeker_out/combined.csv",
-    params:
-        out_dir=config["out_dir"],
-        combine=config["combine"],
-    shell:
-        """
-        source activate snakemake_env
-
-        {params.combine} -o {params.out_dir}/seeker_out {input}
-        """
-
-
 rule pred_virsorter:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
@@ -152,3 +130,20 @@ rule pred_virsorter:
 
         ({params.virsorter} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out) 2> {log}
         """
+
+rule reformat_virsorter:
+    input:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-score.tsv",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/virsorter_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t virsorter -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out {input}
+        """
+
+

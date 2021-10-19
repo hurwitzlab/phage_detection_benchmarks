@@ -4,6 +4,8 @@ out_dir: "../../data/classified_chopped_small"
 reformat: "python3 ../post_proc/reformat.py"
 combine: "python3 ../post_proc/combine.py"
 
+tools: ['dvf', 'seeker', 'virsorter']
+
 deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
 deepvirfinder_cores: 1
 
