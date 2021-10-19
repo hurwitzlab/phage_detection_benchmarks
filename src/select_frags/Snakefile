@@ -16,5 +16,5 @@ rule select_frags:
 		source ~/.bashrc
 		source activate selector_env
 		
-		{params.selector} -n {params.num_frags} -r -o {params.selected_dir}/{wildcards.kingdom}/{wildcards.length} {input}
+		{params.selector} -s -n {params.num_frags} -r -o {params.selected_dir}/{wildcards.kingdom}/{wildcards.length} {input}
 		"""
