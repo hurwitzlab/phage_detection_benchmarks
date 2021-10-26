@@ -1,8 +1,18 @@
 # Predictions Post Processing
 
-Scripts for converting the files containing predictions from the various tools into a uniform format.
+Helpers for cleaning up after classifying chopped genome fragments. They are originally written to be used in the pipeline located in [src/classify_chopped](https://github.com/schackartk/challenging-phage-finders/tree/main/src/classify_chopped). Some scripts may be more broadly usable, but may need to be revised.
 
-## Usage
+There are 3 scripts here:
+
+* `reformat.py`: Convert the files containing predictions from the various tools into a uniform format
+* `combine.py`: Merge the formatted files into single file
+* `benchmark.py`: Merge the Snakemake benchmark output files
+
+## `reformat.py`
+
+Script for converting the files containing predictions from the various tools into a uniform format.
+
+### Usage
 
 ```
 $ ./reformat.py --help
@@ -24,7 +34,7 @@ optional arguments:
   -t TOOL, --tool TOOL  Classifier tool (default: None)
 ```
 
-## Standard Output Format
+### Standard Output Format
 
 Output will be csv file.
 
@@ -50,3 +60,51 @@ frag_j   | 1000   | viral  | bacteria   |           | 0.69  |      |           |
 * `stat`: any associated statistic, especially regarding confidence in classification. If not given by tool, it is not inferred.
 
 * `stat_name`: name of `stat`, such as $p$-value
+
+## `combine.py`
+
+Combine the reformatted prediction files. Since the reformatting adds columns containing information about the run (*e.g.* tool, length, *etc.*) it is safe to merge the reformatted files from many or all prediction jobs.
+
+This is how it is intended to be used in Snakemake, where the `rule all:` calls for a `combined.csv` file, which has merged all predictions from all tools, kingdoms, and lengths.
+
+### Usage
+
+```
+$ ./combine.py -h
+usage: combine.py [-h] [-o DIR] FILE [FILE ...]
+
+Combine all predictions from a tool
+
+positional arguments:
+  FILE                  Files to be merged
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o DIR, --out_dir DIR
+                        Output directory (default: out)
+```
+
+## `benchmark.py`
+
+Merge the benchmark output files from Snakemake. This script is very sensitive to how the files are named since it infers metadata from the name.
+
+Files names should contain the following pattern: *tool*/*kingdom*_*length*_benchmark.txt. This is determined by the `benchmark:` argument in the Snakemake rules.
+
+### Usage
+
+```
+$ ./benchmark.py -h
+usage: benchmark.py [-h] [-o DIR] FILE [FILE ...]
+
+Combine Snakemake benchmark files
+
+positional arguments:
+  FILE                  Files to be merged
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o DIR, --out_dir DIR
+                        Output directory (default: out)
+```
+
+*Note*: At this time, the file name is being parsed for the pattern shown above. Columns for each of the italicized fields are added for each row of the new combined file. It may be more generally useful if instead the file name was simply added to the combined dataframe, and parsing out metadata were performed during analysis instead.
