@@ -78,8 +78,8 @@ def main() -> None:
 
         # Die if info cannot be inferred
         if not name_match:
-            sys.exit(f'File {file.name}: unexpected file name.'
-                     'Consistency needed for inferring meta information.'
+            sys.exit(f'File {file.name}: unexpected file name.\n'
+                     'Consistency needed for inferring meta information.\n'
                      'Expected {tool}/{kingdom}_{length}_benchmark.txt')
 
         # Add new row to merged df (list at this time)
