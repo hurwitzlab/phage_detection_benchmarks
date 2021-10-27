@@ -8,7 +8,8 @@ from subprocess import getstatusoutput
 from typing import List
 
 PRG = './benchmark.py'
-BAD = 'tests/inputs/bad_benchmark.txt'
+BAD_FMT = 'tests/inputs/benchmarks/bad_format.csv'
+BAD_NAME = 'tests/inputs/benchmarks/bad_benchmark_name.txt'
 INPUTS = []
 
 kingdoms = ['archaea', 'bacteria', 'fungi', 'viral']
@@ -47,7 +48,7 @@ def test_missing_inputs():
 
 
 # --------------------------------------------------
-def test_bad_file_name():
+def test_bad_file():
     """ Bad input file name """
 
     retval, out = getstatusoutput(f'{PRG} shimmy.csv')
@@ -57,12 +58,21 @@ def test_bad_file_name():
 
 
 # --------------------------------------------------
-# def test_bad_file_format():
-#     """ Bad input file format """
+def test_bad_file_format():
+    """ Bad input file format """
 
-#     retval, out = getstatusoutput(f'{PRG} {BAD}')
-#     assert retval != 0
-#     assert re.search('unexpected file name', out)
+    retval, out = getstatusoutput(f'{PRG} {BAD_FMT}')
+    assert retval != 0
+    assert re.search('unexpected column names', out)
+
+
+# --------------------------------------------------
+def test_bad_file_name():
+    """ Bad input file name """
+
+    retval, out = getstatusoutput(f'{PRG} {BAD_NAME}')
+    assert retval != 0
+    assert re.search('unexpected file name', out)
 
 
 # --------------------------------------------------

@@ -7,9 +7,9 @@ from subprocess import getstatusoutput
 from typing import List
 
 PRG = './combine.py'
-BAD = 'tests/inputs/bad_format.csv'
-INPUT1 = 'tests/inputs/dvf_pred_formatted.csv'
-INPUT2 = 'tests/inputs/seeker_pred_formatted.csv'
+BAD = 'tests/inputs/combine/bad_format.csv'
+INPUT1 = 'tests/inputs/combine/dvf_pred_formatted.csv'
+INPUT2 = 'tests/inputs/combine/seeker_pred_formatted.csv'
 
 
 # --------------------------------------------------
