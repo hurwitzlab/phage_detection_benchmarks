@@ -16,11 +16,12 @@ The Snakefile should not need to be edited, only the config files.
 
 The table below shows which steps have been written into the pipeline for each tool.
 
-Tool          | Pre-process | Running      | Post-process
-------------- | ----------- | ------------ | ------------
-DeepVirFinder | *NA*        | Yes          | Yes
-Seeker        | *NA*        | Yes          | Yes
-VirSorter2    | *NA*        | Yes          | Yes
+Tool                  | Pre-process | Running      | Post-process
+--------------------- | ----------- | ------------ | ------------
+DeepVirFinder         | *NA*        | Yes          | Yes
+Seeker                | *NA*        | Yes          | Yes
+Unlimited Breadsticks | *NA*        | *Developing* |  
+VirSorter2            | *NA*        | Yes          | Yes
 
 ## Logging and Benchmarking
 

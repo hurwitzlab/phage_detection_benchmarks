@@ -1,15 +1,23 @@
 """ Tests """
 
+import itertools
 import os
 import re
 import shutil
 from subprocess import getstatusoutput
 from typing import List
 
-PRG = './combine.py'
-BAD = 'tests/inputs/combine/bad_format.csv'
-INPUT1 = 'tests/inputs/combine/dvf_pred_formatted.csv'
-INPUT2 = 'tests/inputs/combine/seeker_pred_formatted.csv'
+PRG = './benchmark.py'
+BAD_FMT = 'tests/inputs/benchmarks/bad_format.csv'
+BAD_NAME = 'tests/inputs/benchmarks/bad_benchmark_name.txt'
+INPUTS = []
+
+kingdoms = ['archaea', 'bacteria', 'fungi', 'viral']
+lengths = ['500', '1000', '3000', '5000']
+
+for kingdom, length in itertools.product(kingdoms, lengths):
+    INPUTS.append(
+        f'tests/inputs/benchmarks/virsorter/{kingdom}_{length}_benchmark.txt')
 
 
 # --------------------------------------------------
@@ -40,7 +48,7 @@ def test_missing_inputs():
 
 
 # --------------------------------------------------
-def test_bad_file_name():
+def test_bad_file():
     """ Bad input file name """
 
     retval, out = getstatusoutput(f'{PRG} shimmy.csv')
@@ -53,9 +61,18 @@ def test_bad_file_name():
 def test_bad_file_format():
     """ Bad input file format """
 
-    retval, out = getstatusoutput(f'{PRG} {BAD}')
+    retval, out = getstatusoutput(f'{PRG} {BAD_FMT}')
     assert retval != 0
     assert re.search('unexpected column names', out)
+
+
+# --------------------------------------------------
+def test_bad_file_name():
+    """ Bad input file name """
+
+    retval, out = getstatusoutput(f'{PRG} {BAD_NAME}')
+    assert retval != 0
+    assert re.search('unexpected file name', out)
 
 
 # --------------------------------------------------
@@ -71,14 +88,15 @@ def run(files: List) -> None:
         rv, out = getstatusoutput(f'{PRG} -o {out_dir} {" ".join(files)}')
 
         assert rv == 0
-        out_file = os.path.join(out_dir, 'combined.csv')
+        out_file = os.path.join(out_dir, 'combined_benchmarks.csv')
         assert out == (f'Done. Wrote to {out_file}')
         assert os.path.isdir(out_dir)
         assert os.path.isfile(out_file)
 
         # Header is retained
-        header = ('tool,record,length,actual,prediction,'
-                  'lifecycle,value,stat,stat_name\n')
+        header = ('s,h:m:s,max_rss,max_vms,max_uss,'
+                  'max_pss,io_in,io_out,mean_load,cpu_time,'
+                  'tool,kingdom,length\n')
         assert open(out_file).readlines()[0] == header
 
         # Number of rows is retained*
@@ -99,14 +117,7 @@ def run(files: List) -> None:
 
 
 # --------------------------------------------------
-def test_runs_single() -> None:
-    """ Works with one file """
+def test_runs_okay() -> None:
+    """ Works with good files """
 
-    run([INPUT1])
-
-
-# --------------------------------------------------
-def test_runs_mulitple() -> None:
-    """ Works with multiple files """
-
-    run([INPUT1, INPUT2])
+    run(INPUTS)

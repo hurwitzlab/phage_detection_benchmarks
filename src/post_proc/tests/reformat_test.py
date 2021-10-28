@@ -6,7 +6,7 @@ import shutil
 from subprocess import getstatusoutput
 
 PRG = './reformat.py'
-DVF_RAW = 'tests/inputs/dvf_raw.txt'
+DVF_RAW = 'tests/inputs/reformat/dvf_raw.txt'
 
 
 # --------------------------------------------------
@@ -87,7 +87,7 @@ def run(tool: str) -> None:
     """ Run the program with given tool """
 
     out_dir = 'out_test'
-    in_file = f'tests/inputs/{tool}_raw.txt'
+    in_file = f'tests/inputs/reformat/{tool}_raw.txt'
 
     try:
         if os.path.isdir(out_dir):
@@ -137,7 +137,7 @@ def test_reformat_virsorter() -> None:
     # Run with empty virsorter output (no viral found)
     tool = 'virsorter'
     out_dir = 'out_test'
-    in_file = f'tests/inputs/{tool}_raw_empty.txt'
+    in_file = f'tests/inputs/reformat/{tool}_raw_empty.txt'
 
     try:
         if os.path.isdir(out_dir):
