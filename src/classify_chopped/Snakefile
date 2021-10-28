@@ -33,6 +33,7 @@ rule pred_deepvirfinder:
         + "/{kingdom}/{length}/dvf_out/selected_frags.fasta_gt1bp_dvfpred.txt",
     params:
         dvf=config["deepvirfinder"],
+	env=config["dvf_env"],
         cores=config["deepvirfinder_cores"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
@@ -42,7 +43,7 @@ rule pred_deepvirfinder:
         "benchmarks/dvf/{kingdom}_{length}_benchmark.txt"
     shell:
         """
-        source activate deepvirfinder_env
+        source activate {params.env}
 
         ({params.dvf} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out -c {params.cores}) 2> {log}
         """
@@ -112,6 +113,7 @@ rule pred_virsorter:
         config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-score.tsv",
     params:
         virsorter=config["virsorter"],
+	env=config["virsorter_env"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
     log:
@@ -120,7 +122,7 @@ rule pred_virsorter:
         "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
     shell:
         """
-        source activate virsorter2_env
+        source activate {params.env}
 
 
         ({params.virsorter} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out) 2> {log}
