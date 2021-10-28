@@ -10,6 +10,7 @@ breadsticks: "python ../../tool_envs/unlimited_breadsticks/Cenote_Unlimited_Brea
 breadsticks_env: "../../tool_envs/unlimited_breadsticks/env"
 
 deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
+dvf_env: "../../tool_envs/deepvirfinder/env"
 deepvirfinder_cores: 1
 
 phamers: "python ../../tool_envs/phamers/PhaMers/scripts/phamer.py"
@@ -20,6 +21,7 @@ phigaro_threads: 4
 seeker: "predict-metagenome"
 
 virsorter: "virsorter run"
+virsorter_env: "../../tool_envs/virsorter2/env"
 
 kingdoms: ["archaea", "bacteria", "fungi", "viral"]
 
