@@ -63,7 +63,7 @@ def get_args() -> Args:
                         help='Classifier tool',
                         metavar='TOOL',
                         type=str,
-                        choices=['dvf', 'seeker', 'virsorter'],
+                        choices=['breadsticks', 'dvf', 'seeker', 'virsorter'],
                         required=True)
 
     args = parser.parse_args()
@@ -100,6 +100,40 @@ def main() -> None:
         final_df.to_csv(out, index=False)
 
     print(f'Done. Wrote to {out_file}')
+
+
+# --------------------------------------------------
+def reformat_breadsticks(args: Args):
+    """ Reformat Unlimited breadsticks output """
+
+    raw_df = pd.read_csv(args.file, sep='\t')
+
+    df = raw_df.rename({
+        'ORIGINAL_NAME': 'record',
+        'LENGTH': 'length'
+    },
+                       axis='columns')
+
+    index_range = range(len(df.index))
+
+    # Remove extra columns
+    df = df.drop(columns=[
+        'CENOTE_NAME', 'END_FEATURE', 'NUM_HALLMARKS', 'HALLMARK_NAMES'
+    ])
+
+    # Only records with viral hallmark genes are retained
+    # So all records present have been predicted as viral
+    df['prediction'] = pd.Series(['viral' for x in index_range], dtype=str)
+
+    # Add constant columns
+    df['tool'] = pd.Series([args.tool for x in index_range], dtype=str)
+    df['actual'] = pd.Series([args.actual for x in index_range], dtype=str)
+    df['lifecycle'] = pd.Series([None for x in index_range], dtype=str)
+    df['value'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat_name'] = pd.Series([None for x in index_range], dtype=str)
+
+    return df
 
 
 # --------------------------------------------------
@@ -205,6 +239,7 @@ def reformat_virsorter(args: Args):
 
 # --------------------------------------------------
 reformatters = {
+    'breadsticks': reformat_breadsticks,
     'dvf': reformat_dvf,
     'seeker': reformat_seeker,
     'virsorter': reformat_virsorter

@@ -114,6 +114,13 @@ def run(tool: str) -> None:
 
 
 # --------------------------------------------------
+def test_reformat_breadsticks() -> None:
+    """ Reformats Unlimited breadsticks """
+
+    run('breadsticks')
+
+
+# --------------------------------------------------
 def test_reformat_dvf() -> None:
     """ Reformats DeepVirFinder """
 
