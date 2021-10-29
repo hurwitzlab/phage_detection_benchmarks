@@ -149,19 +149,51 @@ rule pred_breadsticks:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-boundary.tsv",
+        config["out_dir"] + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
     params:
-        virsorter=config["virsorter"],
+        breadsticks=config["breadsticks"],
+        env=config["breadsticks_env"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
     log:
-        "logs/virsorter/{kingdom}_{length}.log",
+        "logs/breadsticks/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
+        "benchmarks/breadsticks/{kingdom}_{length}_benchmark.txt"
     shell:
         """
-        source activate virsorter2_env
+        source activate env
 
 
-        ({params.virsorter} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out) 2> {log}
+        ({params.breadsticks} -c {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -r breadsticks_out_{wildcards.kingdom}_{wildcards.length}) 2> {log}
+        """"
+
+
+rule move_breadsticks:
+    input:
+        "breadsticks_out_{kingdom}_{length}/breadsticks_out_{kingdom}_{length}_CONTIG_SUMMARY.tsv,
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
+    params:
+        out_dir=config["out_dir"],
+    shell:
+        """
+        mv {input} {output}
+
+        rm -rf breadsticks_out_{wildcards.kingdom}_{wildcards.length}/
+        """"
+
+rule reformat_breadsticks:
+    input:
+        config["out_dir"] + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
+    output:
+        config["out_dir"]
+        + "/{kingdom}/{length}/breadsticks_out/breadsticks_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t breadsticks -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/breadsticks_out {input}
         """
