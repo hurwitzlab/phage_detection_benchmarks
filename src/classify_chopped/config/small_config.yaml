@@ -8,6 +8,8 @@ tools: ['dvf', 'seeker', 'virsorter', 'breadsticks']
 
 breadsticks: "python ../../tool_envs/unlimited_breadsticks/Cenote_Unlimited_Breadsticks/unlimited_breadsticks.py"
 breadsticks_env: "../../tool_envs/unlimited_breadsticks/env"
+breadsticks_mem: 5
+breadsticks_cpu: 8
 
 deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
 dvf_env: "../../tool_envs/deepvirfinder/env"
