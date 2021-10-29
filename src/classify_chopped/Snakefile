@@ -150,8 +150,7 @@ rule pred_breadsticks:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
     output:
-        config["out_dir"]
-        + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
+        "breadsticks_out_{kingdom}_{length}/breadsticks_out_{kingdom}_{length}_CONTIG_SUMMARY.tsv",
     params:
         breadsticks=config["breadsticks"],
         env=config["breadsticks_env"],
