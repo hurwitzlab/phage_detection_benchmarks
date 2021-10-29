@@ -33,7 +33,7 @@ rule pred_deepvirfinder:
         + "/{kingdom}/{length}/dvf_out/selected_frags.fasta_gt1bp_dvfpred.txt",
     params:
         dvf=config["deepvirfinder"],
-	env=config["dvf_env"],
+        env=config["dvf_env"],
         cores=config["deepvirfinder_cores"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
@@ -113,7 +113,7 @@ rule pred_virsorter:
         config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-score.tsv",
     params:
         virsorter=config["virsorter"],
-	env=config["virsorter_env"],
+        env=config["virsorter_env"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
     log:
@@ -145,11 +145,13 @@ rule reformat_virsorter:
         {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t virsorter -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out {input}
         """
 
+
 rule pred_breadsticks:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
     params:
         breadsticks=config["breadsticks"],
         env=config["breadsticks_env"],
@@ -163,16 +165,16 @@ rule pred_breadsticks:
         """
         source activate env
 
-
         ({params.breadsticks} -c {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -r breadsticks_out_{wildcards.kingdom}_{wildcards.length}) 2> {log}
-        """"
+        """
 
 
 rule move_breadsticks:
     input:
-        "breadsticks_out_{kingdom}_{length}/breadsticks_out_{kingdom}_{length}_CONTIG_SUMMARY.tsv,
+        "breadsticks_out_{kingdom}_{length}/breadsticks_out_{kingdom}_{length}_CONTIG_SUMMARY.tsv",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
     params:
         out_dir=config["out_dir"],
     shell:
@@ -180,11 +182,13 @@ rule move_breadsticks:
         mv {input} {output}
 
         rm -rf breadsticks_out_{wildcards.kingdom}_{wildcards.length}/
-        """"
+        """
+
 
 rule reformat_breadsticks:
     input:
-        config["out_dir"] + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/breadsticks_out/breadsticks_out_CONTIG_SUMMARY.tsv",
     output:
         config["out_dir"]
         + "/{kingdom}/{length}/breadsticks_out/breadsticks_pred_formatted.csv",
