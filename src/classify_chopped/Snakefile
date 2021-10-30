@@ -176,15 +176,17 @@ rule pred_breadsticks:
         env=config["breadsticks_env"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
+	mem=config["breadsticks_mem"],
+	cpus=config["breadsticks_cpu"],
     log:
         "logs/breadsticks/{kingdom}_{length}.log",
     benchmark:
         "benchmarks/breadsticks/{kingdom}_{length}_benchmark.txt"
     shell:
         """
-        source activate env
+        source activate {params.env}
 
-        ({params.breadsticks} -c {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -r breadsticks_out_{wildcards.kingdom}_{wildcards.length}) 2> {log}
+        ({params.breadsticks} -p False -m {params.mem} -t {params.cpus} -c {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -r breadsticks_out_{wildcards.kingdom}_{wildcards.length}) 2> {log}
         """
 
 
