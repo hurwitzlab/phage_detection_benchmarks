@@ -24,6 +24,26 @@ rule combine_preds:
         {params.combine} -o {params.out_dir}/combined_out {input}
         """
 
+rule combine_benchmarks:
+    input:
+        expand(
+            "benchmarks/{tool}/{kingdom}_{length}_benchmark.txt",
+            tool=config["tools"],
+            kingdom=config["kingdoms"],
+            length=config["lengths"],
+        ),
+    output:
+        config["out_dir"] + "/combined_out/benchmarks.csv",
+    params:
+        out_dir=config["out_dir"],
+        benchmark=config["benchmark"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.benchmark} -o {params.out_dir}/combined_out {input}
+        """
+
 
 rule pred_deepvirfinder:
     input:

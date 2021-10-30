@@ -3,6 +3,7 @@ out_dir: "../../data/classified_chopped_small"
 
 reformat: "python3 ../post_proc/reformat.py"
 combine: "python3 ../post_proc/combine.py"
+benchmark: "python3 ../post_proc/benchmark.py"
 
 tools: ['dvf', 'seeker', 'virsorter', 'breadsticks']
 
