@@ -1,0 +1,627 @@
+LOCUS       VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_isolate_INF250-sc-2280154_chromosome_1__complete_sequence_gene_906_gene_926-918908-933557-cat_6        14649 bp    dna     linear   ENV 11/01/21
+
+DEFINITION  Putative phage sequence (category 6), predicted by PhageSorter
+ACCESSION   VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_isolate_INF250-sc-2280154_chromosome_1__complete_sequence_gene_906_gene_926-918908-933557-cat_6
+KEYWORDS    .
+FEATURES             Location/Qualifiers
+     source          1..14649
+                     /organism="Putative phage sequence (category 6),
+                     predicted by PhageSorter"
+     gene            50..238
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_906"
+                     /gene="gene_906"
+     CDS             50..238
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_906"
+                     /product="hypothetical protein"
+                     /note="Predicted by MGA"
+                     /transl_table=11
+                     /codon_start=1
+                     /gene="gene_906"
+                     /translation="MGERHYQNKPWRQLCERQRAMERRGRRAAWRKYEFLPAADRALG
+                     TGDNGFAIRDDALRRGLV"
+     gene            289..1002
+                     /gene="gene_907"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_907"
+     CDS             289..1002
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_907"
+                     /product="Phage_cluster_1914_PFAM-Peptidase_M23"
+                     /translation="MMKRFYMTLMLAASLVLAGCSSTSDSGGTYTVKRGDTLYGISRT
+                     TGTSVRDLARLNNISPPYTIEVGQKLKLNGSSSTKTTKKKSSSTRTAAVTPSSAVPQS
+                     SWPPVGQRCWRWPTSGKVVLPYSTADGGNKGIDIAGTRGQPVYAAGAGKVVYVGNQLR
+                     GYGNLIMIKHSEDYITAYAHNDKLMVNNGQSVKAGQQIATMGSTDADSVRLHFQIRYR
+                     ATAIDPLRYLPPQGSKPKC"
+                     /gene="gene_907"
+                     /note="Predicted by MGA"
+                     /transl_table=11
+                     /codon_start=1
+     gene            complement(1351..1551)
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_908"
+                     /gene="gene_908"
+     CDS             complement(1351..1551)
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_908"
+                     /product="hypothetical protein"
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /codon_start=1
+                     /gene="gene_908"
+                     /translation="MSDSEIYQDDHVPEGARPNRWQSLHVVCKYHNHHKPVYSLQRHL
+                     DVWHVGASAKMRFTESLGNYAG"
+     gene            1676..2002
+                     /gene="gene_909"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_909"
+     CDS             1676..2002
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_909"
+                     /product="hypothetical protein"
+                     /translation="MQKEHFKANTQYNDYKGTVAADRADQDSFSDFLRAKGILKEGEI
+                     VKGISFFRTGNLFDVEAYIMEQTGELRRENVQITLEDFFNTFKRFSIKLSRNGEFDDQ
+                     EIEFKE"
+                     /gene="gene_909"
+                     /codon_start=1
+                     /transl_table=11
+                     /note="Predicted by MGA"
+     gene            2012..2287
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_910"
+                     /gene="gene_910"
+     CDS             2012..2287
+                     /gene="gene_910"
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /codon_start=1
+                     /translation="MSIYFNEHGSAIGYQVEGRWTIKGDYLQIEHGPNIPGGLYKIND
+                     NKVKFPLDYKEVEGVIDTEKLTFTVCGTVYKMIKPSEPFAIPVRFPT"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_910"
+                     /product="hypothetical protein"
+     gene            complement(2439..3353)
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_911"
+                     /gene="gene_911"
+     CDS             complement(2439..3353)
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_911"
+                     /product="hypothetical protein"
+                     /translation="MLIQKKRIRNIDNYITAFDGRDVFIAHALPGQQKGESIGFTANQ
+                     SLGEEVLPRIVGAVTRFNANGKSVPDKTLPKETAYRQVSWTWKKWVGRGQTEEVTETR
+                     EIEYQRYQRVFTPPPGVELKIVENLNGEKLVISPKLTLTDEKKNLVTHCVNLFLELFG
+                     LCEVVDEELNTIVTTQSIKLNWSLLPQGQYPWSTIGPQIMSAIKPRGKGNSAVVEGRL
+                     QLINSKQPDFVAVGKAGFQGYVIFGFPNHNTYVLESSQCNNATYIFDNDWQHLSQLTK
+                     AEILDGNLHHARVIHRRNWTAEILRYLP"
+                     /gene="gene_911"
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /codon_start=1
+     gene            complement(3868..4425)
+                     /gene="gene_912"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_912"
+     CDS             complement(3868..4425)
+                     /product="Phage_cluster_1383_PFAM-Phage_integrase"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_912"
+                     /transl_table=11
+                     /codon_start=1
+                     /note="Predicted by MGA"
+                     /gene="gene_912"
+                     /translation="MAKTSAVSPEQAKQIEAVLRQRSEVAADAWKLNLQLALRISDLL
+                     SVRYDDVQGKFLRLKEGKTGKQRELVLNTEALKVLKRRRKLNPEDVFVFQSKSNRVKG
+                     QSPKPVSRVFVAQAIREASHGVVEPGISVATHSARKTRARALLKAGTPIEVISRMLNH
+                     SSPAITMTYLDITQDEVNQTYQMVI"
+     gene            4568..5002
+                     /gene="gene_913"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_913"
+     CDS             4568..5002
+                     /translation="MFKFKGGRPTKAQAAARATITQMEKIILNPKAKPADVLEANRLI
+                     ETLKSVAGVIGESDRPSQTGTTPDIVYSAPDELRASPVPGMYYPPECYTPARLVVSGV
+                     CYCDVCQRWRDKHNLKTSQIFDPDCYHEITCEDEGEIGLYIG"
+                     /gene="gene_913"
+                     /transl_table=11
+                     /codon_start=1
+                     /note="Predicted by MGA"
+                     /product="hypothetical protein"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_913"
+     gene            5867..6310
+                     /gene="gene_914"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_914"
+     CDS             5867..6310
+                     /gene="gene_914"
+                     /note="Predicted by MGA"
+                     /transl_table=11
+                     /codon_start=1
+                     /translation="MDTNKFTRHDFSETAFTLMQIIGDNSQGEAKNREDYYQSATFSL
+                     SQLNSLMVIDKAKTIANKRIVFTLADSLSFNLELKNHFNKTVITLSYIDQDEYGKEFL
+                     SKDKSYSFTIYENERLSDVDGHLNRRYYHEHFAHIFTLLVEKIIN"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_914"
+                     /product="hypothetical protein"
+     gene            7388..7567
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_915"
+                     /gene="gene_915"
+     CDS             7388..7567
+                     /gene="gene_915"
+                     /note="Predicted by MGA"
+                     /transl_table=11
+                     /codon_start=1
+                     /translation="MKYFTVEQVVEALKTGAARRHQIYDNFAQARYRGFTERAALFKT
+                     ALDIFDQWKRENKKS"
+                     /product="hypothetical protein"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_915"
+     gene            7564..7755
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_916"
+                     /gene="gene_916"
+     CDS             7564..7755
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_916"
+                     /product="hypothetical protein"
+                     /translation="MNVTFDQETYRELIYEANLQGLAAPALVARIIRQYIKNQTGPYE
+                     GANQPEENNEQKRTTISGN"
+                     /gene="gene_916"
+                     /transl_table=11
+                     /codon_start=1
+                     /note="Predicted by MGA"
+     gene            7721..8140
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_917"
+                     /gene="gene_917"
+     CDS             7721..8140
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_917"
+                     /product="hypothetical protein"
+                     /translation="MNKNEPPFLAIDYRILALDIKAAINEKNIDSSTILKLKLVYCYL
+                     LGLSKKCSEVYPEQTKMGKTLGIGSRQVVGRCISLLESLGWISKTSRNGTSNLYQVKT
+                     VEQILEGMPREVKEEEKEFHDFNTGIVLIEDDDDLPW"
+                     /gene="gene_917"
+                     /codon_start=1
+                     /transl_table=11
+                     /note="Predicted by MGA"
+     gene            8156..8518
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_918"
+                     /gene="gene_918"
+     CDS             8156..8518
+                     /translation="LAYARQNVVFEESIEIGFNNRNKKVRVSKKLKPLAIIKLSEPSP
+                     PLTPDEQSIINSMQGVTWKPRQRYTGFKFNREPLKFEYLFDNINEYEGWLEFNRLENE
+                     NFNGNDLGLDFDANGISD"
+                     /gene="gene_918"
+                     /note="Predicted by MGA"
+                     /transl_table=11
+                     /codon_start=1
+                     /product="hypothetical protein"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_918"
+     gene            8547..8828
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_919"
+                     /gene="gene_919"
+     CDS             8547..8828
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_919"
+                     /product="hypothetical protein"
+                     /translation="MIDFEQHKNIVEDFVEQHYPLAHSLMVDSYIDPEAYYSNYQMLL
+                     EAMNNLPEHPDYFLEWLVEYDAALYINLMELIVITRTINNVFEQVSSAQ"
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /codon_start=1
+                     /gene="gene_919"
+     gene            8909..9169
+                     /gene="gene_920"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_920"
+     CDS             8909..9169
+                     /gene="gene_920"
+                     /transl_table=11
+                     /codon_start=1
+                     /note="Predicted by MGA"
+                     /translation="LAYDENSIRVLTEEELESHSADSILSILLDENPDISPDHLAKMA
+                     ECLVTLGYSVNEYREYRRGTLDNIKRQTMQEWFRERNKIKKY"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_920"
+                     /product="hypothetical protein"
+     gene            9524..9748
+                     /gene="gene_921"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_921"
+     CDS             9524..9748
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_921"
+                     /product="hypothetical protein"
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /codon_start=1
+                     /gene="gene_921"
+                     /translation="MVTITKGVQTFDGKIPVTLLVDDVETANELIKLAKSANVPVVEQ
+                     DEDLNKSKNKTTQDKLKQIIKNKGVPDGTN"
+     gene            9735..10085
+                     /gene="gene_922"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_922"
+     CDS             9735..10085
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_922"
+                     /product="hypothetical protein"
+                     /translation="MALIKFPQPNLSVCDVLSRELNGYSRKVKVFPKIPDCVPGTVID
+                     DSGEIVGSASTSANVVLEYKDADNTPVAVLVANTNIHIKDFSLICDDVVKAKELLSAD
+                     PAVYFSTGNDLPTT"
+                     /codon_start=1
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /gene="gene_922"
+     gene            10126..11166
+                     /gene="gene_923"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_923"
+     CDS             10126..11166
+                     /translation="MFSYDAYKMVDLAPIFEVAPSEGYLLQNLNIFDKSSSNGIYVML
+                     DRLIEDNKTLLNQPKKRYSFEHDATARTPANSFPVELLHLHREDTVSAVDFQKAGRKP
+                     GTDVQETMLDIVADYTLKHAKAYKRYVEAAYGDALFRGLVQTPYTQEAPVIDYADSFD
+                     APMMTDTITLSNGSTDALEVFNGFLDKISSATDGLWTDVRRVVCFASASFYNSLRFHA
+                     SMKSAYQYVDPFNEMNIVYQRKEVLPNVQTFTLPGLSIDVIKVTDPLLTPFIADGTAV
+                     MLPVFQSNTNVYQHLYGPASVDTNLAASGITQEYFSYQYEKERGEVEIVSEASVLPVN
+                     HGTNFSLVITAN"
+                     /gene="gene_923"
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /codon_start=1
+                     /product="Phage_cluster_1350_PFAM-Phage_cap_E"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_923"
+     gene            11269..11472
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_924"
+                     /gene="gene_924"
+     CDS             11269..11472
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_924"
+                     /product="hypothetical protein"
+                     /translation="MTAQIILKDENGNFATIENLSDWDLFRLINITRLAEKTGGNRHT
+                     IAARVCRQYPDGEYRSLVTALNK"
+                     /codon_start=1
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /gene="gene_924"
+     gene            11538..13358
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_925"
+                     /gene="gene_925"
+     CDS             11538..13358
+                     /gene="gene_925"
+                     /transl_table=11
+                     /note="Predicted by MGA"
+                     /codon_start=1
+                     /translation="MSVNVKAATLTNLVKYKTDRASLRSVRDDMKKLQKYFSKTEGTI
+                     AKAKMQAQKQAYTAQMQQQRQVQQQQKQAAKQAAVDAKAKANEQKKLAAAQARALKIQ
+                     QQQSKKIATQQENADLARKRAAFQLGRLQNMSGADRYAAIKQANALVDAYARGNQSLK
+                     SMNQALSQHLSTQRSIARNNAKQAKQSGKGKKSGSSSWLSRQASAFIPGEILGPTAAA
+                     YAAQQAYQIMAGTLAGAIERNQGRKMISSMGLNPLEADAAIQETLKRTGFNMSYEKIS
+                     DISKDVQDKIGQLSLGEWKTDKKTGQSTYSGGGEMGDWLQMMVSRGGYTQQGALKTLQ
+                     NVKGPVELAVLLEGLRKSAKLTDSEFTALAEVINDFSYLAKSVDASGQNVIDTMNTMV
+                     NSGLALNSQQQKSIDNLSQMSIVFDNARNSLGDQFAASFSKGLEDLGINTQNLSSEMG
+                     SLVPLVKDLGTGTAQTVKGFKDLLDVLSIITEWKNRLLGEKPEERNIFQQGATFVGES
+                     LLPPGVLDMASRIKNIVSPGSDSSVASQVQNGGWYNQIMPATPSMQYQPVIPDLKADF
+                     NLTVNPSPEFGMMVEAVADKRIEWAFDDQNFQINQSILGQ"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_925"
+                     /product="hypothetical protein"
+     gene            complement(13370..14599)
+                     /gene="gene_926"
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_926"
+     CDS             complement(13370..14599)
+                     /locus_tag="VIRSorter_NZ_LR890374_1_Klebsiella_pneumoniae_
+                     isolate_INF250-sc-2280154_chromosome_1__complete_sequence_
+                     gene_926"
+                     /product="Phage_cluster_92_PFAM-Phage_integrase"
+                     /translation="MAINNNQYLFQNRTGLWVFQIFVPKYMRHVFGHKRAWRKSTGTK
+                     DIVKARQFRNHLLIEFNKLKEQLRPDTEEKRISGAIAALYQEVSTNQQIEGRFSQPVD
+                     NKNTSPTLCLIRDEYAESYKNRRSYSTLSKSARAVEIFLATIQETDIKIDMIGRRMVT
+                     QFIRSQQEQVAGQTLQNWLTCLGSLYEFALRTYDAIPEGNPFHGHNLEARRTIESYEP
+                     FTTKQLVTLVENAEDELQGVILIGLYSGMRLDEIASLKRGDIVEIDGIRVFSVTKSKT
+                     KAGIRCVPIHSKVLPIVDRWLSLKSGEYLLPTANRIQRADGKKGPFYSQAFTRLRNKV
+                     IPAATNRQCYHSLRGHFITCLDRNGIEETRVGTITGQVEKKAKTEAFKTYSAGPLMKE
+                     LKQIIELVSYPEIEKGH"
+                     /gene="gene_926"
+                     /codon_start=1
+                     /transl_table=11
+                     /note="Predicted by MGA"
+ORIGIN      
+        1 ggcacaaacc cgccgggtca tgtactcagg ccactagggt agcccataaa tgggagaaag
+       61 gcattaccaa aacaagccct ggaggcagct ctgtgaacgg caacgcgcaa tggagaggag
+      121 aggccgccgc gccgcgtggc gcaaatatga atttctgcct gccgcagacc gcgcgctagg
+      181 gacgggggat aatggtttcg ccatcaggga tgacgccctg cgccgcggac tggtatgata
+      241 ttcgccctga ttgcgaggta agtggttgtg ttaagtgcag gatgcctgat gatgaaacgc
+      301 ttttatatga cactgatgct ggcggcaagc ctggtgctgg ccggctgctc cagcacctcc
+      361 gattccggtg gcacctacac cgttaaacgc ggcgataccc tgtacggcat ctcccgcacc
+      421 accggcacca gcgttcgcga tctggcccgc ctgaataaca tctccccgcc ttacaccatt
+      481 gaggtggggc agaagctgaa gcttaacggc agcagttcaa cgaagacaac gaagaaaaaa
+      541 tcttcctcta cgcgcaccgc ggcggtcacg ccttcgtccg cggtacctca gtcctcctgg
+      601 ccgccggtgg gacagcgctg ctggcgctgg ccgaccagcg gcaaagtggt cctgccttat
+      661 tccaccgccg atggcggcaa taaaggtatt gatatcgccg gaacccgcgg ccagccggtg
+      721 tatgccgccg gggcgggcaa ggtggtctac gtcggcaatc agctgcgcgg ctatggcaat
+      781 ctgatcatga ttaagcacag cgaggattac atcaccgcct atgcccacaa cgataagcta
+      841 atggtgaata atggccagag cgtgaaggcc ggccagcaaa ttgccaccat gggcagtacg
+      901 gatgccgact cagtgcggct gcatttccag atccgctacc gggcgacagc catcgatccg
+      961 ctgcgttacc tgccgccgca gggaagtaaa cctaagtgct aaaaggttat tttatcgcca
+     1021 gtcagcatcc agcaggcttg tcacagggtg cgtaagggct ataatgcttc tcgcacctct
+     1081 tcgcgggcgt agttcaatgg tagaacgaga gcttcccaag ctctatacga gggttcgatt
+     1141 cccttcgccc gctccaattc tcctgaataa tcaataagtt agattattca gtcagttacg
+     1201 ttgtcctgct ttacaggtac aacttaaact acccattgta ctacgcccgc acctgtcgcg
+     1261 tgattggtct gtggtacagg ggagcatatc atcacgctgg cagtagttcc aagttcatac
+     1321 tgcgacagtc caacgtgaac ataaagccgt ctacccggca taattcccca agctttcagt
+     1381 gaagcgcatt tttgccgatg ctcctacatg ccacacgtcg agatgacgtt gcagggaata
+     1441 aacaggttta tggtggttat ggtacttgca caccacatgc aagctctgcc agcggttcgg
+     1501 cctcgctcct tcgggtacat ggtcatcctg ataaatttca ctgtctgaca taacccctga
+     1561 tgaagtcgcc taacggctcc gcacgttgtc ttaccaccaa cgggcaataa ggcttgtatt
+     1621 gtccaaaatc tgcgctacgc tatctttgat tacacacagc aatggacata aaaacatgca
+     1681 aaaagaacac tttaaagcaa atactcaata taacgactac aaaggcactg ttgcagcgga
+     1741 cagggctgat caagacagct tcagtgactt cctgagagct aaagggattc tgaaagaagg
+     1801 tgagatagtt aaaggcattt ctttcttcag aactgggaat ctctttgatg tagaggcata
+     1861 tataatggaa caaactggcg agttaagaag agaaaatgtc caaataactt tggaagactt
+     1921 tttcaataca ttcaagcgct tttcaatcaa actctctcgt aatggagagt ttgatgatca
+     1981 agaaattgag ttcaaagagt aaggaatcat catgagcatt tactttaatg agcacggtag
+     2041 cgcgattgga taccaggtag aaggacgctg gacaatcaag ggcgattatt tgcaaatcga
+     2101 acatggcccc aacatcccag gtggcttgta caaaattaac gataataagg tgaaattccc
+     2161 actcgactac aaagaggttg agggagtgat cgatactgag aaacttactt ttactgtgtg
+     2221 tggtaccgta tataaaatga ttaaaccatc tgaaccgttt gccatacctg tacgttttcc
+     2281 tacctaaacg tcttcacact cgggcagcgg tacccttttg ggtcttctgc gtatgcgaaa
+     2341 tgtctttata ccgctagtaa ggtctttctc ctctttggcg ttccacattt tattgcaatt
+     2401 ggtcttttgc gggaggtata cctcccgcga taaaagagtt aaggtaagta tctgagaatt
+     2461 tcggcagtcc agtttctacg gtgaattact ctggcatgat gcaaatttcc atctaaaatc
+     2521 tcagctttag ttaattgcga taaatgttgc caatcattgt caaaaatgta ggttgcattg
+     2581 ttacactgtg aactttctaa tacataggta ttgtggttgg ggaatccaaa aatcacgtaa
+     2641 ccttgaaagc cagcctttcc tacagcgaca aaatcaggtt gtttgctgtt aatgagttga
+     2701 agtctaccct cgactacagc agaatttcct tttcctcgag gtttgattgc tgacattatc
+     2761 tgagggccta ttgtactcca aggatattgc ccttgaggaa ggaggctcca gttcagtttt
+     2821 atagactgag tggtgacaat agtattgagt tcctcgtcaa ccacttcgca aagaccaaat
+     2881 aactctaaaa acaagttaac gcaatgtgtt acaagattct ttttttcatc tgtcaaagtc
+     2941 aatttaggag atattactaa cttctccccg tttagattct caacaatttt caattcgacg
+     3001 ccaggaggtg gagtgaaaac tctctggtaa cgctgatact cgatttccct cgtttcagtg
+     3061 acctcctcag tttggcccct gccaacccat tttttccatg tccaggaaac ttggcggtaa
+     3121 gcagtttctt taggcaaagt tttatccggt actgatttac cattcgcatt gaaacgagtt
+     3181 acagctccaa cgatgcgagg gagaacttct tcacctagag attgatttgc agtaaaccca
+     3241 atcgattctc ccttctgctg gccaggtaat gcatgtgcga taaaaacatc cctaccatca
+     3301 aatgcggtaa tgtagttatc gatatttcta atacgttttt tctgaataag catggtaatt
+     3361 ccttttgcgt aaaaacttat ggtttacaca accaaccaag ccaggcacaa tcaagtcgtc
+     3421 aaaaatgatg atgaggctaa caatcgttat gagtctgcaa actcatggcg gtcatgcttc
+     3481 agagaccggg tttgtgaaaa tggacccggt tttttatgtc taaaattcag acacgggcac
+     3541 tacatgtagt ggcatgatta tgtctaccta ctacataagc aatattttat taaggaatct
+     3601 tttgagtaca agggttgatt ttgacgttaa attgaggttt cagaaggtta ataatcatcc
+     3661 aacccgcgcc gcatcaggcc tggagaagaa gtcaataaaa cagaaaaaaa aatgaaaatt
+     3721 tgatcgagtg ctgatttctt catcggtaga actaattaag cgggtgatgc cgcgcaatca
+     3781 ccataagcgc aggggctgac ctcagtcctg tttggcagag atatgcaaca tataattaac
+     3841 aaatggctcg cattatctgt gaggaaccta gatcaccatc tgataggtct gattaacctc
+     3901 atcttgagta atatcaaggt aggtcatagt aattgccggg ctgctatggt ttagcatccg
+     3961 ggagatgact tcgataggcg ttcctgcctt caacagagcc cttgcacggg tttttcttgc
+     4021 tgaatgggta gcgacactaa tccccggctc tacaacgcca tgtgatgctt cccttatagc
+     4081 ttgggctaca aatacacgtg atactggttt aggcgactgg cctttcacgc gattggattt
+     4141 tgactggaat acaaaaacat cctctggatt cagtttccgg cgacgcttga gcacctttag
+     4201 cgcctctgtg ttcaggacta actcgcgctg cttgcctgtt ttcccctctt tgagcctgag
+     4261 aaacttccct tgtacgtcat catacctaac cgacaacagg tcactgatac gcaatgcaag
+     4321 ttgcaggttg agtttccagg catcagcagc aacctcacta cgctgacgca atacagcctc
+     4381 gatttgttta gcctgttctg gcgatactgc cgatgtctta gccatgatta ccaccctcta
+     4441 atctagatta cataatgaag attatgattg atcatattta gatcattttc aagtagttag
+     4501 tataaaaatt agattgcttt ttatggtata atagtagtgt agattaaaat aataaaaagg
+     4561 aaaaaacatg tttaaattca aagggggacg ccccactaaa gcgcaagcag cagcgcgcgc
+     4621 gacaatcacc cagatggaaa aaatcatcct caatcctaaa gccaaacctg ctgacgtcct
+     4681 ggaagcaaat cgtcttatcg agacactaaa aagcgttgca ggcgtaatcg gggagtctga
+     4741 cagaccgtca cagaccggaa caacgccgga tattgtatat agcgcccctg atgaattgag
+     4801 ggcctcacca gtcccaggga tgtactatcc gccagagtgc tataccccag cgcggctagt
+     4861 tgtctctgga gtttgttatt gtgacgtctg ccagcggtgg cgggataaac acaatctcaa
+     4921 gacctcacag atttttgacc ctgactgtta ccacgaaatc acctgcgaag acgaagggga
+     4981 aattggtttg tatattggat aatttccaaa agtcataaag ttaactttgg gaacttttaa
+     5041 cccaacttta acccccactt ttagccctgc ccacgtaaac cgggggcggg gcattttttt
+     5101 atccggagaa aatatccaaa gaggttttag gggggttttt taggtttccg ggatagtttc
+     5161 gggggggttt tagggggggt ttttaggggg tttttctttg ccctttttgc tctacgtctt
+     5221 tggtgcttaa caccgtcata tcacatttaa taatcacgct aataatttaa aaatatcatg
+     5281 atgccgcatg ataactactt gcataagaac tgaatacacc atgcatataa caggtcaacc
+     5341 gcctgtttga taaccgttac aacgtttaag cacttgattt taaagtgatt tattcatata
+     5401 aacttagatt actgtttgct aaattgtaat ctaaccactc tgatcaccac gtaatattgc
+     5461 cctcattcca cgcaacatca ccgacatcgc gtcaaggcta ttccctcatt gattaccact
+     5521 caataaagaa ttattctcat ctaaagtact gattatttat acagtaaaaa aattcttcaa
+     5581 aaatgaatat ttttggaaat gttatattat aacaatgaga gaagagatgt tgttgttaag
+     5641 taatttcaca tgaaaattag ttattgatag ataattatta ttaattcttt atggcaactt
+     5701 tgaccgttaa ctaaagcaag cgttatttgg tttacggtga tgtacatgtc ataagttgtt
+     5761 ttgctccacc tgtagttatg atcacatttc aaagaacatt tattttactt ttcatagtta
+     5821 aaagttaact ttaattgtga actacacaca gcaaatgagg cttataatgg acacaaataa
+     5881 atttacacgc catgattttt ctgaaactgc ctttactctg atgcaaatta ttggagataa
+     5941 cagccaaggt gaggctaaga atagagaaga ttattaccaa tcagctacgt tctctctgag
+     6001 tcaacttaat tctttaatgg taattgataa agcaaagact atagcgaata agagaatagt
+     6061 attcactctt gcagatagtt tatcttttaa ccttgaactt aaaaatcatt ttaacaaaac
+     6121 agttataacg ttaagttaca ttgatcaaga tgaatatggc aaagagtttt taagcaaaga
+     6181 taagagttac tcgtttacta tatatgaaaa tgaacggctg agtgatgttg atggacattt
+     6241 gaaccgaaga tactaccacg aacactttgc acatatcttt accttgcttg tagagaaaat
+     6301 catcaattaa atacttcatg ggggtaatag atttttatta ccctgttagg tacaccatag
+     6361 ggaataactc cctatagcac agggtgtatt aacactgata caggtacctg tatcaccatc
+     6421 gatacagggg gtgtattaac ggtaatacag ggggtgtatt aacggtgata cacaataaga
+     6481 ataactatta taataactat aagaatattt ataagatcat attttttatc tttagttata
+     6541 gttaatcatt tagtatcttc ccgctatcgc gtggatagta ttagtccccg aaagatgatt
+     6601 tctggctgat gtcgcgggga ctatgatttg agtcttcaca gtattccatt acattccata
+     6661 ccgtgatgca gcctcaggtg taagtatcta ctccattagc ttgatgatca acctatcaaa
+     6721 ctaatgaact acatactaac actcattaac taatcagtga taacaagaaa agatttgtta
+     6781 tcccttctta gattcgtggt aaacctcccg cagggagaag atcagatcac aaattccaaa
+     6841 actcagaatt cataacgtga tctaaatcat atttaataaa tcataaaagt aataaattat
+     6901 ctttttatta aataatatat aactagatca taagttagtt ttgtgtccca ttttggggac
+     6961 aattgatgag atgcaaagtt tcgtttcccg cgacatcaat ctgcatctca aatttacccc
+     7021 acaggtttac acagcctaca gaccttgtaa aaaagctctc taagcgattt aaaggataaa
+     7081 aatgataaat ggtatgtcta agatgagaaa acctctcaga atgcgataca gagcgtttta
+     7141 gagggtatct aactgcgtac gcaggttagg catcataaag tgaatcttta ttcttacagg
+     7201 gattgacacc agcacaggga gtttgatatt attcgatacg taaaaagata tcttaaaaat
+     7261 gcattgacag agttctatca ttagtataga atagtagtag gaaacagaaa aacctaaaag
+     7321 caaagcactt tgagccattc cttggctgca aggtgtaatt ttatttatcc ctacccaacg
+     7381 gaggcctatg aaatatttta cagtagagca agtagtagag gcactgaaaa ctggcgcagc
+     7441 acgccgccat caaatttatg ataattttgc ccaagcgcga tatcgcggat ttactgaacg
+     7501 cgcagcactt tttaaaaccg cgcttgatat tttcgaccag tggaagaggg agaacaaaaa
+     7561 atcatgaatg ttacttttga tcaggaaaca tatagagagc ttatttatga ggcaaacctc
+     7621 cagggattag cagcccctgc gctggtagca cggatcatcc ggcaatacat caaaaatcaa
+     7681 acaggcccat acgaaggggc aaaccaacca gaggaaaata atgaacaaaa acgaaccacc
+     7741 atttctggca attgattacc gcatcctggc attagatatt aaagcagcca tcaacgaaaa
+     7801 aaacattgat agcagcacca ttctcaaact caaattagtc tattgttacc tactcgggtt
+     7861 atccaaaaaa tgcagtgaag tttatccaga acaaacaaaa atgggtaaaa cattgggtat
+     7921 tggttcccga caggttgttg gaagatgcat atcgctgctc gaatctctgg gatggatctc
+     7981 aaaaacatcg agaaacggaa catcaaatct ataccaggtg aaaaccgtcg agcaaatttt
+     8041 agaaggtatg ccgcgagagg ttaaagaaga ggaaaaggaa tttcatgatt ttaatacagg
+     8101 aatagtatta attgaagatg atgatgattt accatggtaa acaacaggag gaacattggc
+     8161 atatgcacga caaaatgtag tatttgaaga atcgattgaa atcggattta acaacagaaa
+     8221 taaaaaggtt cgagtttcta aaaaactaaa accattagca atcattaaac tcagcgaacc
+     8281 atccccacca ctaacaccag acgaacaatc aataattaac tctatgcaag gtgtaacgtg
+     8341 gaagccccgc cagaggtata ccggattcaa gttcaataga gagccgctca aatttgaata
+     8401 tctctttgat aacatcaatg agtatgaggg ctggcttgaa ttcaatcgtc ttgagaatga
+     8461 aaactttaat gggaatgatc ttggattaga ttttgatgcc aacggcatct ctgattaatt
+     8521 attataaaaa taacaggaag gtaaaaatga ttgattttga acaacacaaa aatattgtag
+     8581 aagacttcgt tgaacagcat tacccactgg cacatagtct gatggttgat agctatattg
+     8641 acccggaagc ctattattca aactaccaga tgctactaga agcgatgaat aatctccctg
+     8701 agcatccaga ttattttctt gaatggttgg tagaatatga cgcagctttg tatattaatc
+     8761 tgatggaatt gatcgtcatt accagaacta ttaataacgt ttttgaacaa gtttcttctg
+     8821 cgcagtgata acttttacca cctaagtaaa aaaacgctca gaatgcgata caggcgctct
+     8881 gagaggcatg atagaacagg aggaatcatt ggcatatgat gaaaacagca ttagagtttt
+     8941 aactgaagaa gaacttgaat cacactccgc agatagcata ttaagcatcc tgctcgatga
+     9001 gaatccagat atttcccctg accatctggc aaaaatggct gaatgtctag tcacattagg
+     9061 atatagtgta aatgaataca gagaatatcg aagaggcact ttggataata ttaaacgcca
+     9121 gacaatgcag gaatggttta gagaaagaaa caaaatcaaa aaatattaaa aaatgtctct
+     9181 atttagagtc tctatttatt gacaaaataa tgttttaatg gtattataaa tatgtaggca
+     9241 ataataactg gacgctatac ttagaatatt gtgcactaca gaaaaatagg cgttactggc
+     9301 attacgcctt ccttgggaat ccccattatt gctccgggca tcattcaccc accacgatag
+     9361 ataatggggc aattctcaat atatattttc gtgagtgtat attgcgaatt gttcctccaa
+     9421 aagttcaatt caagttaatc aatgttcttc ttatgtttta aggccactat ttctgtggcc
+     9481 tttcttttat tctttgcaaa gaaacaaaag gattttaaaa attatggtta caattacaaa
+     9541 aggcgtccaa acgtttgacg ggaaaatccc cgttactctg ttggttgatg atgtcgaaac
+     9601 ggcaaacgag ctaatcaagc tcgctaaatc tgcaaatgtc cctgtagtag aacaggacga
+     9661 agatttaaat aaatctaaaa ataaaactac tcaagataaa ctaaaacaga ttattaaaaa
+     9721 taaaggagtc cctgatggca ctaattaaat tcccacaacc taatctcagc gtctgcgacg
+     9781 ttcttagccg tgaattaaac ggctatagcc gaaaagttaa agtttttcca aagattcctg
+     9841 attgcgtccc tggcactgtg attgatgata gtggcgaaat tgtcggttcg gcttctacct
+     9901 ctgcgaacgt ggtccttgaa tataaagacg cagacaatac gcctgtcgct gttctggtag
+     9961 caaatacgaa cattcatatt aaggatttca gcctaatttg tgatgatgta gtcaaggcta
+    10021 aagaactact ttctgctgat cctgctgttt atttcagcac tggcaatgat ctgccgacta
+    10081 cctgattaaa taatccacaa actaaaataa taaaggatga ataatatgtt ttcatatgat
+    10141 gcctataaaa tggtagacct tgccccgatt tttgaagttg caccgagtga aggttatctg
+    10201 ctacaaaact tgaatatttt cgataagtct tcgagcaatg gtatttacgt tatgcttgac
+    10261 cgactgattg aggataacaa aactctcctg aaccaaccga aaaaacgtta cagttttgaa
+    10321 cacgacgcaa cggctcggac tcctgctaac agcttccctg tagagcttct gcatctgcac
+    10381 cgcgaggata ctgtgagcgc tgttgatttt cagaaagcag gccgcaaacc ggggacagat
+    10441 gttcaggaaa cgatgctcga catcgttgcg gactataccc tcaaacatgc taaagcctat
+    10501 aaacggtatg tcgaggctgc atacggtgat gctctgtttc gtgggctggt tcagactcca
+    10561 tacactcaag aagcgccagt tattgattat gctgacagtt tcgatgcccc gatgatgacg
+    10621 gatacgatta ctctgtccaa cggctctacc gatgcgctgg aggtgtttaa cgggttcctg
+    10681 gataaaatta gcagtgctac agatggtttg tggactgatg ttcgccgtgt cgtctgtttt
+    10741 gcctccgcga gtttctataa tagtctgcgt ttccatgctt ctatgaaaag tgcttaccag
+    10801 tacgttgacc cgtttaacga aatgaatatt gtttatcagc gcaaagaggt tctcccaaat
+    10861 gtacagacct tcactttgcc aggactgagt atcgacgtaa tcaaggtgac tgacccgctt
+    10921 ctgactccgt ttattgctga tggtacagcg gtcatgctgc cagtattcca gagcaacacg
+    10981 aacgtttatc aacatctgta cggtcctgcc tcagttgata ctaatctagc ggcgtctggc
+    11041 attactcaag aatatttctc ctatcagtac gagaaagagc gtggtgaggt tgaaattgta
+    11101 tcagaggcgt cggtgttgcc tgtaaatcac ggtaccaatt tcagtctggt tattactgcc
+    11161 aattaatgat cttcgcagca gcattaaccg tgctgcttgt tgaattatgg attggtgagc
+    11221 aaattccagt tcatataata attattctat tgtggagatt gttaaaaaat gacagcacaa
+    11281 ataattctta aagatgaaaa cggaaacttc gctactattg aaaatctcag cgattgggat
+    11341 ctatttaggt taatcaatat tacacggtta gctgagaaaa ctggtgggaa tcgtcatact
+    11401 attgcagcta gggtatgcag acaatacccc gatggtgagt atagaagtct tgttacagca
+    11461 ttaaataaat aaaaataaat tataaaaagc ctcgcccttt acggggttga ggctttttta
+    11521 ttgtggagtg aaaaattatg agcgtgaatg taaaagccgc caccctaacc aaccttgtta
+    11581 aatataaaac agacagggcg tcattacgta gcgtacgtga tgatatgaaa aaattacaaa
+    11641 agtatttcag caaaacagag ggaactatag ccaaagcaaa gatgcaggct caaaaacagg
+    11701 cgtacactgc acaaatgcag cagcagaggc aggttcaaca acaacagaaa caggcagcta
+    11761 aacaagctgc tgtagatgct aaagcaaaag ccaacgaaca gaaaaaactg gcagcagcgc
+    11821 aagcacgcgc tttgaaaatt caacagcagc aatctaagaa gatagccact caacaagaaa
+    11881 atgctgattt agcgagaaaa cgggccgcct tccagcttgg acgcctccag aatatgagcg
+    11941 gagccgatcg ctacgctgcg atcaaacagg ctaacgccct cgtggatgct tatgcacgag
+    12001 gaaatcaaag tctcaaatcg atgaatcaag ctctgagtca acatctttct acacaacgta
+    12061 gtattgccag aaataatgcc aaacaggcca aacaatcagg taaggggaag aaatctggtt
+    12121 catctagttg gctgagtcgc caagcaagcg ctttcattcc tggggaaatt ctcgggccaa
+    12181 ccgcagccgc ttatgctgcc caacaggcct atcagattat ggcgggaaca ctggctggag
+    12241 ccattgagag aaaccagggc aggaagatga tcagttcgat gggcttaaat cctctggagg
+    12301 ctgatgcagc tattcaggaa actctaaaac gaactggttt taatatgagc tatgaaaaga
+    12361 tttctgatat ttctaaagac gtacaggata aaattggtca gctaagtctt ggcgagtgga
+    12421 aaacagataa gaaaacagga caatcaacat attcaggcgg tggagaaatg ggagattggc
+    12481 tccagatgat ggttagtcgt ggaggctata cccagcaggg agcgctaaaa actctccaaa
+    12541 atgtgaaagg tccggttgag ttagctgtgt tactggaagg gttacgtaaa agtgcaaaac
+    12601 ttacagactc tgaattcacc gctttagcag aagtaataaa cgacttttct tatttagcta
+    12661 aatctgtcga tgccagcggg caaaacgtca ttgatactat gaacacgatg gttaacagtg
+    12721 gtctggcgct taatagccaa cagcagaaat ctatcgataa tctctcgcag atgtcgattg
+    12781 tattcgataa cgccaggaat tcattaggtg atcaatttgc cgcttcattc agcaaagggc
+    12841 ttgaagatct tggaattaac acacagaatc tttcctctga aatgggttca ttggtgcctt
+    12901 tggtgaagga tttaggaacg ggaaccgctc agactgttaa aggttttaaa gatcttcttg
+    12961 atgtattatc cattatcaca gaatggaaga atagactttt aggtgagaaa ccagaagagc
+    13021 gaaatatctt tcagcaaggt gcaacatttg ttggagaatc actgttgcca cctggtgttt
+    13081 tagatatggc aagccggatt aaaaatatag ttagtcctgg ttctgattct tctgttgcat
+    13141 cacaggtgca aaatggtggt tggtataatc aaattatgcc agcaacgcca tctatgcagt
+    13201 accaacccgt cattccggat ttaaaggctg attttaacct cacagtgaat ccatctccag
+    13261 aatttggaat gatggttgag gctgtagcag ataagcgcat agaatgggct tttgatgacc
+    13321 agaatttcca aattaatcaa agtattcttg gtcaataaat aaaaggggct taatgcccct
+    13381 tttctatttc tggatatgac acaagctcta ttatttgttt taattccttc attaatggcc
+    13441 ctgcgctata cgtcttaaat gcctctgttt tagccttttt ctcaacctga cctgtgatag
+    13501 tgcctactct tgtttcttct atgccgttcc tgtccaggca agtgataaaa tgtcctctaa
+    13561 ggctgtgata acattgccta ttagttgcag cagggatcac tttattcctc agtcgtgtaa
+    13621 atgcctggga gtaaaacgga cctttcttac cgtctgcacg ttgaattctg ttagcagttg
+    13681 gtaggagata ctcaccagat tttaaggaga gccacctgtc aacgatggga agcactttag
+    13741 aatgtatagg gacgcacctt ataccagcct tcgtttttga tttcgtgaca ctaaacactc
+    13801 tgatcccgtc tatctctaca atatcgcccc gcttgagaga ggctatttca tcaagcctca
+    13861 ttccactgta tagcccaatc aggatcaccc cttgtaattc atcctcagca ttctctacga
+    13921 gcgttaccag ttgtttggtg gtgaacggtt cgtagctctc aatagttctg cgagcctcca
+    13981 gattatgacc atggaaaggg tttccctcag ggatggcgtc ataggttctc agtgcaaact
+    14041 catagaggct ccctaaacac gttaaccagt tctgtaacgt ctgacctgca acctgttcct
+    14101 gttgtgaccg gataaactgc gtcaccatgc gccgcccaat catatcgatc ttgatgtcag
+    14161 tttcctggat ggttgccaga aagatctcta cagcccgcgc tgatttgctc aatgtagaat
+    14221 atgatcgccg gttcttatag ctctctgcgt attcatcacg gataaggcag agagtagggg
+    14281 aagtgttttt gttgtctaca ggctggctga atctgccctc aatctgctga ttagtgctca
+    14341 cctcctgata aagcgctgca atagccccgg agatgcgttt ctcttcggta tctggcctta
+    14401 gctgttcttt caatttattg aattcaatca aaaggtggtt tctgaattgc cgggccttaa
+    14461 caatatcctt tgtccctgtg gatttgcgcc aggcgcgttt atgtccgaag acgtggcgca
+    14521 tgtatttagg tacgaagatt tgaaacaccc aaaggcctgt acggttttga aaaaggtact
+    14581 gattgttgtt gatcgccatg atattgatcc tctaatatca cgctatcagg tacatcggcc
+    14641 tgtacaata
+//
