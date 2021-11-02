@@ -58,13 +58,14 @@ def get_args() -> Args:
                         choices=['archaea', 'bacteria', 'fungi', 'viral'],
                         required=True)
 
-    parser.add_argument('-t',
-                        '--tool',
-                        help='Classifier tool',
-                        metavar='TOOL',
-                        type=str,
-                        choices=['breadsticks', 'dvf', 'seeker', 'virsorter'],
-                        required=True)
+    parser.add_argument(
+        '-t',
+        '--tool',
+        help='Classifier tool',
+        metavar='TOOL',
+        type=str,
+        choices=['breadsticks', 'dvf', 'seeker', 'virsorter', 'virsorter2'],
+        required=True)
 
     args = parser.parse_args()
 
@@ -196,7 +197,50 @@ def reformat_seeker(args: Args):
 
 # --------------------------------------------------
 def reformat_virsorter(args: Args):
-    """ Reformat VirSorter2 output """
+    """ Reformat virsorter output """
+
+    # Read in the single column in the file
+    df = pd.read_csv(args.file)
+
+    df = df.rename({'sequences': 'record'}, axis='columns')
+
+    # Split record column on dunder
+    df[['record', 'value']] = df['record'].str.split('__', expand=True)
+
+    # Keep only the category number
+    df['value'] = df['value'].str[-1]
+
+    # Replace category code with lifecycle
+    df['lifecycle'] = df['value']
+    df['lifecycle'] = df['lifecycle'].str.replace(r'[123]',
+                                                  'lytic',
+                                                  regex=True)
+    df['lifecycle'] = df['lifecycle'].str.replace(r'[456]',
+                                                  'prophage',
+                                                  regex=True)
+
+    # Convert value to 1, 2, or 3
+    df['value'] = df['value'].str.replace('4', '1')
+    df['value'] = df['value'].str.replace('5', '2')
+    df['value'] = df['value'].str.replace('6', '3')
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
+    df['length'] = pd.Series([args.length for x in index_range])
+    df['actual'] = pd.Series([args.actual for x in index_range])
+    df['prediction'] = pd.Series(['viral' for x in index_range])
+
+    # Add empty columns
+    df['stat'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat_name'] = pd.Series([None for x in index_range], dtype=str)
+
+    return df
+
+
+# --------------------------------------------------
+def reformat_virsorter2(args: Args):
+    """ Reformat virsorter2 output """
 
     raw_df = pd.read_csv(args.file, sep='\t')
 
@@ -242,7 +286,8 @@ reformatters = {
     'breadsticks': reformat_breadsticks,
     'dvf': reformat_dvf,
     'seeker': reformat_seeker,
-    'virsorter': reformat_virsorter
+    'virsorter': reformat_virsorter,
+    'virsorter2': reformat_virsorter2
 }
 
 # --------------------------------------------------

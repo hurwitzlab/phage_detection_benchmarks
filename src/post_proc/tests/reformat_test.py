@@ -136,13 +136,20 @@ def test_reformat_seeker() -> None:
 
 # --------------------------------------------------
 def test_reformat_virsorter() -> None:
-    """ Reformats VirSorter2 """
+    """ Reformats Seeker """
 
-    # Run with typical output
     run('virsorter')
 
-    # Run with empty virsorter output (no viral found)
-    tool = 'virsorter'
+
+# --------------------------------------------------
+def test_reformat_virsorter2() -> None:
+    """ Reformats virsorter2 """
+
+    # Run with typical output
+    run('virsorter2')
+
+    # Run with empty virsorter2 output (no viral found)
+    tool = 'virsorter2'
     out_dir = 'out_test'
     in_file = f'tests/inputs/reformat/{tool}_raw_empty.txt'
 
