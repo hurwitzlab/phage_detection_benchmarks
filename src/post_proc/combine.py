@@ -14,7 +14,7 @@ from typing import List, NamedTuple, TextIO
 
 class Args(NamedTuple):
     """ Command-line arguments """
-    files: list[TextIO]
+    files: List[TextIO]
     out_dir: str
 
 
