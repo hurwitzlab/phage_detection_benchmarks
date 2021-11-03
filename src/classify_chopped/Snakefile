@@ -125,6 +125,71 @@ rule reformat_seeker:
         """
 
 
+rule pred_virsorster:
+    input:
+        config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-1.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-2.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-3.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta",
+    params:
+        virsorter=config["virsorter"],
+        env=config["virsorter_env"],
+        in_dir=config["in_dir"],
+        out_dir=config["out_dir"],
+        cpu=config["virsorter_cpu"],
+        db=config["virsorter_db"]
+        data=config["virsorter_data"]
+    log:
+        "logs/virsorter/{kingdom}_{length}.log",
+    benchmark:
+        "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        {params.virsorter} -f {input} --db {params.db} --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out --ncpu {params.cpu} --data-dir {params.data}
+        """
+
+rule wrangle_virsorter:
+    input:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-1.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-2.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-3.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/combined_sequences.txt
+    params:
+        wrangle=config["virsorter_wrangler"],
+        out_dir=config["out_dir"],
+    shell:
+        """
+        source activate snakemake_env
+
+        wrangle {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences
+        """
+
+rule reformat_virsorter:
+    input:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/combined_sequences.txt
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/virsorter_pred_reformatted.txt
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t virsorter -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out {input}
+        """
+
+
 rule pred_virsorter2:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
