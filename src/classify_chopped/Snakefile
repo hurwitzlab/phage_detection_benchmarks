@@ -1,7 +1,7 @@
 rule all:
     input:
         config["out_dir"] + "/combined_out/combined.csv",
-
+        config["out_dir"] + "/combined_out/benchmarks.csv",
 
 rule combine_preds:
     input:
@@ -23,6 +23,7 @@ rule combine_preds:
 
         {params.combine} -o {params.out_dir}/combined_out {input}
         """
+
 
 rule combine_benchmarks:
     input:
@@ -176,8 +177,8 @@ rule pred_breadsticks:
         env=config["breadsticks_env"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
-	mem=config["breadsticks_mem"],
-	cpus=config["breadsticks_cpu"],
+        mem=config["breadsticks_mem"],
+        cpus=config["breadsticks_cpu"],
     log:
         "logs/breadsticks/{kingdom}_{length}.log",
     benchmark:
