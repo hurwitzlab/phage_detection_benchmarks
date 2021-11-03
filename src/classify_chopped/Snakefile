@@ -125,37 +125,37 @@ rule reformat_seeker:
         """
 
 
-rule pred_virsorter:
+rule pred_virsorter2:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-boundary.tsv",
-        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-combined.fa",
-        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-score.tsv",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter2_out/final-viral-boundary.tsv",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter2_out/final-viral-combined.fa",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter2_out/final-viral-score.tsv",
     params:
-        virsorter=config["virsorter"],
-        env=config["virsorter_env"],
+        virsorter2=config["virsorter2"],
+        env=config["virsorter2_env"],
         in_dir=config["in_dir"],
         out_dir=config["out_dir"],
     log:
-        "logs/virsorter/{kingdom}_{length}.log",
+        "logs/virsorter2/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
+        "benchmarks/virsorter2/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
 
 
-        ({params.virsorter} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out) 2> {log}
+        ({params.virsorter2} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter2_out) 2> {log}
         """
 
 
-rule reformat_virsorter:
+rule reformat_virsorter2:
     input:
-        config["out_dir"] + "/{kingdom}/{length}/virsorter_out/final-viral-score.tsv",
+        config["out_dir"] + "/{kingdom}/{length}/virsorter2_out/final-viral-score.tsv",
     output:
         config["out_dir"]
-        + "/{kingdom}/{length}/virsorter_out/virsorter_pred_formatted.csv",
+        + "/{kingdom}/{length}/virsorter2_out/virsorter2_pred_formatted.csv",
     params:
         out_dir=config["out_dir"],
         reformat=config["reformat"],
@@ -163,7 +163,7 @@ rule reformat_virsorter:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t virsorter -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out {input}
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t virsorter2 -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter2_out {input}
         """
 
 
