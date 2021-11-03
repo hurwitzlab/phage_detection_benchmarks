@@ -204,8 +204,12 @@ def reformat_virsorter(args: Args):
 
     df = df.rename({'sequences': 'record'}, axis='columns')
 
-    # Split record column on dunder
-    df[['record', 'value']] = df['record'].str.split('__', expand=True)
+    # Extract category number from sequence name
+    df['value'] = df['record'].str.extract(r'-cat_(?P<value>[\d])')
+
+    # Keep only original record name
+    df['record'] = df['record'].str.replace(r'-cat[\d]', '', regex=True)
+    df['record'] = df['record'].str.split(r'__', expand=True)[0]
 
     # Keep only the category number
     df['value'] = df['value'].str[-1]
