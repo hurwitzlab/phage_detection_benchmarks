@@ -1,7 +1,7 @@
 rule all:
     input:
         config["out_dir"] + "/combined_out/combined.csv",
-        config["out_dir"] + "/combined_out/benchmarks.csv",
+        config["out_dir"] + "/combined_out/combined_benchmarks.csv",
 
 
 rule combine_preds:
@@ -35,7 +35,7 @@ rule combine_benchmarks:
             length=config["lengths"],
         ),
     output:
-        config["out_dir"] + "/combined_out/benchmarks.csv",
+        config["out_dir"] + "/combined_out/combined_benchmarks.csv",
     params:
         out_dir=config["out_dir"],
         benchmark=config["benchmark"],
@@ -156,9 +156,11 @@ rule pred_virsorster:
         "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
     shell:
         """
-        source activate {params.env}
+            source activate {params.env}
 
-        {params.virsorter} -f {input} --db {params.db} --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out --ncpu {params.cpu} --data-dir {params.data}
+        rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out
+
+            {params.virsorter} -f {input} --db {params.db} --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out --ncpu {params.cpu} --data-dir {params.data}
         """
 
 
