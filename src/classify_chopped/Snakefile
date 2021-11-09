@@ -162,9 +162,10 @@ rule pred_vibrant:
 
         rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
 
-        {params.vibrant} \
+        ({params.vibrant} \
             -i {input} \
-            -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
+            -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out)\
+            2> {log}
         """
 
 
@@ -224,12 +225,13 @@ rule pred_virsorster:
 
         rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out
 
-        {params.virsorter} \
+        ({params.virsorter} \
             -f {input} \
             --db {params.db} \
             --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out \
             --ncpu {params.cpu} \
-            --data-dir {params.data}
+            --data-dir {params.data}) \
+            2> {log}
         """
 
 
