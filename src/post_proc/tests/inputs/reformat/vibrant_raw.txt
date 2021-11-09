@@ -1,0 +1,32 @@
+frag_15_NC_054781.1 Fragment 15 of NC_054781.1 Mycobacterium phage Priamo, complete genome
+frag_8_NC_031064.1 Fragment 8 of NC_031064.1 Lactococcus phage 98201, complete genome
+frag_23_NC_024134.1 Fragment 23 of NC_024134.1 Escherichia phage vB_EcoM_FFH2, complete genome
+frag_2_NC_047790.1 Fragment 2 of NC_047790.1 Pseudoalteromonas phage C5a, complete genome
+frag_35_NC_020852.1 Fragment 35 of NC_020852.1 Ostreococcus lucimarinus virus OlV5 genomic sequence
+frag_9_NC_049412.1 Fragment 9 of NC_049412.1 Lactococcus phage 88605, complete genome
+frag_32_NC_027355.1 Fragment 32 of NC_027355.1 Bacillus phage BCP8-2, complete genome
+frag_2_NC_025454.1 Fragment 2 of NC_025454.1 Ralstonia phage RS603 DNA, complete genome
+frag_6_NC_041905.1 Fragment 6 of NC_041905.1 Acinetobacter phage SH-Ab 15519, complete genome
+frag_1_NC_002014.1 Fragment 1 of NC_002014.1 Enterobacteria phage Ike, complete genome
+frag_2_NC_055857.1 Fragment 2 of NC_055857.1 Gordonia phage Jambalaya, complete genome
+frag_10_NC_023735.1 Fragment 10 of NC_023735.1 Rhodococcus phage ReqiPepy6, complete genome
+frag_1_NC_052467.1 Fragment 1 of NC_052467.1 Mycobacterium phage STLscum, complete genome
+frag_6_NC_055919.1 Fragment 6 of NC_055919.1 Klebsiella phage vB_KpnP_P184, complete genome
+frag_6_NC_028270.1 Fragment 6 of NC_028270.1 Yellowstone Lake virophage 6, complete genome
+frag_5_NC_055002.1 Fragment 5 of NC_055002.1 Lactococcus phage vB_Llc_bIBBE1, complete genome
+frag_9_NC_054782.1 Fragment 9 of NC_054782.1 Mycobacterium phage Koko, complete genome
+frag_4_NC_047834.1 Fragment 4 of NC_047834.1 Alteromonas virus vB_AspP-H4/4, complete genome
+frag_14_NC_021780.1 Fragment 14 of NC_021780.1 Salmonella phage FSL SP-088, complete genome
+frag_12_NC_019444.1 Fragment 12 of NC_019444.1 Synechococcus phage S-MbCM6, complete genome
+frag_47_NC_013693.1 Fragment 47 of NC_013693.1 Shigella phage phiSboM-AG3, complete genome
+frag_7_NC_027627.1 Fragment 7 of NC_027627.1 Propionibacterium phage Solid, complete genome
+frag_2_NC_002363.1 Fragment 2 of NC_002363.1 Vibrio phage VfO4K68, complete genome
+frag_7_NC_049490.1 Fragment 7 of NC_049490.1 Acinetobacter phage vB_AbaP_Berthold, complete genome
+frag_4_NC_006945.1 Fragment 4 of NC_006945.1 Bacillus phage GIL16c, complete genome
+frag_14_NC_055864.1 Fragment 14 of NC_055864.1 Gordonia phage Love, complete genome
+frag_35_NC_043027.1 Fragment 35 of NC_043027.1 Bacillus virus PBS1, complete genome
+frag_41_NC_048723.1 Fragment 41 of NC_048723.1 Streptomyces phage LukeCage, complete genome
+frag_35_NZ_LR739068.1 Fragment 35 of Pseudomonas aeruginosa strain PcyII-29 isolate PcyII-29 chromosome PcyII-29_fragment_5
+frag_97_NZ_LR739068.1 Fragment 97 of Pseudomonas aeruginosa strain PcyII-29 isolate PcyII-29 chromosome PcyII-29_fragment_6
+frag_21_NZ_LR739068.1 Fragment 21 of Pseudomonas aeruginosa strain PcyII-29 isolate PcyII-29 chromosome PcyII-29_fragment_20
+frag_14_NZ_LR739068.1 Fragment 14 of Pseudomonas aeruginosa strain PcyII-29 isolate PcyII-29 chromosome PcyII-29_fragment_41

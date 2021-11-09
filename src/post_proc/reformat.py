@@ -9,7 +9,7 @@ import argparse
 import numpy as np
 import os
 import pandas as pd
-from typing import NamedTuple, TextIO
+from typing import List, NamedTuple, TextIO
 
 
 class Args(NamedTuple):
@@ -58,14 +58,16 @@ def get_args() -> Args:
                         choices=['archaea', 'bacteria', 'fungi', 'viral'],
                         required=True)
 
-    parser.add_argument(
-        '-t',
-        '--tool',
-        help='Classifier tool',
-        metavar='TOOL',
-        type=str,
-        choices=['breadsticks', 'dvf', 'seeker', 'virsorter', 'virsorter2'],
-        required=True)
+    parser.add_argument('-t',
+                        '--tool',
+                        help='Classifier tool',
+                        metavar='TOOL',
+                        type=str,
+                        choices=[
+                            'breadsticks', 'dvf', 'seeker', 'vibrant',
+                            'virsorter', 'virsorter2'
+                        ],
+                        required=True)
 
     args = parser.parse_args()
 
@@ -196,6 +198,42 @@ def reformat_seeker(args: Args):
 
 
 # --------------------------------------------------
+def reformat_vibrant(args: Args):
+    """ Reformat vibrant output """
+
+    # Read in the file
+    seqs: List = args.file.readlines()
+
+    df = pd.DataFrame(seqs, columns=['seq'])
+
+    # Extract sequence ID
+    # 1 or more [alphanumeric or .] followed by one whitespace
+    # pylint: disable=unsupported-assignment-operation
+    df['record'] = df['seq'].str.extract(r'(?P<sequence>[\w.]+)[\s]')
+
+    # Label prophages, as they will have _fragment_ in the name
+    df['lifecycle'] = np.where(df['seq'].str.contains(r'_fragment_'),
+                               'prophage', 'lytic')
+
+    # Remove unused columns
+    df = df.drop(columns=['seq'])
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
+    df['length'] = pd.Series([args.length for x in index_range])
+    df['actual'] = pd.Series([args.actual for x in index_range])
+    df['prediction'] = pd.Series(['viral' for x in index_range])
+
+    # Add empty columns
+    df['value'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat_name'] = pd.Series([None for x in index_range], dtype=str)
+
+    return df
+
+
+# --------------------------------------------------
 def reformat_virsorter(args: Args):
     """ Reformat virsorter output """
 
@@ -290,6 +328,7 @@ reformatters = {
     'breadsticks': reformat_breadsticks,
     'dvf': reformat_dvf,
     'seeker': reformat_seeker,
+    'vibrant': reformat_vibrant,
     'virsorter': reformat_virsorter,
     'virsorter2': reformat_virsorter2
 }

@@ -106,7 +106,10 @@ def run(tool: str) -> None:
         assert open(out_file).readlines()[0] == header
         orig_lines = open(in_file).read().count('\n')
         new_lines = open(out_file).read().count('\n')
-        assert new_lines == orig_lines
+        if tool == 'vibrant':
+            assert new_lines == orig_lines + 1
+        else:
+            assert new_lines == orig_lines
 
     finally:
         if os.path.isdir(out_dir):
@@ -132,6 +135,13 @@ def test_reformat_seeker() -> None:
     """ Reformats Seeker """
 
     run('seeker')
+
+
+# --------------------------------------------------
+def test_reformat_vibrant() -> None:
+    """ Reformats VIBRANT """
+
+    run('vibrant')
 
 
 # --------------------------------------------------
