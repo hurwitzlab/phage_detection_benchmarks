@@ -149,13 +149,14 @@ rule pred_vibrant:
         {params.vibrant} -i {input} -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
         """
 
+
 rule reformat_vibrant:
     input:
-       config["out_dir"]
+        config["out_dir"]
         + "/{kingdom}/{length}/vibrant_out/VIBRANT_selected_frags/VIBRANT_phages_selected_frags/selected_frags.phages_combined.txt",
     output:
         config["out_dir"]
-        + "/{kingdom}/{length}/vibrant_out/vibrant_pred_reformatted.txt",
+        + "/{kingdom}/{length}/vibrant_out/vibrant_pred_formatted.csv",
     params:
         out_dir=config["out_dir"],
         reformat=config["reformat"],
@@ -239,7 +240,7 @@ rule reformat_virsorter:
         + "/{kingdom}/{length}/virsorter_out/Predicted_viral_sequences/combined_sequences.txt",
     output:
         config["out_dir"]
-        + "/{kingdom}/{length}/virsorter_out/virsorter_pred_reformatted.txt",
+        + "/{kingdom}/{length}/virsorter_out/virsorter_pred_formatted.csv",
     params:
         out_dir=config["out_dir"],
         reformat=config["reformat"],
