@@ -126,6 +126,28 @@ rule reformat_seeker:
         """
 
 
+rule pred_vibrant:
+    input:
+        config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/vibrant_out/VIBRANT_selected_frags/VIBRANT_phages_selected_frags/selected_frags.phages_combined.txt
+    params:
+        out_dir=config["out_dir"],
+        env=config["vibrant_env"],
+        vibrant=config["vibrant"],
+    log:
+        "logs/vibrant/{kingdom}_{length}.log",
+    benchmark:
+        "benchmarks/vibrant/{kingdom}_{length}_benchmark.txt",
+    shell:
+        """
+        source activate {params.env}
+
+        rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
+
+        {params.vibrant} -i {input} -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
+        """
+
 rule pred_virsorster:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
