@@ -67,7 +67,10 @@ rule pred_deepvirfinder:
         """
         source activate {params.env}
 
-        ({params.dvf} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out -c {params.cores}) 2> {log}
+        ({params.dvf} \
+            -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out \
+            -c {params.cores}) 2> {log}
         """
 
 
@@ -155,8 +158,7 @@ rule reformat_vibrant:
         config["out_dir"]
         + "/{kingdom}/{length}/vibrant_out/VIBRANT_selected_frags/VIBRANT_phages_selected_frags/selected_frags.phages_combined.txt",
     output:
-        config["out_dir"]
-        + "/{kingdom}/{length}/vibrant_out/vibrant_pred_formatted.csv",
+        config["out_dir"] + "/{kingdom}/{length}/vibrant_out/vibrant_pred_formatted.csv",
     params:
         out_dir=config["out_dir"],
         reformat=config["reformat"],
