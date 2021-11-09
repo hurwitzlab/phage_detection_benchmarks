@@ -87,7 +87,12 @@ rule reformat_dvf:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t dvf -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out {input}
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t dvf \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/dvf_out \
+            {input}
         """
 
 
@@ -109,7 +114,10 @@ rule pred_seeker:
         source activate seeker_env
 
 
-        ({params.seeker} {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out/pred.txt) 2> {log}
+        ({params.seeker} \
+            {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta \
+            > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out/pred.txt) \
+            2> {log}
         """
 
 
@@ -125,7 +133,12 @@ rule reformat_seeker:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t seeker -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out {input}
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t seeker \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/seeker_out \
+            {input}
         """
 
 
@@ -149,7 +162,9 @@ rule pred_vibrant:
 
         rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
 
-        {params.vibrant} -i {input} -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
+        {params.vibrant} \
+            -i {input} \
+            -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
         """
 
 
@@ -166,7 +181,12 @@ rule reformat_vibrant:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t vibrant -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out {input}
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t vibrant \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out \
+            {input}
         """
 
 
@@ -200,11 +220,16 @@ rule pred_virsorster:
         "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
     shell:
         """
-            source activate {params.env}
+        source activate {params.env}
 
         rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out
 
-            {params.virsorter} -f {input} --db {params.db} --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out --ncpu {params.cpu} --data-dir {params.data}
+        {params.virsorter} \
+            -f {input} \
+            --db {params.db} \
+            --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out \
+            --ncpu {params.cpu} \
+            --data-dir {params.data}
         """
 
 
@@ -250,7 +275,12 @@ rule reformat_virsorter:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t virsorter -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out {input}
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t virsorter \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out \
+            {input}
         """
 
 
@@ -276,7 +306,10 @@ rule pred_virsorter2:
         source activate {params.env}
 
 
-        ({params.virsorter2} -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter2_out) 2> {log}
+        ({params.virsorter2} \
+            -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta \
+            -w {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter2_out) \
+            2> {log}
         """
 
 
@@ -293,7 +326,12 @@ rule reformat_virsorter2:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t virsorter2 -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter2_out {input}
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t virsorter2 \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter2_out \
+            {input}
         """
 
 
@@ -317,7 +355,12 @@ rule pred_breadsticks:
         """
         source activate {params.env}
 
-        ({params.breadsticks} -p False -m {params.mem} -t {params.cpus} -c {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta -r breadsticks_out_{wildcards.kingdom}_{wildcards.length}) 2> {log}
+        ({params.breadsticks} \
+            -p False -m {params.mem} \
+            -t {params.cpus} \
+            -c {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta \
+            -r breadsticks_out_{wildcards.kingdom}_{wildcards.length}) \
+            2> {log}
         """
 
 
@@ -351,5 +394,10 @@ rule reformat_breadsticks:
         """
         source activate snakemake_env
 
-        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t breadsticks -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/breadsticks_out {input}
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t breadsticks \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/breadsticks_out \
+            {input}
         """
