@@ -149,6 +149,23 @@ rule pred_vibrant:
         {params.vibrant} -i {input} -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
         """
 
+rule reformat_vibrant:
+    input:
+       config["out_dir"]
+        + "/{kingdom}/{length}/vibrant_out/VIBRANT_selected_frags/VIBRANT_phages_selected_frags/selected_frags.phages_combined.txt",
+    output:
+        config["out_dir"]
+        + "/{kingdom}/{length}/vibrant_out/vibrant_pred_reformatted.txt",
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.reformat} -l {wildcards.length} -a {wildcards.kingdom} -t vibrant -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out {input}
+        """
+
 
 rule pred_virsorster:
     input:
