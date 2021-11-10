@@ -220,10 +220,10 @@ def reformat_vibrant(args: Args):
 
     # Add constant columns
     index_range = range(len(df.index))
-    df['tool'] = pd.Series([args.tool for x in index_range])
-    df['length'] = pd.Series([args.length for x in index_range])
-    df['actual'] = pd.Series([args.actual for x in index_range])
-    df['prediction'] = pd.Series(['viral' for x in index_range])
+    df['tool'] = pd.Series([args.tool for x in index_range], dtype=str)
+    df['length'] = pd.Series([args.length for x in index_range], dtype=str)
+    df['actual'] = pd.Series([args.actual for x in index_range], dtype=str)
+    df['prediction'] = pd.Series(['viral' for x in index_range], dtype=str)
 
     # Add empty columns
     df['value'] = pd.Series([None for x in index_range], dtype=str)
