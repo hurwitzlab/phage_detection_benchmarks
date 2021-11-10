@@ -163,7 +163,7 @@ rule pred_vibrant:
         rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
 
         (if [[ {wildcards.length} -lt 1000 ]]; then
-            touch {output}
+            touch {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out/VIBRANT_selected_frags/VIBRANT_phages_selected_frags/selected_frags.phages_combined.txt
             echo "Skipped file, blank file written to {output}.""
         else
             {params.vibrant} \
