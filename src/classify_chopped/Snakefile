@@ -165,11 +165,17 @@ rule pred_vibrant:
         (if [[ {wildcards.length} -lt 1000 ]]; then
             mkdir -p {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out/VIBRANT_selected_frags/VIBRANT_phages_selected_frags
             touch {output}
-            echo "Skipped file, blank file written to {output}."
+            echo "Skipped file, blank file written to: {output}."
         else
             {params.vibrant} \
                 -i {input} \
                 -folder {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out
+
+            if [ ! -f {output} ]; then
+                mkdir -p {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out/VIBRANT_selected_frags/VIBRANT_phages_selected_frags
+                touch {output}
+                echo "No output created by VIBRANT, touching empty file: {output}."
+            fi
         fi
         ) 2> {log}
         """
