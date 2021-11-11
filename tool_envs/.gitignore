@@ -17,3 +17,6 @@ phispy/Streptococcus_pyogenes_M1_GAS.gb
 vibrant/my_output/
 virsorter2/db/
 virsorter2/test.fa
+
+# Environments
+*/env/
