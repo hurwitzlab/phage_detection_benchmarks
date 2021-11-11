@@ -30,7 +30,7 @@
 source ~/.bashrc
 
 # Activate a conda environment
-source activate phispy_env
+source activate ./env
 
 # Load any necessary modules
 # module load my_modules
