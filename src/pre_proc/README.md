@@ -73,7 +73,7 @@ Wrote 1 converted record to out/input2.gb
 Done. Wrote 2 files to out.
 ```
 
-This program is safe even for very large files. Since the I use `Bio.SeqIO.convert`, whole files are never read into memory, instead the `SeqRecord` iterator is used to get the records for conversion individually.
+This program is safe even for very large files. Since it uses `Bio.SeqIO.convert`, whole files are never read into memory, instead the `SeqRecord` iterator is used to get the records for conversion individually.
 
 ### Tests
 
@@ -86,7 +86,7 @@ platform linux -- Python 3.9.6, pytest-6.2.4, py-1.10.0, pluggy-0.13.1 -- /home/
 cachedir: .pytest_cache
 rootdir: /home/ken/documents/research/challenging-phage-finders/src/pre_proc
 plugins: flake8-1.0.7, mypy-0.8.1, pylint-0.18.0
-collected 13 items                                                                                                                                                                                                         
+collected 13 items     
 --------------------------------------------------------------------------------
 Linting files
 ..
