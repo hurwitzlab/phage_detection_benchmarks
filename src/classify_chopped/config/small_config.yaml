@@ -26,6 +26,9 @@ seeker: "predict-metagenome"
 vibrant: "python3 ../../tool_envs/vibrant/VIBRANT/VIBRANT_run.py"
 vibrant_env: "../../tool_envs/vibrant/env"
 
+virfinder: "../../tool_envs/virfinder/run_virfinder.R"
+virfinder_env: "../../tool_envs/virfinder/env"
+
 virsorter: "wrapper_phage_contigs_sorter_iPlant.pl"
 virsorter_env: "../../tool_envs/virsorter/env"
 virsorter_cpu: 4
