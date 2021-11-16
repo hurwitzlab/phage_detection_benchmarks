@@ -145,6 +145,13 @@ def test_reformat_vibrant() -> None:
 
 
 # --------------------------------------------------
+def test_reformat_virfinder() -> None:
+    """ Reformats VirFinder """
+
+    run('virfinder')
+
+
+# --------------------------------------------------
 def test_reformat_virsorter() -> None:
     """ Reformats Seeker """
 

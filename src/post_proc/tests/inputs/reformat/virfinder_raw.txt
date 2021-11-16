@@ -1,0 +1,51 @@
+"name"	"length"	"score"	"pvalue"
+"frag_2_NC_002014.1 Fragment 2 of NC_002014.1 Enterobacteria phage Ike, complete genome"	500	0.458435151948104	0.221708043694141
+"frag_250_NC_027355.1 Fragment 250 of NC_027355.1 Bacillus phage BCP8-2, complete genome"	500	0.958286141098961	0.0028798411122145
+"frag_5_NC_033149.1 Fragment 5 of NC_033149.1 Sanxia tombus-like virus 9 strain SXXX37849 hypothetical protein 1, hypothetical protein 2, and hypothetical protein 3 genes, complete cds"	500	0.00475575762103582	0.988043694141013
+"frag_22_NC_054782.1 Fragment 22 of NC_054782.1 Mycobacterium phage Koko, complete genome"	500	0.835154647534449	0.0327308838133069
+"frag_43_NC_005344.1 Fragment 43 of NC_005344.1 Enterobacteria phage Sf6, complete genome"	500	0.62853369301485	0.119503475670308
+"frag_6_NC_025454.1 Fragment 6 of NC_025454.1 Ralstonia phage RS603 DNA, complete genome"	500	0.969651248162219	0.00150943396226415
+"frag_71_NC_041845.1 Fragment 71 of NC_041845.1 Flavobacterium phage FCV-1, complete genome"	500	0.155775860636773	0.55656405163853
+"frag_51_NC_052456.1 Fragment 51 of NC_052456.1 Mycobacterium phage Rajelicia, complete genome"	500	0.808906753090649	0.041708043694141
+"frag_3_NC_033045.1 Fragment 3 of NC_033045.1 Hubei picorna-like virus 62 strain spider133936 hypothetical protein gene, complete cds"	500	0.839182331021885	0.0316186693147964
+"frag_4_NC_021341.1 Fragment 4 of NC_021341.1 Tomato yellow leaf curl Yunnan virus isolate YN2013 clone 10 segment DNA-A, complete sequence"	500	0.639513543262522	0.113922542204568
+"frag_4_NC_032188.1 Fragment 4 of NC_032188.1 Hubei sobemo-like virus 36 strain spider124913 hypothetical protein 1 and hypothetical protein 2 genes, complete cds"	500	0.463902143691763	0.217994041708044
+"frag_294_NC_055142.1 Fragment 294 of NC_055142.1 Lymphocryptovirus Macaca/pfe-lcl-E3, complete genome"	500	0.503448606855963	0.191717974180735
+"frag_87_NC_047756.1 Fragment 87 of NC_047756.1 Caulobacter phage Sansa, complete genome"	500	0.117405805181888	0.633227408142999
+"frag_1_NC_038287.1 Fragment 1 of NC_038287.1 Radi virus nucleoprotein, phosphoprotein, matrix, glycoprotein, and polymerase genes, complete cds"	500	0.889814445524743	0.0162065541211519
+"frag_7_NC_006945.1 Fragment 7 of NC_006945.1 Bacillus phage GIL16c, complete genome"	500	0.650625153758051	0.108282025819265
+"frag_10_NC_055542.1 Fragment 10 of NC_055542.1 Ambrosia asymptomatic virus 1 isolate 05TGP00321 putative RNA-dependent RNA polymerase, putative triple gene block protein 1, putative triple gene block protein 2, putative triple gene block protein 3, putative coat protein, and putative nucleic acid binding protein genes, complete cds"	500	0.601432500613836	0.133545183714002
+"frag_2_NC_055516.1 Fragment 2 of NC_055516.1 Pepper yellow leaf curl Aceh virus DNA, segment DNA-A, complete sequence, isolate: PepYLCAV-BAPep-V2"	500	0.961932189497135	0.00242303872889772
+"frag_81_NC_052467.1 Fragment 81 of NC_052467.1 Mycobacterium phage STLscum, complete genome"	500	0.855612984575688	0.026772591857001
+"frag_47_NC_047834.1 Fragment 47 of NC_047834.1 Alteromonas virus vB_AspP-H4/4, complete genome"	500	0.998327722420017	0
+"frag_1_NC_033081.1 Fragment 1 of NC_033081.1 Chicken calicivirus strain RS/BR/2015, complete genome"	500	0.760347637894719	0.0589672293942403
+"frag_6_NC_040619.1 Fragment 6 of NC_040619.1 Gammapapillomavirus sp. isolate Gamma_LCOSOc196, complete genome"	500	0.543059277983655	0.167308838133069
+"frag_2_NC_031753.1 Fragment 2 of NC_031753.1 Porcine circovirus 3 strain 29160, complete genome"	500	0.290992301916318	0.370804369414101
+"frag_208_NC_049505.1 Fragment 208 of NC_049505.1 Salmonella phage barely, complete genome"	500	0.703758785006043	0.0833962264150943
+"frag_137_NC_022981.1 Fragment 137 of NC_022981.1 Mycobacterium phage HufflyPuff, complete genome"	500	0.852037144685615	0.027845084409136
+"frag_129_NC_053503.1 Fragment 129 of NC_053503.1 Mycobacterium phage Laurie, complete genome"	500	0.737480434278372	0.068421052631579
+"frag_12_NC_001556.1 Fragment 12 of NC_001556.1 Tobacco mild green mosaic virus, complete genome"	500	0.418644590235722	0.251062562065541
+"frag_27_NC_025347.1 Fragment 27 of NC_025347.1 Avian paramyxovirus 7 strain APMV-7/dove/Tennessee/4/75, complete genome"	500	0.45243391233741	0.225561072492552
+"frag_4_NC_040625.1 Fragment 4 of NC_040625.1 Rhynchobatus djiddensis adomavirus 1 isolate UGA1, complete genome"	500	0.70100866170552	0.0845481628599801
+"frag_82_NC_052431.1 Fragment 82 of NC_052431.1 Mycobacterium phage GageAP, complete genome"	500	0.457439593104971	0.222284011916584
+"frag_5_NC_033245.1 Fragment 5 of NC_033245.1 Hubei permutotetra-like virus 10 strain ZCM16232 RdRp and putative capsid protein genes, complete cds"	500	0.129882076540782	0.606673286991063
+"frag_3_NC_038723.1 Fragment 3 of NC_038723.1 Bimiti virus strain TRVL 8362 polyprotein gene, complete cds"	500	0.254596514140995	0.413922542204568
+"frag_81_NC_031938.1 Fragment 81 of NC_031938.1 Flavobacterium phage Fpv6, complete genome"	500	0.0662925480301581	0.761727904667329
+"frag_185_NC_055135.1 Fragment 185 of NC_055135.1 Retroperitoneal fibromatosis-associated herpesvirus isolate RFHVMnM78114, complete genome"	500	0.190975247089952	0.499721946375372
+"frag_2_NC_033255.1 Fragment 2 of NC_033255.1 Hubei narna-like virus 3 strain QTM25395 RNA-dependent RNA polymerase gene, complete cds"	500	0.670771875674542	0.0989672293942403
+"frag_18_NC_025835.1 Fragment 18 of NC_025835.1 Dinocampus coccinellae paralysis virus strain Quebec2013, complete genome"	500	0.845022028120114	0.0299702085402185
+"frag_4_NC_004090.1 Fragment 4 of NC_004090.1 Ageratum yellow vein China virus-[Hn2] complete genome, isolate Hn2"	500	0.868678456900374	0.0222840119165839
+"frag_2_NC_038360.1 Fragment 2 of NC_038360.1 Torque teno midi virus 13 DNA, complete genome, isolate: MDJN69"	500	0.469448121384808	0.214240317775571
+"frag_20_NC_053003.1 Fragment 20 of NC_053003.1 Salmonella phage vB_SalS_ABTNLsp1, complete genome"	500	0.915304786226578	0.0105858987090367
+"frag_9_NC_040635.1 Fragment 9 of NC_040635.1 Birch leaf roll-associated virus isolate BpubFin407507, complete genome"	500	0.538832963048311	0.169652432969216
+"frag_57_NC_024370.1 Fragment 57 of NC_024370.1 Streptococcus phage IC1, complete sequence"	500	0.961015148473608	0.00248262164846077
+"frag_97_NC_041904.1 Fragment 97 of NC_041904.1 Pseudomonas phage Zigelbrucke, complete genome"	500	0.749768957349713	0.0631578947368421
+"frag_97_NC_049819.1 Fragment 97 of NC_049819.1 Escherichia phage atuna, complete genome"	500	0.607250663782583	0.130665342601787
+"frag_237_NC_022761.1 Fragment 237 of NC_022761.1 Bacillus phage CampHawk, complete genome"	500	0.688212778330005	0.089811320754717
+"frag_23_NC_047736.1 Fragment 23 of NC_047736.1 Bacillus phage B5S, complete genome"	500	0.914441992074278	0.0107447864945382
+"frag_6_NC_024125.2 Fragment 6 of NC_024125.2 Escherichia phage e11/2, complete genome"	500	0.668194432443956	0.100297914597815
+"frag_3_NC_025705.1 Fragment 3 of NC_025705.1 Circoviridae 1 LDMD-2013, complete genome"	500	0.494253691475269	0.197735849056604
+"frag_4_NC_040362.1 Fragment 4 of NC_040362.1 Meles meles circovirus-like virus, complete genome"	500	0.672795917085638	0.0980337636544191
+"frag_13_NC_017980.1 Fragment 13 of NC_017980.1 Clostridium phage phiCP7R, complete genome"	500	0.949730197708101	0.00397219463753724
+"frag_3_NC_028794.1 Fragment 3 of NC_028794.1 Mycobacterium phage Piro94, complete genome"	500	0.849718097740771	0.0283813306852036
+"frag_5_NC_002363.1 Fragment 5 of NC_002363.1 Vibrio phage VfO4K68, complete genome"	500	0.968399903951452	0.00164846077457795

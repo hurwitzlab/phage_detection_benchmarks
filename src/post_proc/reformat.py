@@ -65,7 +65,7 @@ def get_args() -> Args:
                         type=str,
                         choices=[
                             'breadsticks', 'dvf', 'seeker', 'vibrant',
-                            'virsorter', 'virsorter2'
+                            'virfinder', 'virsorter', 'virsorter2'
                         ],
                         required=True)
 
@@ -234,6 +234,37 @@ def reformat_vibrant(args: Args):
 
 
 # --------------------------------------------------
+def reformat_virfinder(args: Args):
+    """ Reformat virfinder output """
+
+    # Read in the dataframe
+    raw_df = pd.read_csv(args.file, sep='\t')
+
+    # Rename current columns
+    df = raw_df.rename({
+        'name': 'record',
+        'score': 'value',
+        'pvalue': 'stat'
+    },
+                       axis='columns')
+
+    # Shorten record to just ID
+    df['record'] = df['record'].str.split().str.get(0)
+
+    # Add prediction column
+    df['prediction'] = np.where(df['value'] < 0.5, 'non-viral', 'viral')
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
+    df['actual'] = pd.Series([args.actual for x in index_range])
+    df['stat_name'] = pd.Series(['p' for x in index_range])
+    df['lifecycle'] = pd.Series([None for x in index_range])
+
+    return df
+
+
+# --------------------------------------------------
 def reformat_virsorter(args: Args):
     """ Reformat virsorter output """
 
@@ -242,6 +273,7 @@ def reformat_virsorter(args: Args):
 
     if not df.empty:
 
+        # pylint: disable=no-member
         df = df.rename({'sequences': 'record'}, axis='columns')
 
         # Extract category number from sequence name
@@ -284,6 +316,8 @@ def reformat_virsorter(args: Args):
                 'tool', 'record', 'length', 'actual', 'prediction',
                 'lifecycle', 'value', 'stat', 'stat_name'
         ]:
+
+            # pylint: disable=unsupported-assignment-operation
             df[col] = pd.Series([], dtype=str)
 
     return df
@@ -338,6 +372,7 @@ reformatters = {
     'dvf': reformat_dvf,
     'seeker': reformat_seeker,
     'vibrant': reformat_vibrant,
+    'virfinder': reformat_virfinder,
     'virsorter': reformat_virsorter,
     'virsorter2': reformat_virsorter2
 }
