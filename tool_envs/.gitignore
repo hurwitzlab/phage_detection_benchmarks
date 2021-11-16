@@ -20,3 +20,10 @@ virsorter2/test.fa
 
 # Environments
 */env/
+deephage
+deepvirfinder/env.yml
+virsorter2/env.yml
+virfinder/example_out/
+virnet/
+virsorter/
+unlimited_breadsticks/
