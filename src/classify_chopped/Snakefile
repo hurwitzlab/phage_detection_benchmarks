@@ -243,13 +243,22 @@ rule pred_virsorster:
             --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out \
             --ncpu {params.cpu} \
             --data-dir {params.data}
-            
-        if ! [ "$(ls -A $PREDS)" ]; then
+
+        if [ ! -d "{params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences" ]; then
+            echo "Directory was not created"
+            mkdir "{params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences"
+        fi 
+
+        if ! [ "$(ls -A {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out)" ]; then
             echo "No viruses found, creating empty output files."
-            for cat in cat-1 cat-2 cat-3 prophages_cat-4 prophages_cat-5 prophages_cat-6; do
-                echo "sequences" > {params.outdir}/wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_$cat.fasta
-            end
-        
+            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-1.fasta
+            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-2.fasta
+            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-3.fasta
+            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta
+            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta
+            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta
+        fi
+
         ) 2> {log}
         """
 
