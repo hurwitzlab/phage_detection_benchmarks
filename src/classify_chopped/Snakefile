@@ -215,7 +215,7 @@ rule pred_virfinder:
     log:
         "logs/virfinder/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/virfinder/{kingdom}_{length}_benchmark.txt"
+        "benchmarks/virfinder/{kingdom}_{length}_benchmark.txt",
     shell:
     """
     source activate {params.env}
