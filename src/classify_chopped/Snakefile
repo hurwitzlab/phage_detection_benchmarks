@@ -217,14 +217,14 @@ rule pred_virfinder:
     benchmark:
         "benchmarks/virfinder/{kingdom}_{length}_benchmark.txt",
     shell:
-    """
-    source activate {params.env}
+        """
+        source activate {params.env}
 
-    ({params.virfinder} \
-        -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out \
-        {input}
-    ) 2> {log}
-    """
+        ({params.virfinder} \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out \
+            {input}
+        ) 2> {log}
+        """
 
 
 rule reformat_virfinder:
