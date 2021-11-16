@@ -242,8 +242,15 @@ rule pred_virsorster:
             --db {params.db} \
             --wdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out \
             --ncpu {params.cpu} \
-            --data-dir {params.data}) \
-            2> {log}
+            --data-dir {params.data}
+            
+        if ! [ "$(ls -A $PREDS)" ]; then
+            echo "No viruses found, creating empty output files."
+            for cat in cat-1 cat-2 cat-3 prophages_cat-4 prophages_cat-5 prophages_cat-6; do
+                echo "sequences" > {params.outdir}/wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_$cat.fasta
+            end
+        
+        ) 2> {log}
         """
 
 
