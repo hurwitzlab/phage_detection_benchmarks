@@ -244,19 +244,16 @@ rule pred_virsorster:
             --ncpu {params.cpu} \
             --data-dir {params.data}
 
-        if [ ! -d "{params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences" ]; then
-            echo "Directory was not created"
-            mkdir "{params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences"
-        fi 
+        pred_dir="{params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences"
 
-        if ! [ "$(ls -A {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out)" ]; then
+        if ! [[ "$(ls -A $pred_dir)" ]]; then
             echo "No viruses found, creating empty output files."
-            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-1.fasta
-            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-2.fasta
-            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_cat-3.fasta
-            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta
-            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta
-            echo "sequences" > {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta
+            echo "sequences" > $pred_dir/VIRSorter_cat-1.fasta
+            echo "sequences" > $pred_dir/VIRSorter_cat-2.fasta
+            echo "sequences" > $pred_dir/VIRSorter_cat-3.fasta
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-4.fasta
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-5.fasta
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-6.fasta
         fi
 
         ) 2> {log}
@@ -287,7 +284,7 @@ rule wrangle_virsorter:
         """
         source activate snakemake_env
 
-        wrangle {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences
+        {params.wrangle} {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virsorter_out/Predicted_viral_sequences
         """
 
 
