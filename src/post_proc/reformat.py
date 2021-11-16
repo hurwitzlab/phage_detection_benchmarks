@@ -240,42 +240,51 @@ def reformat_virsorter(args: Args):
     # Read in the single column in the file
     df = pd.read_csv(args.file)
 
-    df = df.rename({'sequences': 'record'}, axis='columns')
+    if not df.empty:
 
-    # Extract category number from sequence name
-    df['value'] = df['record'].str.extract(r'-cat_(?P<value>[\d])')
+        df = df.rename({'sequences': 'record'}, axis='columns')
 
-    # Keep only original record name
-    df['record'] = df['record'].str.replace(r'-cat[\d]', '', regex=True)
-    df['record'] = df['record'].str.split(r'__', expand=True)[0]
+        # Extract category number from sequence name
+        df['value'] = df['record'].str.extract(r'-cat_(?P<value>[\d])')
 
-    # Keep only the category number
-    df['value'] = df['value'].str[-1]
+        # Keep only original record name
+        df['record'] = df['record'].str.replace(r'-cat[\d]', '', regex=True)
+        df['record'] = df['record'].str.split(r'__', expand=True)[0]
 
-    # Replace category code with lifecycle
-    df['lifecycle'] = df['value']
-    df['lifecycle'] = df['lifecycle'].str.replace(r'[123]',
-                                                  'lytic',
-                                                  regex=True)
-    df['lifecycle'] = df['lifecycle'].str.replace(r'[456]',
-                                                  'prophage',
-                                                  regex=True)
+        # Keep only the category number
+        df['value'] = df['value'].str[-1]
 
-    # Convert value to 1, 2, or 3
-    df['value'] = df['value'].str.replace('4', '1')
-    df['value'] = df['value'].str.replace('5', '2')
-    df['value'] = df['value'].str.replace('6', '3')
+        # Replace category code with lifecycle
+        df['lifecycle'] = df['value']
+        df['lifecycle'] = df['lifecycle'].str.replace(r'[123]',
+                                                      'lytic',
+                                                      regex=True)
+        df['lifecycle'] = df['lifecycle'].str.replace(r'[456]',
+                                                      'prophage',
+                                                      regex=True)
 
-    # Add constant columns
-    index_range = range(len(df.index))
-    df['tool'] = pd.Series([args.tool for x in index_range])
-    df['length'] = pd.Series([args.length for x in index_range])
-    df['actual'] = pd.Series([args.actual for x in index_range])
-    df['prediction'] = pd.Series(['viral' for x in index_range])
+        # Convert value to 1, 2, or 3
+        df['value'] = df['value'].str.replace('4', '1')
+        df['value'] = df['value'].str.replace('5', '2')
+        df['value'] = df['value'].str.replace('6', '3')
 
-    # Add empty columns
-    df['stat'] = pd.Series([None for x in index_range], dtype=str)
-    df['stat_name'] = pd.Series([None for x in index_range], dtype=str)
+        # Add constant columns
+        index_range = range(len(df.index))
+        df['tool'] = pd.Series([args.tool for x in index_range])
+        df['length'] = pd.Series([args.length for x in index_range])
+        df['actual'] = pd.Series([args.actual for x in index_range])
+        df['prediction'] = pd.Series(['viral' for x in index_range])
+
+        # Add empty columns
+        df['stat'] = pd.Series([None for x in index_range], dtype=str)
+        df['stat_name'] = pd.Series([None for x in index_range], dtype=str)
+
+    else:  # Dataframe is empty, just output column names
+        for col in [
+                'tool', 'record', 'length', 'actual', 'prediction',
+                'lifecycle', 'value', 'stat', 'stat_name'
+        ]:
+            df[col] = pd.Series([], dtype=str)
 
     return df
 
