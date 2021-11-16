@@ -21,7 +21,7 @@ Tool                  | Pre-process | Running       | Post-process
 DeepVirFinder         | *NA*        | Yes           | Yes
 Seeker                | *NA*        | Yes           | Yes
 Unlimited Breadsticks | *NA*        | Yes           | Yes
-VIBRANT               | *NA*        | *In Progress* |
+VIBRANT               | *NA*        | Yes           | Yes
 virsorter             | *NA*        | Yes           | Yes
 VirSorter2            | *NA*        | Yes           | Yes
 
