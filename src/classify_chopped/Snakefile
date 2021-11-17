@@ -207,7 +207,8 @@ rule pred_virfinder:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
     params:
         virfinder=config["virfinder"],
         env=config["virfinder_env"],
@@ -215,13 +216,13 @@ rule pred_virfinder:
     log:
         "logs/virfinder/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/virfinder/{kingdom}_{length}_benchmark.txt",
+        "benchmarks/virfinder/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
 
         ({params.virfinder} \
-            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virfinder_out \
             {input}
         ) 2> {log}
         """
@@ -229,9 +230,11 @@ rule pred_virfinder:
 
 rule reformat_virfinder:
     input:
-        config["out_dir"] + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/virfinder_out/virfinder_pred_formatted.csv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/virfinder_out/virfinder_pred_formatted.csv",
     params:
         out_dir=config["out_dir"],
         reformat=config["reformat"],
