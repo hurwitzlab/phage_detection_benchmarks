@@ -271,7 +271,7 @@ rule pred_virfinder:
         source activate {params.env}
 
         ({params.virfinder} \
-            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/vibrant_out \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/virfinder_out \
             {input}
         ) 2> {log}
         """

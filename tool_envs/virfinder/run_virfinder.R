@@ -8,8 +8,8 @@
 
 ## Library calls ------------------------------------------------------------
 
-library(magrittr)
-library(VirFinder)
+suppressMessages(library(stringr))
+suppressMessages(library(VirFinder))
 
 # Argument Parsing ----------------------------------------------------------
 
@@ -53,18 +53,25 @@ main <- function() {
     dir.create(out_dir)
   }
   
+
+  n_files <- 0
+
   for (file in args$files) {
 
     file_name <- basename(file)
-    split_name <- strsplit(file_name, "\\.")[[1]]
-    base <- split_name[1]
-    ext <- split_name[2]
+    base <- strsplit(file_name, "\\.")[[1]][1]
 
-    preds <- VF.pred(file)
+    invisible(capture.output(preds <- VF.pred(file)))
 
-    out_file <- file.path(out_dir, paste(base, "_vf_preds.", ext, sep=""))
+    out_file <- file.path(out_dir, paste(base, "_vf_preds.csv", sep=""))
     write.table(preds, out_file, row.names=F, col.names=T, sep="\t")
+
+    n_files <- n_files + 1
   }
+
+  plu <- if(n_files > 1) "s" else ""
+  print(str_glue("Done. Wrote {n_files} file{plu} to {out_dir}."))
+ 
 }
 
 # Call Main -----------------------------------------------------------------
