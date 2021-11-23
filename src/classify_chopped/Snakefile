@@ -213,7 +213,7 @@ rule pred_viralverify:
         out_dir=config["out_dir"],
         env=config["viralverify_env"],
         db=config["viralverify_db"],
-        threads=config["viralverify"],
+        threads=config["viralverify_threads"],
     log:
         "logs/viralverify/{kingdom}_{length}.log",
     benchmark:
