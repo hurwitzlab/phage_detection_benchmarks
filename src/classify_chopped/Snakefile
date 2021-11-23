@@ -213,6 +213,7 @@ rule pred_viralverify:
         out_dir=config["out_dir"],
         env=config["viralverify_env"],
         db=config["viralverify_db"],
+        threads=config["viralverify"],
     log:
         "logs/viralverify/{kingdom}_{length}.log",
     benchmark:
@@ -224,7 +225,8 @@ rule pred_viralverify:
         (viralverify \
             -f {input} \
             --hmm {params.db} \
-            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/viralverify_out
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/viralverify_out \
+            -t {params.threads}
         ) 2> {log}
         """
 
