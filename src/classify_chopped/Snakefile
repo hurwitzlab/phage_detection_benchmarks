@@ -223,7 +223,7 @@ rule pred_viralverify:
 
         (viralverify \
             -f {input} \
-            --hmm {params.viralverify_db} \
+            --hmm {params.db} \
             -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/viralverify_out
         ) 2> {log}
         """
