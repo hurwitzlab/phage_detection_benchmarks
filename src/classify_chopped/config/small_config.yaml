@@ -26,6 +26,9 @@ seeker: "predict-metagenome"
 vibrant: "python3 ../../tool_envs/vibrant/VIBRANT/VIBRANT_run.py"
 vibrant_env: "../../tool_envs/vibrant/env"
 
+viralverify_env: "../../tool_envs/viralverify/env"
+viralverify_db: "../../tool_envs/viralverify/nbc_hmms.hmm"
+
 virfinder: "../../tool_envs/virfinder/run_virfinder.R"
 virfinder_env: "../../tool_envs/virfinder/env"
 

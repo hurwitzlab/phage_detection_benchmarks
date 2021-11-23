@@ -1,0 +1,51 @@
+Contig name,Prediction,Length,Circular,Score,Pfam hits
+frag_27_NC_027355.1,Virus,5000,-,17.93,NUMOD4 Ribonuc_red_sm Ribonuc_red_lgC Ribonuc_red_lgN HNH_3
+frag_2_NC_054782.1,Virus,5000,-,17.36,Peptidase_M15_4 Phage_holin_7_1 Transglycosylas
+frag_15_NC_055919.1,Uncertain - viral or bacterial,5000,-,4.25,Phage_gp49_66 PRA-PH
+frag_8_NC_041905.1,Uncertain - viral or bacterial,5000,-,-
+frag_6_NC_049412.1,Uncertain - viral or bacterial,5000,-,6.90,HNH_3 AAA_25
+frag_2_NC_033211.1,Virus,5000,-,17.72,RdRP_2 Viral_helicase1
+frag_6_NC_047756.1,Uncertain - viral or bacterial,5000,-,-
+frag_2_NC_038287.1,Uncertain - viral or bacterial,5000,-,-
+frag_2_NC_006945.1,Uncertain - viral or bacterial,5000,-,-
+frag_9_NC_052467.1,Virus,5000,-,22.85,AAA_25 Glutaredoxin Gp63 Endonuclease_7
+frag_7_NC_047834.1,Uncertain - viral or bacterial,5000,-,-
+frag_1_NC_055002.1,Virus,5000,-,14.75,DUF3310 ERF Phage_SSB
+frag_6_NC_047790.1,Virus,5000,-,8.96,Phage_TAC_10 zf-dskA_traR Pesticin PhageMin_Tail DUF2590
+frag_4_NC_028270.1,Uncertain - viral or bacterial,5000,-,1.33,GIY-YIG
+frag_13_NC_049505.1,Uncertain - viral or bacterial,5000,-,5.11,Gp17
+frag_19_NC_024134.1,Uncertain - viral or bacterial,5000,-,3.95,CLP_protease PhoH
+frag_13_NC_053503.1,Uncertain - viral or bacterial,5000,-,0.63,DUF932
+frag_3_NC_027627.1,Virus,5000,-,13.91,H_lectin Sipho_Gp37 Sipho_tail
+frag_1_NC_002031.1,Uncertain - viral or bacterial,5000,-,-
+frag_4_NC_055857.1,Uncertain - viral or bacterial,5000,-,3.37,HK97-gp10_like
+frag_1_NC_030651.1,Uncertain - viral or bacterial,5000,-,-
+frag_14_NC_023735.1,Uncertain - viral or bacterial,5000,-,-
+frag_2_NC_012703.1,Uncertain - viral or bacterial,5000,-,-
+frag_1_NC_005964.2,Uncertain - viral or bacterial,5000,-,-2.54,DnaB_C AbiEii HTH_24 HATPase_c_4 AlbA_2
+frag_29_NC_013693.1,Uncertain - viral or bacterial,5000,-,-
+frag_23_NC_020852.1,Uncertain - viral or bacterial,5000,-,0.34,Methyltransf_25 MethyltransfD12
+frag_2_NC_031064.1,Virus,5000,-,22.28,Pox_D5 AAA_24 DUF669 Prim-Pol Helicase_C D5_N ResIII PriCT_1
+frag_26_NC_019444.1,Virus,5000,-,31.88,gp45-slide_C AAA Phage_clamp_A MethyltransfD12 DUF3310 AAA_5 CbbQ_C
+frag_3_NC_017980.1,Virus,5000,-,13.17,Peptidase_M23 Phage_connector Caud_tail_N
+frag_9_NC_054781.1,Virus,5000,-,36.46,Bro-N DnaB_C Gp68 PDDEXK_1 ANT GP70
+frag_5_NC_042046.1,Virus,5000,-,15.93,DUF3799 AP2 HNH_3 ERF
+frag_21_NC_023177.1,Virus,5000,-,25.24,zf-C3HC4_3 BIR
+frag_2_NC_024018.2,Uncertain - viral or bacterial,5000,-,-
+frag_3_NC_031908.1,Virus,5000,-,8.51,Viral_helicase1 AAA_30 DUF5051 UvrD_C_2
+frag_2_NC_035118.1,Uncertain - viral or bacterial,5000,-,-
+frag_1_NC_026620.1,Uncertain - viral or bacterial,5000,-,-
+frag_5_NC_013696.1,Virus,5000,-,7.03,Glucosaminidase Glucos_trans_II Glyco_hydro_25 LysM Peptidase_M23
+frag_11_NC_031052.1,Uncertain - viral or bacterial,5000,-,5.88,N6_N4_Mtase ParBc HNH_3
+frag_7_NC_048875.1,Virus,5000,-,9.19,Terminase_6C DUF2213 DUF1073
+frag_7_NC_049490.1,Virus,5000,-,15.20,DnaB_C Phage_head_chap
+frag_33_NC_042130.1,Virus,5000,-,15.96,motB AAA_30 DUF5051
+frag_6_NC_041863.1,Virus,5000,-,26.92,DUF5498 Phage_T4_gp19 ADPrib_exo_Tox T4_tail_cap
+frag_2_NC_049930.1,Virus,5000,-,8.85,Caud_tail_N Holin_BhlA
+frag_9_NC_025461.1,Virus,5000,-,11.77,Peptidase_S74 Phage_T7_tail
+frag_2_NC_019927.1,Uncertain - viral or bacterial,5000,-,-1.89,Glycos_transf_2 Phage_integrase GtrA
+frag_12_NC_051597.1,Uncertain - viral or bacterial,5000,-,1.30,DUF3039
+frag_4_NC_054993.1,Uncertain - viral or bacterial,5000,-,3.26,Terminase_1
+frag_49_NC_041973.1,Uncertain - viral or bacterial,5000,-,-
+frag_14_NC_041937.1,Virus,5000,-,7.29,Phage_lysozyme DNA_ligase_OB_2
+frag_11_NC_011756.1,Uncertain - viral or bacterial,5000,-,2.33,AAA_30 UvrD_C_2

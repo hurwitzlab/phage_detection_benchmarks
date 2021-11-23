@@ -203,11 +203,61 @@ rule reformat_vibrant:
         """
 
 
+rule pred_viralverify:
+    input:
+        config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
+    output:
+        config["out_dir"]
+        + "/{kingdom}/{length}/viralverify_out/selected_frags_result_table.csv",
+    params:
+        out_dir=config["out_dir"],
+        env=config["viralverify_env"],
+        db=config["viralverify_db"],
+    log:
+        "logs/viralverify/{kingdom}_{length}.log",
+    benchmark:
+        "benchmarks/viralverify/{kingdom}_{length}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        (viralverify \
+            -f {input} \
+            --hmm {params.viralverify_db} \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/viralverify_out
+        ) 2> {log}
+        """
+
+
+rule reformat_viralverify:
+    input:
+        config["out_dir"]
+        + "/{kingdom}/{length}/viralverify_out/selected_frags_result_table.csv",
+    output:
+        config["out_dir"]
+        + "/{kingdom}/{length}/viralverify_out/viralverify_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t vibrant \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/viralverify_out \
+            {input}
+        """
+
+
 rule pred_virfinder:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
     params:
         virfinder=config["virfinder"],
         env=config["virfinder_env"],
@@ -229,9 +279,11 @@ rule pred_virfinder:
 
 rule reformat_virfinder:
     input:
-        config["out_dir"] + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/virfinder_out/selected_frags_vf_preds.csv",
     output:
-        config["out_dir"] + "/{kingdom}/{length}/virfinder_out/virfinder_pred_formatted.csv",
+        config["out_dir"]
+        + "/{kingdom}/{length}/virfinder_out/virfinder_pred_formatted.csv",
     params:
         out_dir=config["out_dir"],
         reformat=config["reformat"],

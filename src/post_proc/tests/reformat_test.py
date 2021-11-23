@@ -145,6 +145,13 @@ def test_reformat_vibrant() -> None:
 
 
 # --------------------------------------------------
+def test_reformat_viralverify() -> None:
+    """ Reformats viralVerify """
+
+    run('viralverify')
+
+
+# --------------------------------------------------
 def test_reformat_virfinder() -> None:
     """ Reformats VirFinder """
 

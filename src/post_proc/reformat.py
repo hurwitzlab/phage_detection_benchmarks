@@ -65,7 +65,8 @@ def get_args() -> Args:
                         type=str,
                         choices=[
                             'breadsticks', 'dvf', 'seeker', 'vibrant',
-                            'virfinder', 'virsorter', 'virsorter2'
+                            'viralverify', 'virfinder', 'virsorter',
+                            'virsorter2'
                         ],
                         required=True)
 
@@ -234,6 +235,34 @@ def reformat_vibrant(args: Args):
 
 
 # --------------------------------------------------
+def reformat_viralverify(args: Args):
+    """ Reformat viralVerify output """
+
+    # Read in the dataframe
+    raw_df = pd.read_csv(args.file)
+
+    # Rename current columns
+    df = raw_df.rename(
+        {
+            'Contig name': 'record',
+            'Prediction': 'prediction',
+            'Length': 'length',
+            'Score': 'value'
+        },
+        axis='columns')
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
+    df['actual'] = pd.Series([args.actual for x in index_range])
+    df['lifecycle'] = pd.Series([None for x in index_range])
+    df['stat'] = pd.Series([None for x in index_range], dtype=str)
+    df['stat_name'] = pd.Series([None for x in index_range])
+
+    return df
+
+
+# --------------------------------------------------
 def reformat_virfinder(args: Args):
     """ Reformat virfinder output """
 
@@ -372,6 +401,7 @@ reformatters = {
     'dvf': reformat_dvf,
     'seeker': reformat_seeker,
     'vibrant': reformat_vibrant,
+    'viralverify': reformat_viralverify,
     'virfinder': reformat_virfinder,
     'virsorter': reformat_virsorter,
     'virsorter2': reformat_virsorter2
