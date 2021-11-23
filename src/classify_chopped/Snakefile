@@ -248,7 +248,7 @@ rule reformat_viralverify:
         {params.reformat} \
             -l {wildcards.length} \
             -a {wildcards.kingdom} \
-            -t vibrant \
+            -t viralverify \
             -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/viralverify_out \
             {input}
         """
