@@ -19,6 +19,7 @@ The table below shows which steps have been written into the pipeline for each t
 Tool                  | Pre-process | Running       | Post-process
 --------------------- | ----------- | ------------- | ------------
 DeepVirFinder         | *NA*        | Yes           | Yes
+MetaPhinder           | *NA*        | Yes           | Yes
 Seeker                | *NA*        | Yes           | Yes
 Unlimited Breadsticks | *NA*        | Yes           | Yes
 VIBRANT               | *NA*        | Yes           | Yes
