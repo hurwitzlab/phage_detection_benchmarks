@@ -64,8 +64,8 @@ def get_args() -> Args:
                         metavar='TOOL',
                         type=str,
                         choices=[
-                            'breadsticks', 'dvf', 'seeker', 'vibrant',
-                            'viralverify', 'virfinder', 'virsorter',
+                            'breadsticks', 'dvf', 'metaphinder', 'seeker',
+                            'vibrant', 'viralverify', 'virfinder', 'virsorter',
                             'virsorter2'
                         ],
                         required=True)
@@ -168,6 +168,37 @@ def reformat_dvf(args: Args):
     df['actual'] = pd.Series([args.actual for x in index_range])
     df['stat_name'] = pd.Series(['p' for x in index_range])
     df['lifecycle'] = pd.Series([None for x in index_range])
+
+    return df
+
+
+# --------------------------------------------------
+def reformat_metaphinder(args: Args):
+    """ Reformat MetaPhinder output """
+
+    raw_df = pd.read_csv(args.file, sep='\t')
+
+    # Rename columns that are present
+    df = raw_df.rename(
+        {
+            '#contigID': 'record',
+            'classification': 'prediction',
+            'ANI [%]': 'value',
+            'size[bp]': 'length'
+        },
+        axis='columns')
+
+    # Rework predictions
+    df['prediction'] = np.where(df['prediction'] == 'negative', 'non-viral',
+                                'viral')
+
+    # Add constant columns
+    index_range = range(len(df.index))
+    df['tool'] = pd.Series([args.tool for x in index_range])
+    df['actual'] = pd.Series([args.actual for x in index_range])
+    df['lifecycle'] = pd.Series([None for x in index_range])
+    df['stat'] = pd.Series([None for x in index_range])
+    df['stat_name'] = pd.Series([None for x in index_range])
 
     return df
 
@@ -399,6 +430,7 @@ def reformat_virsorter2(args: Args):
 reformatters = {
     'breadsticks': reformat_breadsticks,
     'dvf': reformat_dvf,
+    'metaphinder': reformat_metaphinder,
     'seeker': reformat_seeker,
     'vibrant': reformat_vibrant,
     'viralverify': reformat_viralverify,
