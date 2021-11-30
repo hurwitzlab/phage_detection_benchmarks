@@ -131,6 +131,13 @@ def test_reformat_dvf() -> None:
 
 
 # --------------------------------------------------
+def test_reformat_metaphinder() -> None:
+    """ Reformats MetaPhinder """
+
+    run('metaphinder')
+
+
+# --------------------------------------------------
 def test_reformat_seeker() -> None:
     """ Reformats Seeker """
 
@@ -160,14 +167,14 @@ def test_reformat_virfinder() -> None:
 
 # --------------------------------------------------
 def test_reformat_virsorter() -> None:
-    """ Reformats Seeker """
+    """ Reformats VirSorter """
 
     run('virsorter')
 
 
 # --------------------------------------------------
 def test_reformat_virsorter2() -> None:
-    """ Reformats virsorter2 """
+    """ Reformats VirSorter2 """
 
     # Run with typical output
     run('virsorter2')

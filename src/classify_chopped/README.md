@@ -22,6 +22,7 @@ DeepVirFinder         | *NA*        | Yes           | Yes
 Seeker                | *NA*        | Yes           | Yes
 Unlimited Breadsticks | *NA*        | Yes           | Yes
 VIBRANT               | *NA*        | Yes           | Yes
+viralVerify           | *NA*        | Yes           | Yes
 virfinder             | *NA*        | Yes           | Yes
 virsorter             | *NA*        | Yes           | Yes
 VirSorter2            | *NA*        | Yes           | Yes
