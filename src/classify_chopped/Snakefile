@@ -116,6 +116,9 @@ rule pred_metaphinder:
         """
         source activate {params.env}
 
+        rm -rf {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/metaphinder_out
+        mkdir {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/metaphinder_out
+
         ({params.metaphinder} \
             -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta \
             -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/metaphinder_out \
