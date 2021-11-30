@@ -96,6 +96,57 @@ rule reformat_dvf:
         """
 
 
+rule pred_metaphinder:
+    input:
+        config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
+    output:
+        config["out_dir"] + "/{kingdom}/{length}/metaphinder_out/output.txt",
+    params:
+        metaphinder=config["metaphinder"],
+        env=config["metaphinder_env"],
+        blast=config["metaphinder_blast"],
+        db=config["metaphinder_db"],
+        in_dir=config["in_dir"],
+        out_dir=config["out_dir"],
+    log:
+        "logs/seeker/{kingdom}_{length}.log",
+    benchmark:
+        "benchmarks/metaphinder/{kingdom}_{length}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        ({params.metaphinder} \
+            -i {params.in_dir}/{wildcards.kingdom}/{wildcards.length}/selected_frags.fasta \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/metaphinder_out \
+            -d {params.db} \
+            -b {params.blast}
+        ) 2> {log}
+        """
+
+
+rule reformat_metaphinder:
+    input:
+        config["out_dir"] + "/{kingdom}/{length}/metaphinder_out/output.txt",
+    output:
+        config["out_dir"]
+        + "/{kingdom}/{length}/metaphinder_out/metaphinder_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+    shell:
+        """
+        source activate snakemake_env
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t metaphinder \
+            -o {params.out_dir}/{wildcards.kingdom}/{wildcards.length}/metaphinder_out \
+            {input}
+        """
+
+
 rule pred_seeker:
     input:
         config["in_dir"] + "/{kingdom}/{length}/selected_frags.fasta",
