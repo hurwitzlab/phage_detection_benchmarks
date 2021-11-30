@@ -5,7 +5,7 @@ reformat: "python3 ../post_proc/reformat.py"
 combine: "python3 ../post_proc/combine.py"
 benchmark: "python3 ../post_proc/benchmark.py"
 
-tools: ['dvf', 'metaphinder', 'seeker', 'vibrant', 'virfinder', 'virsorter', 'virsorter2', 'breadsticks']
+tools: ['dvf', 'metaphinder', 'seeker', 'vibrant', 'viralverify', 'virfinder', 'virsorter', 'virsorter2', 'breadsticks']
 
 breadsticks: "python ../../tool_envs/unlimited_breadsticks/Cenote_Unlimited_Breadsticks/unlimited_breadsticks.py"
 breadsticks_env: "../../tool_envs/unlimited_breadsticks/env"
