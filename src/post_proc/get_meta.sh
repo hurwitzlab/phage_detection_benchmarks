@@ -1,5 +1,13 @@
+#!/usr/bin/bash
+
 in_dir=$1
 out_dir=$2
+
+if [ ! -d "$out_dir" ]; then
+   mkdir $out_dir
+fi
+
+echo "refseqID,description" > $out_dir/organisms.csv
 
 # -n      Suppress (double) printing
 # ^.*     Anything at the beginning
@@ -16,5 +24,4 @@ out_dir=$2
 # $/      End of match string
 # \1,\2   Capture group 1 comma capture group 2
 # /p      Print result
-echo "refseqID,description" > $out_dir/organisms.csv
 grep -r ">" $in_dir | sed -n 's/^.*of\s\(\S*\)\s\(.[^,]*\),*.*$/\1,\2/p' >> $out_dir/organisms.csv
