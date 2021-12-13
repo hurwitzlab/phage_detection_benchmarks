@@ -1,0 +1,12 @@
+selector:
+        python3 ../data_selection/selector.py
+chopped_dir:
+        ../../data/chopped
+selected_dir:
+        ../../data/selected_frags
+num_frags:
+        10000
+kingdoms:
+        ["archaea", "bacteria", "fungi", "viral"]
+lengths:
+        ["500", "1000", "3000", "5000"]
