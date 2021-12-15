@@ -4,6 +4,7 @@ out_dir: "../../data/classified_chopped"
 reformat: "python3 ../post_proc/reformat.py"
 combine: "python3 ../post_proc/combine.py"
 benchmark: "python3 ../post_proc/benchmark.py"
+get_organisms: "../post_proc/get_meta.sh"
 
 tools: ['dvf', 'metaphinder', 'seeker', 'vibrant', 'viralverify', 'virfinder', 'virsorter', 'virsorter2', 'breadsticks']
 

@@ -2,6 +2,7 @@ rule all:
     input:
         config["out_dir"] + "/combined_out/combined.csv",
         config["out_dir"] + "/combined_out/combined_benchmarks.csv",
+        config["out_dir"] + "/combined_out/organisms.csv",
 
 
 rule combine_preds:
@@ -29,7 +30,7 @@ rule combine_preds:
 rule combine_benchmarks:
     input:
         expand(
-            "benchmarks/{tool}/{kingdom}_{length}_benchmark.txt",
+            config["out_dir"] + "/benchmarks/{tool}/{kingdom}_{length}_benchmark.txt",
             tool=config["tools"],
             kingdom=config["kingdoms"],
             length=config["lengths"],
@@ -45,6 +46,20 @@ rule combine_benchmarks:
 
         {params.benchmark} -o {params.out_dir}/combined_out {input}
         """
+
+rule get_organisms:
+    input:
+        config["in_dir"],
+    output:
+        config["out_dir"] + "/combined_out/organisms.csv",
+    params:
+        out_dir=config["out_dir"],
+        get_organisms=config["get_organisms"],
+    shell:
+        """
+        {params.get_organisms} {input} {params.out_dir}/combined_out
+        """
+
 
 
 rule pred_deepvirfinder:
@@ -62,7 +77,7 @@ rule pred_deepvirfinder:
     log:
         "logs/dvf/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/dvf/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/dvf/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -111,7 +126,7 @@ rule pred_metaphinder:
     log:
         "logs/seeker/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/metaphinder/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/metaphinder/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -162,7 +177,7 @@ rule pred_seeker:
     log:
         "logs/seeker/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/seeker/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/seeker/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate seeker_env
@@ -209,7 +224,7 @@ rule pred_vibrant:
     log:
         "logs/vibrant/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/vibrant/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/vibrant/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -271,7 +286,7 @@ rule pred_viralverify:
     log:
         "logs/viralverify/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/viralverify/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/viralverify/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -321,7 +336,7 @@ rule pred_virfinder:
     log:
         "logs/virfinder/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/virfinder/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/virfinder/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -383,7 +398,7 @@ rule pred_virsorster:
     log:
         "logs/virsorter/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/virsorter/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -480,7 +495,7 @@ rule pred_virsorter2:
     log:
         "logs/virsorter2/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/virsorter2/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/virsorter2/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -530,7 +545,7 @@ rule pred_breadsticks:
     log:
         "logs/breadsticks/{kingdom}_{length}.log",
     benchmark:
-        "benchmarks/breadsticks/{kingdom}_{length}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/breadsticks/{kingdom}_{length}_benchmark.txt"
     shell:
         """
         source activate {params.env}
