@@ -95,6 +95,11 @@ All analysis included here is conducted on the combined files:
 * `data/classified_chopped/combined_out/combined_benchmarks.csv`
 * `data/classified_chopped/combined_out/organisms.csv`
 
+TaxIDs are found in the following file:
+
+* `data/chopped/ids.txt`
+
+
 ## Data Cleaning
 
 ```{r setup, include=FALSE}
@@ -106,6 +111,7 @@ library(ggrepel)     # Line plot text labels
 library(gifski)      # Render animations
 library(hurwitzLab)  # Colors and palettes
 library(stringr)     # str_glue()
+library(taxonomizr)
 library(tidyr)
 
 # Set ggplot2 theme for whole R session
@@ -124,6 +130,10 @@ raw_bench_df <-
 # Read in list of organisms
 raw_organisms_df <-
   read.csv('../../data/classified_chopped_small/combined_out/organisms.csv')
+
+# Read in refseq info
+ids <- readLines('../../data/chopped/ids.txt')
+
 ```
 
 ### Clean Classification Results
@@ -281,12 +291,38 @@ class_df <- class_df %>%
            str_match(record,
                      "^frag_[:digit:]*_(.*)$")[, 2])
 
-class_df <- left_join(class_df, organisms_df, by = "refseqID")
+class_df <- left_join(class_df, organisms_df, by = "refseqID") %>% 
+  rename(seq_id = "refseqID")
 
 class_df %>%
-  select(record, refseqID, length, actual, description) %>%
+  select(record, seq_id, length, actual, description) %>%
   unique()
 ```
+
+```{r, echo=FALSE}
+expression <- paste0(
+  "([[:alpha:]]+)/",                       # kingdom
+  "([[:alpha:]]{3}_[[[:alnum:]]\\.]+)_.*", # accession
+  ">([[[:alnum:]]_\\.]+)\\s.*"             # seq_id
+)
+
+taxonomy <- ids %>% 
+  str_match(expression) %>% 
+  as_tibble() %>% 
+  rename(original = "V1",
+         kingdom = "V2",
+         accesssion = "V3",
+         seq_id = "V4") %>% 
+  select(-original)
+
+rm(expression, ids)
+
+class_df <- left_join(class_df, taxonomy, by = "seq_id")
+
+organisms_df <- left_join(organisms_df, taxonomy, by = c("refseqID" = "seq_id"))
+```
+
+
 
 ```{r fix_bench_names, echo = FALSE}
 bench_df <- raw_bench_df %>%
@@ -348,7 +384,7 @@ bench_df %>%
   labs(
     y = "",
     x = "Run time (min)",
-    title = "Run times for classifying 500 fragments",
+    title = "Run times for classifying 10k fragments",
     color = "Length"
   )
 ```
@@ -364,7 +400,7 @@ bench_df %>%
   scale_y_discrete(limits = rev) +
   labs(y = "",
        x = "Run time (min)",
-       title = "Average run time for classifying 500 fragments",
+       title = "Average run time for classifying 10k fragments",
        fill = "Length")
 ```
 
@@ -387,7 +423,7 @@ bench_df %>%
   labs(
     y = "",
     x = "Read Operations (MB)",
-    title = "Read operations for classifying 500 fragments",
+    title = "Read operations for classifying 10k fragments",
     color = "Length"
   )
 ```
@@ -404,7 +440,7 @@ bench_df %>%
   scale_y_discrete(limits = rev) +
   labs(y = "",
        x = "Mean Read Operations (MB)",
-       title = "Average read operations for classifying 500 fragments",
+       title = "Average read operations for classifying 10k fragments",
        fill = "Length")
 ```
 
@@ -421,7 +457,7 @@ bench_df %>%
   labs(
     y = "",
     x = "Write Operations (MB)",
-    title = "Write operations for classifying 500 fragments",
+    title = "Write operations for classifying 10k fragments",
     color = "Length"
   )
 ```
@@ -438,7 +474,7 @@ bench_df %>%
   scale_y_discrete(limits = rev) +
   labs(y = "",
        x = "Mean Write Operations (MB)",
-       title = "Average write operations for classifying 500 fragments",
+       title = "Average write operations for classifying 10k fragments",
        fill = "Length")
 ```
 
@@ -786,3 +822,235 @@ nonviral %>%
   select(-n) %>%
   arrange(desc(num_frags))
 ```
+
+
+## Binary Classification
+
+This analysis only includes phage and bacteria.
+
+```{r, echo=FALSE}
+two_class <- class_df %>% 
+  filter(actual %in% c('bacteria', 'viral'))
+
+binary_metrics <- tibble(
+  tool = factor(),
+  length = factor(),
+  tp = numeric(),
+  fp = numeric(),
+  tn = numeric(),
+  fn = numeric(),
+  F1 = numeric(),
+  sensitivity = numeric(),
+  specificity = numeric(),
+  precision = numeric(),
+  recall = numeric()
+)
+
+for (tool_i in levels(two_class$tool)) {
+  for (length_i in levels(two_class$length)) {
+    tool_df <- two_class %>%
+      filter(tool == tool_i) %>%
+      filter(length == length_i)
+    
+    cm <- confusionMatrix(tool_df$class,
+                          tool_df$actual_class,
+                          positive = "viral")
+    
+    num_neg <- cm$table[1] + cm$table[2]
+    num_pos <- cm$table[3] + cm$table[4]
+    
+    cm$table[1] <- cm$table[1] / num_neg
+    cm$table[2] <- cm$table[2] / num_neg
+    cm$table[3] <- cm$table[3] / num_pos
+    cm$table[4] <- cm$table[4] / num_pos
+    
+    binary_metrics <- binary_metrics %>%
+      add_row(
+        tool = tool_i,
+        length = length_i,
+        tp = cm$table[4],
+        fp = cm$table[2],
+        tn = cm$table[1],
+        fn = cm$table[3],
+        F1 = cm$byClass["F1"],
+        specificity = cm$byClass["Specificity"],
+        sensitivity = cm$byClass["Sensitivity"],
+        precision = cm$byClass["Precision"],
+        recall = cm$byClass["Recall"]
+      )
+  }
+}
+
+binary_metrics <- binary_metrics %>%
+  mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
+
+binary_metrics
+```
+
+
+<hr style="border:1px solid gray"> </hr>
+
+### *F1* Score by Tool
+
+---
+
+```{r, echo=FALSE}
+binary_metrics %>%
+  ggplot(aes(x = F1, y = tool, fill = length)) +
+  geom_col(position = "dodge",
+           alpha = 0.75,
+           width = 0.75) +
+  scale_fill_hurwitz("distinguish") +
+  scale_y_discrete(limits = rev) +
+  labs(x = "F1 Score",
+       y = "",
+       fill = "Length")
+```
+
+```{r, echo=FALSE}
+binary_metrics %>%
+  mutate(length = as.numeric(as.character(length))) %>%
+  ggplot(aes(x = length, y = F1, color = tool)) +
+  geom_line(alpha = 0.5) +
+  geom_point(size = 2) +
+  geom_label_repel(
+    data = binary_metrics %>%
+      mutate(length = as.numeric(as.character(length))) %>%
+      filter(length == max(length)),
+    aes(label = tool),
+    xlim = 5500,
+    ylim = c(0, 1),
+    label.size = NA,
+    label.padding = 0
+  ) +
+  scale_color_hurwitz("distinguish") +
+  theme(legend.position = "none") +
+  xlim(c(NA, 6500)) +
+  ylim(c(NA, 1)) +
+  labs(x = "Fragment length (nt)",
+       y = "F1-score",
+       color = "Tool")
+```
+
+<hr style="border:1px solid gray"> </hr>
+
+### Precision vs. Recall
+
+---
+
+
+```{r, echo = FALSE}
+binary_metrics %>%
+  ggplot(aes(y = precision, x = recall, color = length)) +
+  facet_wrap( ~ tool) +
+  geom_point(size = 2) +
+  scale_color_hurwitz("distinguish") +
+  lims(x = c(0, 1), y = c(0, 1)) +
+  labs(y = "Precision",
+       x = "Recall (Sensitivity)",
+       color = "Length")
+```
+
+```{r, echo = FALSE, results = FALSE}
+anim <- binary_metrics %>%
+  ggplot(aes(y = precision, x = recall, color = tool)) +
+  geom_point(size = 3) +
+  scale_color_brewer(palette = "Dark2") +
+  lims(x = c(0, 1), y = c(0, 1)) +
+  labs(y = "Precision",
+       x = "Recall (Sensitivity)",
+       color = "Tool") +
+  transition_states(length) +
+  ggtitle("Precision vs. Recall",
+          subtitle = "Length = {closest_state}")
+
+anim_save(
+  "figures/animated_binary_precision_recall.gif",
+  anim,
+  width = 600,
+  height = 500
+)
+```
+
+![](figures/animated_binary_precision_recall.gif)
+
+<hr style="border:1px solid gray"> </hr>
+
+### Sensitivity vs. Specificity
+
+---
+
+```{r, echo=FALSE}
+binary_metrics %>%
+  ggplot(aes(x = sensitivity, y = specificity, color = length)) +
+  facet_wrap( ~ tool) +
+  geom_point(size = 2) +
+  scale_color_hurwitz("distinguish") +
+  lims(x = c(0, 1), y = c(0, 1)) +
+  labs(x = "Sensitivity",
+       y = "Specificity",
+       color = "Length")
+```
+
+```{r, echo = FALSE, results = FALSE}
+anim <- binary_metrics %>%
+  ggplot(aes(x = sensitivity, y = specificity, color = tool)) +
+  geom_point(size = 3) +
+  scale_color_brewer(palette = "Dark2") +
+  lims(x = c(0, 1), y = c(0, 1)) +
+  labs(y = "Specificity",
+       x = "Sensitivity",
+       color = "Tool") +
+  transition_states(length) +
+  ggtitle("Specificity vs. Sensitivity",
+          subtitle = "Length = {closest_state}")
+
+anim_save(
+  "figures/animated_binary_specificity_sensitivity.gif",
+  anim,
+  width = 600,
+  height = 500
+)
+```
+
+![](figures/animated_binary_specificity_sensitivity.gif)
+
+<hr style="border:1px solid gray"> </hr>
+
+### ROC Snapshot
+
+---
+
+```{r, echo=FALSe}
+binary_metrics %>%
+  ggplot(aes(x = fp, y = tp, color = length)) +
+  facet_wrap( ~ tool) +
+  geom_point(size = 2) +
+  scale_color_hurwitz("distinguish") +
+  lims(x = c(0, 1), y = c(0, 1)) +
+  labs(x = "False Positive Rate",
+       y = "True Positive Rate",
+       color = "Length")
+```
+
+```{r, echo = FALSE, results = FALSE}
+anim <- binary_metrics %>%
+  ggplot(aes(x = fp, y = tp, color = tool)) +
+  geom_point(size = 3) +
+  scale_color_brewer(palette = "Dark2") +
+  lims(x = c(0, 1), y = c(0, 1)) +
+  labs(x = "False Positive Rate",
+       y = "True Positive Rate",
+       color = "Tool") +
+  transition_states(length) +
+  ggtitle("TPR vs. FPR",
+          subtitle = "Length = {closest_state}")
+
+anim_save("figures/animated_binary_tpr_fpr.gif",
+          anim,
+          width = 600,
+          height = 500)
+```
+
+![](figures/animated_binary_tpr_fpr.gif)
+
