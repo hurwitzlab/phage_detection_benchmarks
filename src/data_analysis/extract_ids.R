@@ -29,6 +29,7 @@ get_args <- function() {
   parser$add_argument("-o",
                       "--outdir",
                       help = "Output directory",
+                      metavar = "DIR",
                       type = "character",
                       default = "out")
   
@@ -45,13 +46,13 @@ get_args <- function() {
 #' @return
 main <- function() {
   args <- get_args()
-  file <- args$file
+  file_name <- args$file
   out_dir <- args$outdir
   
-  if (file.access(file) == -1) {
-    stop(str_glue("Specified file '{file}' cannot be accessed."))
+  if (file.access(file_name) == -1) {
+    stop(str_glue("Specified file '{file_name}' cannot be accessed."))
   } else {
-    ids <- readLines(file)
+    ids <- readLines(file_name)
   }
   
   if (!dir.exists(out_dir)) {
