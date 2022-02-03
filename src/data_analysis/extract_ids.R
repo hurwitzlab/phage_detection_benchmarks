@@ -8,7 +8,7 @@
 
 ## Library calls ------------------------------------------------------------
 
-library(dplyr)
+suppressWarnings(suppressMessages(library(dplyr)))
 library(magrittr)
 library(stringr)
 
