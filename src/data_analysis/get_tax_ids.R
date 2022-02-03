@@ -74,25 +74,28 @@ main <- function() {
   out_file <-  file.path(out_dir, "tax_ids.csv")
   
   assembly_df <- tibble()
-
+  
   for (file_name in args$summaries) {
-    
     if (file.access(file_name) == -1) {
       stop(str_glue("Specified file '{file_name}' cannot be accessed."))
     } else {
-      assembly_df <- assembly_df %>% rbind(read_tsv(file_name, show_col_types = FALSE))
+      assembly_df <-
+        assembly_df %>% rbind(read_tsv(file_name, show_col_types = FALSE))
     }
     
   }
-
+  
   
   assembly_df <- assembly_df %>%
-	    select(assembly_accession, taxid, species_taxid)
-	
-  joined_ids <- left_join(taxonomy_df, assembly_df, by = c("accession" =  "assembly_accession"))
-
+    select(assembly_accession, taxid, species_taxid)
+  
+  joined_ids <-
+    left_join(taxonomy_df,
+              assembly_df,
+              by = c("accession" =  "assembly_accession"))
+  
   write.csv(joined_ids, out_file, row.names = FALSE)
-
+  
   print(str_glue("Done. Wrote file to '{out_file}'"))
 }
 

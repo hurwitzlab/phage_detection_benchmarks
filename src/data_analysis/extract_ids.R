@@ -26,12 +26,14 @@ get_args <- function() {
   parser$add_argument("file",
                       help = "File resulting from grep '>' on genome files",
                       metavar = "FILE")
-  parser$add_argument("-o",
-                      "--outdir",
-                      help = "Output directory",
-                      metavar = "DIR",
-                      type = "character",
-                      default = "out")
+  parser$add_argument(
+    "-o",
+    "--outdir",
+    help = "Output directory",
+    metavar = "DIR",
+    type = "character",
+    default = "out"
+  )
   
   args <- parser$parse_args()
   

@@ -2,7 +2,7 @@
 
 # Author : Kenneth Schackart <schackartk1@gmail.com>
 # Date   : 2022-02-03
-# Purpose: Get taxnomy using taxonomizr
+# Purpose: Get taxonomy using taxonomizr
 
 # Imports -------------------------------------------------------------------
 
@@ -28,18 +28,22 @@ get_args <- function() {
   parser$add_argument("file",
                       help = "File with taxid column",
                       metavar = "FILE")
-  parser$add_argument("-o",
-                      "--outdir",
-                      help = "Output directory",
-                      metavar = "DIR",
-                      type = "character",
-                      default = "out")
-  parser$add_argument("-d",
-		      "--db",
-		      help = "taxonomizr database",
-		      metavar = "DB",
-		      type = "character",
-		      default = "data/taxonomizr/accession_taxa.sql")
+  parser$add_argument(
+    "-o",
+    "--outdir",
+    help = "Output directory",
+    metavar = "DIR",
+    type = "character",
+    default = "out"
+  )
+  parser$add_argument(
+    "-d",
+    "--db",
+    help = "taxonomizr database",
+    metavar = "DB",
+    type = "character",
+    default = "data/taxonomizr/accession_taxa.sql"
+  )
   
   args <- parser$parse_args()
   
@@ -63,7 +67,7 @@ main <- function() {
   } else {
     ids <- read_csv(file_name, show_col_types = FALSE)
   }
-
+  
   if (file.access(db) == -1) {
     stop(str_glue("Specified database '{db}' cannot be accessed."))
   }
