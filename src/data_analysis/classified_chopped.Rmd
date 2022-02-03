@@ -71,8 +71,6 @@ Results were written to `data/classified_chopped/`.
 
 All classifications are combined into the file `data/classified_chopped/combined_out/combined.csv`
 
-Additionally, the RefSeq ID and description of each selected fragment is extracted and written to `data/classified_chopped/combined_out/organisms.csv`.
-
 <hr style="border:1px solid gray"> </hr>
 
 #### Resource Usage
@@ -85,6 +83,22 @@ All benchmark files are combined and written to `data/classified_chopped/combine
 
 <hr style="border:1px solid gray"> </hr>
 
+#### Taxonomy Information
+
+---
+
+Taxonomy information for each fragment was acquired by linking sequence ID -> assembly accession ID -> taxonomic ID -> taxonomy.
+
+The scripts for doing so are in `src/data_analysis`
+
+The workflow was:
+
+`extract_ids.R` -> `get_tax_ids.R` -> `get_taxonomy.R`
+
+The final file containing taxonomy of all genomes that were chopped is `data/refseq_info/taxonomy.csv`
+
+<hr style="border:1px solid gray"> </hr>
+
 ### This Analysis
 
 ---
@@ -93,11 +107,10 @@ All analysis included here is conducted on the combined files:
 
 * `data/classified_chopped/combined_out/combined.csv`
 * `data/classified_chopped/combined_out/combined_benchmarks.csv`
-* `data/classified_chopped/combined_out/organisms.csv`
 
-TaxIDs are found in the following file:
+Taxonomy information is gathered from:
 
-* `data/chopped/ids.txt`
+* `data/refseq_info/taxonomy.csv`
 
 
 ## Data Cleaning
@@ -127,12 +140,9 @@ raw_class_df <-
 raw_bench_df <-
   read.csv('../../data/classified_chopped_small/combined_out/combined_benchmarks.csv')
 
-# Read in list of organisms
-raw_organisms_df <-
-  read.csv('../../data/classified_chopped_small/combined_out/organisms.csv')
-
-# Read in refseq info
-ids <- readLines('../../data/chopped/ids.txt')
+# Read in taxonomy
+raw_taxonomy_df <-
+  read.csv('../../data/refseq_info/taxonomy.csv')
 
 ```
 
@@ -229,7 +239,7 @@ nonviral_classes = c(
 
 class_df <- class_df %>%
   mutate(
-    class = case_when(
+    predict_class = case_when(
       prediction %in% viral_classes ~ "viral",
       prediction %in% nonviral_classes ~ "non-viral"
     ),
@@ -237,12 +247,12 @@ class_df <- class_df %>%
                              actual != "viral" ~ "non-viral")
   ) %>%
   mutate(
-    class = as.factor(class),
+    predict_class = as.factor(predict_class),
     actual_class = as.factor(actual_class),
     length = factor(length, levels = c("500", "1000", "3000", "5000"))
   )
 
-class_df$class %>%
+class_df$predict_class %>%
   levels()
 ```
 
@@ -280,48 +290,38 @@ class_df$tool %>% levels()
 
 ---
 
-The RefSeq ID's were extracted from the files containing the selected fragments. The description was also extracted. However, this is not the GenBank ID, and I may need some kind of mapping to get that if that is what we need.
+Join the taxonomy information to the dataframe
 
 ```{r add organisms, echo = FALSE}
-organisms_df <- raw_organisms_df %>%
+taxonomy_df <- raw_taxonomy_df %>%
+  select(-kingdom) %>% 
   unique()
 
 class_df <- class_df %>%
-  mutate(refseqID =
+  mutate(seq_id =
            str_match(record,
                      "^frag_[:digit:]*_(.*)$")[, 2])
 
-class_df <- left_join(class_df, organisms_df, by = "refseqID") %>% 
-  rename(seq_id = "refseqID")
+class_df <- left_join(class_df, taxonomy_df, by = "seq_id")
 
 class_df %>%
-  select(record, seq_id, length, actual, description) %>%
+  select(
+    record,
+    seq_id,
+    length,
+    actual,
+    taxid,
+    species_taxid,
+    superkingdom,
+    phylum,
+    class,
+    order,
+    family,
+    genus,
+    species
+  ) %>%
   unique()
 ```
-
-```{r, echo=FALSE}
-expression <- paste0(
-  "([[:alpha:]]+)/",                       # kingdom
-  "([[:alpha:]]{3}_[[[:alnum:]]\\.]+)_.*", # accession
-  ">([[[:alnum:]]_\\.]+)\\s.*"             # seq_id
-)
-
-taxonomy <- ids %>% 
-  str_match(expression) %>% 
-  as_tibble() %>% 
-  rename(original = "V1",
-         kingdom = "V2",
-         accesssion = "V3",
-         seq_id = "V4") %>% 
-  select(-original)
-
-rm(expression, ids)
-
-class_df <- left_join(class_df, taxonomy, by = "seq_id")
-
-organisms_df <- left_join(organisms_df, taxonomy, by = c("refseqID" = "seq_id"))
-```
-
 
 
 ```{r fix_bench_names, echo = FALSE}
@@ -505,7 +505,7 @@ for (tool_i in levels(class_df$tool)) {
       filter(tool == tool_i) %>%
       filter(length == length_i)
     
-    cm <- confusionMatrix(tool_df$class,
+    cm <- confusionMatrix(tool_df$predict_class,
                           tool_df$actual_class,
                           positive = "viral")
     
@@ -766,13 +766,7 @@ Top genuses (geni?) for non-viral organisms.
 
 ```{r prokarya, echo=FALSE}
 nonviral <- class_df %>%
-  filter(actual != "viral") %>%
-  mutate(
-    genus = str_match(description,
-                      "^([:alpha:]*).*$")[, 2],
-    species = str_match(description,
-                        "^[:alpha:]*\\s([:alpha:]*[^'sp.']).*$")[, 2]
-  )
+  filter(actual != "viral")
 ```
 
 <hr style="border:1px solid gray"> </hr>
@@ -852,7 +846,7 @@ for (tool_i in levels(two_class$tool)) {
       filter(tool == tool_i) %>%
       filter(length == length_i)
     
-    cm <- confusionMatrix(tool_df$class,
+    cm <- confusionMatrix(tool_df$predict_class,
                           tool_df$actual_class,
                           positive = "viral")
     
