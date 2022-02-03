@@ -75,7 +75,7 @@ main <- function() {
     rename(
       original = "V1",
       kingdom = "V2",
-      accesssion = "V3",
+      accession = "V3",
       seq_id = "V4"
     ) %>%
     select(-original)
