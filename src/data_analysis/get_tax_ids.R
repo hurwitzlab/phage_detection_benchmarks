@@ -8,7 +8,7 @@
 
 ## Library calls ------------------------------------------------------------
 
-library(dplyr)
+suppressWarnings(suppressMessages(library(dplyr)))
 library(magrittr)
 library(readr)
 library(stringr)
@@ -76,12 +76,11 @@ main <- function() {
   assembly_df <- tibble()
 
   for (file_name in args$summaries) {
-    print(file_name)
     
     if (file.access(file_name) == -1) {
       stop(str_glue("Specified file '{file_name}' cannot be accessed."))
     } else {
-      assembly_df <- assembly_df %>% rbind(read_tsv(file_name))
+      assembly_df <- assembly_df %>% rbind(read_tsv(file_name, show_col_types = FALSE))
     }
     
   }
