@@ -1,0 +1,2 @@
+dsDNAphage,phage,viral,Virus
+bacteria,Chromosome,non-viral,Plasmid,ssDNA,Uncertain - plasmid or chromosomal,Uncertain - too short,Uncertain - viral or bacterial
