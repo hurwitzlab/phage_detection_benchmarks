@@ -118,6 +118,7 @@ Taxonomy information is gathered from:
 ```{r setup, include=FALSE}
 library(caret)
 library(dplyr)
+library(forcats)
 library(gganimate)
 library(ggplot2)
 library(ggrepel)     # Line plot text labels
@@ -134,7 +135,7 @@ theme_set(theme_light() +
 
 # Read in all classifications
 raw_class_df <-
-  read.csv('../../data/classified_chopped_small/combined_out/combined.csv')
+  read.csv('../../data/classified_chopped_small/combined_out/combined_2.csv')
 
 # Read in Snakemake benchmarks
 raw_bench_df <-
@@ -149,33 +150,6 @@ raw_taxonomy_df <-
 ### Clean Classification Results
 
 ---
-
-#### Clean VirSorter Record Names
-
----
-
-It seems that I have an error in my post-processing script for VirSorter, where the record is not just the record ID, but the entire description as well.
-
-```{r show_virsorter, echo=FALSE}
-raw_class_df %>%
-  filter(tool == 'virsorter') %>%
-  select(record)
-```
-
-I will fix that script later, but for now, I will just clean that up. Here they are after cleaning in R.
-
-```{r fix_virsorter, echo=FALSE}
-class_df <- raw_class_df
-
-class_df$record <- class_df$record %>%
-  str_remove("_Fragment.*") %>% # Remove from "_Fragment." to the end
-  str_replace("(_)([:digit:]+)$", ".\\2") # Replace final underscore with dot
-
-class_df %>%
-  filter(tool == 'virsorter')
-```
-
-<hr style="border:1px solid gray"> </hr>
 
 #### Fill in Missing Classifications
 
@@ -484,57 +458,66 @@ Here we will look at the general classification performance of the classifiers. 
 
 At this point, we can note that *Unlimited Breadsticks* did not identify any contigs as "viral". However, the tool seems to be running. This can be seen from the fact that in the resource usage analysis, Unlimited Breadsticks had longer compute time for longer contigs.
 
-```{r, echo = FALSE}
-metrics <- tibble(
-  tool = factor(),
-  length = factor(),
-  tp = numeric(),
-  fp = numeric(),
-  tn = numeric(),
-  fn = numeric(),
-  F1 = numeric(),
-  sensitivity = numeric(),
-  specificity = numeric(),
-  precision = numeric(),
-  recall = numeric()
-)
+```{r metrics_function, echo = FALSE}
+get_metrics <- function(df) {
+  metrics <- tibble(
+    tool = factor(),
+    length = factor(),
+    tp = numeric(),
+    fp = numeric(),
+    tn = numeric(),
+    fn = numeric(),
+    F1 = numeric(),
+    sensitivity = numeric(),
+    specificity = numeric(),
+    precision = numeric(),
+    recall = numeric()
+  )
 
-for (tool_i in levels(class_df$tool)) {
-  for (length_i in levels(class_df$length)) {
-    tool_df <- class_df %>%
-      filter(tool == tool_i) %>%
-      filter(length == length_i)
-    
-    cm <- confusionMatrix(tool_df$predict_class,
-                          tool_df$actual_class,
-                          positive = "viral")
-    
-    num_neg <- cm$table[1] + cm$table[2]
-    num_pos <- cm$table[3] + cm$table[4]
-    
-    cm$table[1] <- cm$table[1] / num_neg
-    cm$table[2] <- cm$table[2] / num_neg
-    cm$table[3] <- cm$table[3] / num_pos
-    cm$table[4] <- cm$table[4] / num_pos
-    
-    metrics <- metrics %>%
-      add_row(
-        tool = tool_i,
-        length = length_i,
-        tp = cm$table[4],
-        fp = cm$table[2],
-        tn = cm$table[1],
-        fn = cm$table[3],
-        F1 = cm$byClass["F1"],
-        specificity = cm$byClass["Specificity"],
-        sensitivity = cm$byClass["Sensitivity"],
-        precision = cm$byClass["Precision"],
-        recall = cm$byClass["Recall"]
-      )
+  for (tool_i in levels(df$tool)) {
+    for (length_i in levels(df$length)) {
+      subset_df <- df %>%
+        filter(tool == tool_i) %>%
+        filter(length == length_i)
+      
+      cm <- confusionMatrix(subset_df$predict_class,
+                            subset_df$actual_class,
+                            positive = "viral")
+      
+      # Get number of total negatives and positives
+      num_neg <- cm$table[1] + cm$table[2]
+      num_pos <- cm$table[3] + cm$table[4]
+      
+      # Convert to relative amounts
+      cm$table[1] <- cm$table[1] / num_neg
+      cm$table[2] <- cm$table[2] / num_neg
+      cm$table[3] <- cm$table[3] / num_pos
+      cm$table[4] <- cm$table[4] / num_pos
+      
+      metrics <- metrics %>%
+        add_row(
+          tool = tool_i,
+          length = length_i,
+          tp = cm$table[4],
+          fp = cm$table[2],
+          tn = cm$table[1],
+          fn = cm$table[3],
+          F1 = cm$byClass["F1"],
+          specificity = cm$byClass["Specificity"],
+          sensitivity = cm$byClass["Sensitivity"],
+          precision = cm$byClass["Precision"],
+          recall = cm$byClass["Recall"]
+        )
+    }
   }
+  
+  metrics
 }
+```
 
-metrics <- metrics %>%
+
+```{r, echo = FALSE}
+metrics <- get_metrics(class_df) %>%
   mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
 
 metrics
@@ -756,66 +739,99 @@ anim_save("figures/animated_tpr_fpr.gif",
 
 ![](figures/animated_tpr_fpr.gif)
 
-## Organism breakdown
+## Viral Taxonomy
 
-### Top organisms
+### Top orders
 
 ---
 
-Top genuses (geni?) for non-viral organisms.
+Most highly represented viral orders.
+
+I left the `NA`s for now, to get an idea of their magnitude
 
 ```{r prokarya, echo=FALSE}
-nonviral <- class_df %>%
-  filter(actual != "viral")
-```
+viral <- class_df %>%
+  filter(actual == "viral")
 
-<hr style="border:1px solid gray"> </hr>
-
-#### Top archaea
-
----
-
-```{r top_archaea, echo=FALSE}
-nonviral %>%
-  filter(actual == "archaea") %>%
-  group_by(genus) %>%
+viral %>%
+  group_by(order) %>%
   count() %>%
-  mutate(num_frags = n / length(levels(nonviral$tool))) %>%
+  mutate(num_frags = n / length(levels(viral$tool))) %>%
   select(-n) %>%
   arrange(desc(num_frags))
 ```
-
 <hr style="border:1px solid gray"> </hr>
 
-#### Top bacteria
+### Distribution
 
 ---
 
-```{r top_bacteria, echo=FALSE}
-nonviral %>%
-  filter(actual == "bacteria") %>%
-  group_by(genus) %>%
+```{r order_histo, echo=FALSE}
+viral %>%
+  mutate(order = if_else(is.na(order), "unknown", order)) %>%
+  group_by(order) %>%
   count() %>%
-  mutate(num_frags = n / length(levels(nonviral$tool))) %>%
+  mutate(num_frags = n / length(levels(viral$tool))) %>%
   select(-n) %>%
-  arrange(desc(num_frags))
+  mutate(is_na = (order == "unknown")) %>%
+  ggplot(aes(
+    x = fct_reorder(order,-num_frags),
+    y = num_frags / 40000,
+    color = is_na,
+    fill = is_na
+  )) +
+  scale_color_hurwitz("contrast") +
+  scale_fill_hurwitz("contrast") +
+  geom_col() +
+  theme(
+    axis.text.x = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    legend.position = "none",
+    plot.caption = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Distribution of viral orders",
+    subtitle = "Red: Unretrieved taxonomy",
+    x = "Viral order",
+    y = "Proportion of fragments",
+    caption = "Caudovirales makes up >50% of fragments"
+  )
 ```
+
 
 <hr style="border:1px solid gray"> </hr>
 
-#### Top fungi
+### Performance Differences
 
 ---
 
-```{r top_fungi, echo=FALSE}
-nonviral %>%
-  filter(actual == "fungi") %>%
-  group_by(genus) %>%
-  count() %>%
-  mutate(num_frags = n / length(levels(nonviral$tool))) %>%
-  select(-n) %>%
-  arrange(desc(num_frags))
+Were the true positive (TP) and false negative (FN) rates different for caudovirales and other orders?
+
+This is only looking at fragments that were truly viral, so *F1*-score, etc are not relevant.
+
+```{r, echo = FALSE}
+caudo_metrics <- viral %>% 
+  filter(order == "Caudovirales") %>% 
+  get_metrics() %>% 
+  mutate(caudo = "Caudovirales")
+
+noncaudo_metrics <- viral %>% 
+  filter(order != "Caudovirales") %>% 
+  get_metrics() %>% 
+  mutate(caudo = "other")
+
+viral_metrics <- bind_rows(caudo_metrics, noncaudo_metrics)
+
+viral_metrics %>%
+  ggplot(aes(x = as.integer(length)/1000, y= sensitivity, color = caudo)) +
+  facet_wrap(~ tool) +
+  geom_point() +
+  labs(x = "Fragment length (1000 nt)",
+       y = "Sensitivity",
+       color = "")
 ```
+
 
 
 ## Binary Classification
@@ -826,56 +842,7 @@ This analysis only includes phage and bacteria.
 two_class <- class_df %>% 
   filter(actual %in% c('bacteria', 'viral'))
 
-binary_metrics <- tibble(
-  tool = factor(),
-  length = factor(),
-  tp = numeric(),
-  fp = numeric(),
-  tn = numeric(),
-  fn = numeric(),
-  F1 = numeric(),
-  sensitivity = numeric(),
-  specificity = numeric(),
-  precision = numeric(),
-  recall = numeric()
-)
-
-for (tool_i in levels(two_class$tool)) {
-  for (length_i in levels(two_class$length)) {
-    tool_df <- two_class %>%
-      filter(tool == tool_i) %>%
-      filter(length == length_i)
-    
-    cm <- confusionMatrix(tool_df$predict_class,
-                          tool_df$actual_class,
-                          positive = "viral")
-    
-    num_neg <- cm$table[1] + cm$table[2]
-    num_pos <- cm$table[3] + cm$table[4]
-    
-    cm$table[1] <- cm$table[1] / num_neg
-    cm$table[2] <- cm$table[2] / num_neg
-    cm$table[3] <- cm$table[3] / num_pos
-    cm$table[4] <- cm$table[4] / num_pos
-    
-    binary_metrics <- binary_metrics %>%
-      add_row(
-        tool = tool_i,
-        length = length_i,
-        tp = cm$table[4],
-        fp = cm$table[2],
-        tn = cm$table[1],
-        fn = cm$table[3],
-        F1 = cm$byClass["F1"],
-        specificity = cm$byClass["Specificity"],
-        sensitivity = cm$byClass["Sensitivity"],
-        precision = cm$byClass["Precision"],
-        recall = cm$byClass["Recall"]
-      )
-  }
-}
-
-binary_metrics <- binary_metrics %>%
+binary_metrics <- get_metrics(two_class) %>%
   mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
 
 binary_metrics
