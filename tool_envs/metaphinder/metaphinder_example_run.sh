@@ -30,17 +30,12 @@
 source ~/.bashrc
 
 # Activate a conda environment
-source activate metaphinder_env
+source activate ./env
 
-# Load any necessary modules
-# module load my_modules
+out_dir="example_out"
+input_file="../../data/selected_frags_small/viral/5000/selected_frags.fasta"  
+blast_loc="env/bin"
 
-# Get current directory to help establish paths
-DIR="/xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/tool_envs/metaphinder"
+mkdir $out_dir
 
-cd $DIR
-
-input_file="../../src/genome_chopper/out/input1_frags.fasta"  
-blast_loc="~/.conda/envs/metaphinder_env/bin"
-
-python MetaPhinder/MetaPhinder.py -i $input_file -o example_out -d MetaPhinder/database -b $blast_loc
+python MetaPhinder/MetaPhinder.py -i $input_file -o example_out -d MetaPhinder/database/ALL_140821_hr -b $blast_loc
