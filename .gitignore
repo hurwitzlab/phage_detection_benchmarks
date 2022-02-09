@@ -5,6 +5,6 @@
 # Data
 data/
 .Rproj.user
-.Rdata
+.RData
 .Rhistory
 renv/

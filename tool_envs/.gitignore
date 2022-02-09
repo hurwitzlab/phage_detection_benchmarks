@@ -4,16 +4,20 @@ marvel/MARVEL/
 metaphinder/MetaPhinder/
 mutation_simulator/
 phage_finder/phage_finder_v2.1/
+phamer/PhaMer/
 phamers/PhaMers/
 rnn-virseeker/RNN-VirSeeker/
 vibrant/VIBRANT
 virmine/virmine
 
 # Data
+*/out/
 deepvirfinder/test/
+metaphinder/example_out/
 phigaro/test_data
 phispy/Streptococcus.phages/
 phispy/Streptococcus_pyogenes_M1_GAS.gb
+viralverify/nbc_hmms.hmm
 vibrant/my_output/
 virsorter2/db/
 virsorter2/test.fa
