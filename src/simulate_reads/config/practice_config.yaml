@@ -4,12 +4,14 @@ simulator_cpus:
         --cpus 8
 genomes_dir:
         practice_inputs
+profiles_dir:
+        practice_profiles
 abundances:
-        a: "profiles/profile_a.txt"
-        b: "profiles/profile_b.txt"
-        c: "profiles/profile_c.txt"
+        a: "profile_a.txt"
+        b: "profile_b.txt"
+        c: "profile_c.txt"
 simulated_dir:
-        ../../data/simulated_reads
+        ../../data/practice_simulated_reads
 model:
         miseq: "miseq"
         hiseq: "hiseq"
