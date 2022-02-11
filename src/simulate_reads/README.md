@@ -9,7 +9,11 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 
 ### Genome Concatenation
 
-InSiicoSeq treats each record in a multi-FASTA file as a genome. However, some genome files have multiple records (*e.g.* separated by chromosome). The first part of the `cat_genomes` rule executes `cat_genomes.sh` which takes all genome files in the directory, and removes all record headers but the first. Then, these trimmed down genome files are all concatenated into a single file `cat_genomes.fasta`. The headers representing each genome in this new file are what must be used in the abundance profiles.
+InSiicoSeq treats each record in a multi-FASTA file as a genome, and requires a profile file giving the abundance of head record/genome. However, some genome files have multiple records (*e.g.* separated by chromosome).
+
+The two files are created using scripts located here. First, `braken_profiler.py` parses braken output and creates two files: one with the profile, ready for input to InSilicoSeq, and a file with information on the genomes that need to be retrieved, such as file name globs and the record ID that was written in the profile.
+
+Next, `cat_genomes.py` reads the information file, retrieves all the genomes in the profile, removes the record headers for each genome (except the one that matches that in the profile), and writes them all to one large file, which is the other input to InSilicoSeq
 
 ### Read Simulation
 
@@ -20,7 +24,7 @@ Several abundance profiles can be created, and the specified genomes must have i
 
 This script takes Braken output and creates a profile for use in ISS. Taxonomic IDs are used to join the Braken output with my list of refseq genomes. Since not all genomes may be found, the abundances are rescaled so they still add to 1. The abundance profile is written to `*_profile.txt`.
 
-Additionally, a file is created (`*_files.txt`) that contains a list of "file names" (file globs that should only match one file). The files that match these globs are the files that contain the sequences in the profile.
+Additionally, a file is created (`*_files.txt`) that contains acession numbers, file globs, and sequence record IDs that are in the profile. The files that match these globs are the files that contain the sequences in the profile.
 
 Example usage
 ```
@@ -31,14 +35,47 @@ $ ls out/
 input_1_files.txt  input_1_profile.txt
 
 # File globs do not include the parent directory (refseq)
-$ head -n 3 out/input_1_files.txt 
-bacteria/GCF_006742345.1*.fna
-bacteria/GCF_004328515.1*.fna
-bacteria/GCF_015679285.1*.fna
+$ head -n 5 out/input_1_files.txt 
+accession,filename,seq_id
+GCF_000006175.1,archaea/GCF_000006175.1*.fna,NC_014222.1
+GCF_001742205.1,bacteria/GCF_001742205.1*.fna,NZ_CP017151.1
+GCF_000891875.6,viral/GCF_000891875.6*.fna,NC_015298.1
+GCF_013402915.1,fungi/GCF_013402915.1*.fna,NC_050719.1
 
-# First column is sequence ID, so will still need to use cat_genomes.sh
-$ head -n 3 out/input_1_profile.txt 
-NZ_AP019724.1   0.1027
-NZ_CP036491.1   0.0189
-NZ_CP064937.1   0.01957
+$ head -n 5 out/input_1_profile.txt
+NC_014222.1     0.6525
+NZ_CP017151.1   0.21977
+NC_015298.1     0.12644
+NC_050719.1     0.0013
 ```
+## `cat_genomes.py`
+
+This script concatenates all the genomes that are required for ISS based on the profile.
+
+There are 3 inputs:
+
+* File containing genome information (`*_files.txt` output from `braken_profiler.py`)
+* `-p|--parent`: the parent directory from which the file globs are defined.
+* `-o|--outdir`: output directory to write concatenated genomes.
+
+The file globs are not full relative paths, such as *archaea/GCF_000006175.1\*.fna*, so the `--parent` directory is provided to complete the relative path. For instance, if `--parent` = *../../data/refseq*, the full file glob that will be used is *../../data/refseq/archaea/GCF_000006175.1\*.fna*
+
+Example usage
+```
+$ ./cat_genomes.py -p tests/inputs/cat_genomes/refseq/ tests/inputs/cat_genomes/input_1_files.txt 
+Done. Concatenated 4 files to out/input_1_genomes.fasta
+
+$ head -n 5 out/input_1_genomes.fasta
+>NC_014222.1 Methanococcus voltae A3, complete sequence
+AATTTAAAGATTAAAATTAGTAGACTGTCGATTTACAATATCATATTTATGAGTAATGATAATAACATTATCAAAGTATT
+ATCTAAATATTTAGATTTAATATGTTTCTCAATGGAATATGTTAAATTTTATATTTATACATTATTGTAAAATCATAAAA
+ATTTTTTAGAAAAATGTCTTAATCTTGCTAATTTTTGATTTATTGCCAAAATACACATTACTCATCAAATGAAAATTAGT
+TCAAATATTGTGTATAATGTCCTGTGTAATATTACAAATTACTGTATGTAATATACCGTATGCAATATACAATAGTAAAT
+
+$ grep ">" out/input_1_genomes.fasta 
+>NC_014222.1 Methanococcus voltae A3, complete sequence
+>NZ_CP017151.1 Limosilactobacillus fermentum strain NCC2970 chromosome, complete genome
+>NC_015298.1 Rose rosette virus RNA1, complete genome
+>NC_050719.1 Zygotorulaspora mrakii chromosome 1, complete sequence
+```
+
