@@ -75,7 +75,7 @@ def main() -> None:
 
     files_output, profile_output = make_filenames(args.braken.name, out_dir)
 
-    files_df.to_csv(files_output, sep=",", index=False, header=False)
+    files_df.to_csv(files_output, sep=",", index=False)
     profile_df.to_csv(profile_output, sep="\t", index=False, header=False)
 
     print(f'Done. Wrote output files to "{out_dir}".')
@@ -141,12 +141,12 @@ def rescale_abundances(col: pd.Series) -> pd.Series:
 def make_files_df(df: pd.DataFrame) -> pd.DataFrame:
     """ Create file names of genomes """
 
-    files_df = df[['kingdom', 'accession']]
+    files_df = df[['kingdom', 'accession', 'seq_id']]
 
     files_df['filename'] = files_df['kingdom'] + '/' + files_df[
         'accession'] + '*.fna'
 
-    files_df = files_df[['filename']]
+    files_df = files_df[['accession', 'filename', 'seq_id']]
 
     return files_df
 
