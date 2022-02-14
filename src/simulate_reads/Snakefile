@@ -1,36 +1,39 @@
-(PROFILES,) = glob_wildcards(config["profiles_dir"] + "/{p}.txt")
+(PROFILES,) = glob_wildcards(config["bracken_dir"] + "/{p}.txt")
 
 
 rule all:
-    expand("{dir}/{id}_profile.txt", dir=config["profiles_dir"] + id=PROFILES),
-        expand("{dir}/{id}_files.txt", dir=config["profiles_dir"] + id=PROFILES),
-    # input:
-    #     expand(
-    #         "{s}/{a}_{m}_reads_R1.fastq",
-    #         s=config["simulated_dir"],
-    #         m=config["model"],
-    #         a=config["abundances"],
-    #     ),
-    #     expand(
-    #         "{s}/{a}_{m}_reads_R2.fastq",
-    #         s=config["simulated_dir"],
-    #         m=config["model"],
-    #         a=config["abundances"],
-    #     ),
+    input:
+        expand("{dir}/{id}_profile.txt", dir=config["profiles_dir"], id=PROFILES),
+        expand("{dir}/{id}_files.txt", dir=config["profiles_dir"], id=PROFILES),
+
+
+# input:
+#     expand(
+#         "{s}/{a}_{m}_reads_R1.fastq",
+#         s=config["simulated_dir"],
+#         m=config["model"],
+#         a=config["abundances"],
+#     ),
+#     expand(
+#         "{s}/{a}_{m}_reads_R2.fastq",
+#         s=config["simulated_dir"],
+#         m=config["model"],
+#         a=config["abundances"],
+#     ),
 
 
 rule make_profiles:
     input:
-        expand("{dir}/{id}.txt", dir=config["braken_dir"], id=PROFILES),
+        expand("{dir}/{id}.txt", dir=config["bracken_dir"], id=PROFILES),
     output:
-        expand("{dir}/{id}_profile.txt", dir=config["profiles_dir"] + id=PROFILES),
-        expand("{dir}/{id}_files.txt", dir=config["profiles_dir"] + id=PROFILES),
+        expand("{dir}/{id}_profile.txt", dir=config["profiles_dir"], id=PROFILES),
+        expand("{dir}/{id}_files.txt", dir=config["profiles_dir"], id=PROFILES),
     params:
-        braken_profiler=config["braken_profiler"],
-        out_dir=config["profiles_dir"]
+        bracken_profiler=config["bracken_profiler"],
+        out_dir=config["profiles_dir"],
     shell:
         """
-            {params.braken_profiler} -o profiles_dir {input}
+        {params.bracken_profiler} -o {params.out_dir} {input}
         """
 
 
@@ -50,7 +53,6 @@ rule make_profiles:
 #         """
 #         source ~/.bashrc
 #         source activate insilicoseq_env
-
 #         {params.simulator} {params.cpus} {params.reads} \
 #         --model {wildcards.model} \
 #         --abundance_file {input.abundances} \
