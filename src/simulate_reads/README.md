@@ -11,7 +11,7 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 
 InSiicoSeq treats each record in a multi-FASTA file as a genome, and requires a profile file giving the abundance of head record/genome. However, some genome files have multiple records (*e.g.* separated by chromosome).
 
-The two files are created using scripts located here. First, `braken_profiler.py` parses braken output and creates two files: one with the profile, ready for input to InSilicoSeq, and a file with information on the genomes that need to be retrieved, such as file name globs and the record ID that was written in the profile.
+The two files are created using scripts located here. First, `bracken_profiler.py` parses bracken output and creates two files: one with the profile, ready for input to InSilicoSeq, and a file with information on the genomes that need to be retrieved, such as file name globs and the record ID that was written in the profile.
 
 Next, `cat_genomes.py` reads the information file, retrieves all the genomes in the profile, removes the record headers for each genome (except the one that matches that in the profile), and writes them all to one large file, which is the other input to InSilicoSeq
 
@@ -20,15 +20,15 @@ Next, `cat_genomes.py` reads the information file, retrieves all the genomes in 
 Several abundance profiles can be created, and the specified genomes must have identifiers that match those in `cat_genomes.fasta`. The list of desired abundance profiles should be given in the `--configfile`, as well as other `iss generate` parameters. Multiple error models can be automatically executed by inclusion in the config["model"] field, which currently includes all pre-built error models.
 
 
-## `braken_profiler.py`
+## `bracken_profiler.py`
 
-This script takes Braken output and creates a profile for use in ISS. Taxonomic IDs are used to join the Braken output with my list of refseq genomes. Since not all genomes may be found, the abundances are rescaled so they still add to 1. The abundance profile is written to `*_profile.txt`.
+This script takes Bracken output and creates a profile for use in ISS. Taxonomic IDs are used to join the Bracken output with my list of refseq genomes. Since not all genomes may be found, the abundances are rescaled so they still add to 1. The abundance profile is written to `*_profile.txt`.
 
 Additionally, a file is created (`*_files.txt`) that contains acession numbers, file globs, and sequence record IDs that are in the profile. The files that match these globs are the files that contain the sequences in the profile.
 
 Example usage
 ```
- $ ./braken_profiler.py tests/inputs/braken_profiler/input_1.txt
+ $ ./bracken_profiler.py tests/inputs/bracken_profiler/input_1.txt
 Done. Wrote output files to "out".
 
 $ ls out/
@@ -54,7 +54,7 @@ This script concatenates all the genomes that are required for ISS based on the 
 
 There are 3 inputs:
 
-* File containing genome information (`*_files.txt` output from `braken_profiler.py`)
+* File containing genome information (`*_files.txt` output from `bracken_profiler.py`)
 * `-p|--parent`: the parent directory from which the file globs are defined.
 * `-o|--outdir`: output directory to write concatenated genomes.
 

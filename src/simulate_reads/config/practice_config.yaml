@@ -1,13 +1,13 @@
 simulator:
         iss generate
-braken_profiler:
-        ./braken_profiler.py
+bracken_profiler:
+        ./bracken_profiler.py
 cat_genomes:
         ./cat_genomes.py
 simulator_cpus:
         --cpus 8
-braken_dir:
-        ../../data/braken_profiles
+bracken_dir:
+        ../../data/bracken_profiles
 profiles_dir:
         ../../data/profiles
 abundances:
