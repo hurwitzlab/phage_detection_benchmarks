@@ -30,12 +30,34 @@ rule make_profiles:
         expand("{dir}/{id}_files.txt", dir=config["profiles_dir"], id=PROFILES),
     params:
         bracken_profiler=config["bracken_profiler"],
+        refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
     shell:
         """
-        {params.bracken_profiler} -o {params.out_dir} {input}
+        {params.bracken_profiler} \
+            -t {params.refseq} \
+            -o {params.out_dir} \
+            {input}
         """
 
+
+rule cat_genomes:
+    input:
+        expand("{dir}/{id}_profile.txt", dir=config["profiles_dir"], id=PROFILES),
+        expand("{dir}/{id}_files.txt", dir=config["profiles_dir"], id=PROFILES),
+    output:
+        expand("{dir}/{id}_genomes.fasta", dir=config["profiles_dir"], id=PROFILES),
+    params:
+        cat_genomes=config["cat_genomes"],
+        out_dir=config["profiles_dir"],
+        parent=config["refseq_dir"]
+    shell:
+        """
+        {params.cat_genomes} \
+            -p {params.parent} \
+            -o {params.out_dir} \
+            {input}
+        """
 
 # rule simulate_reads:
 #     input:
