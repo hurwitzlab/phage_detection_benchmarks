@@ -8,14 +8,14 @@ Purpose: Create profile from Bracken output
 import argparse
 import os
 import pandas as pd
-from typing import NamedTuple, TextIO, Tuple
+from typing import List, NamedTuple, TextIO, Tuple
 
 pd.options.mode.chained_assignment = None
 
 
 class Args(NamedTuple):
     """ Command-line arguments """
-    bracken: TextIO
+    profiles: List[TextIO]
     taxonomy: TextIO
     outdir: str
 
@@ -28,10 +28,11 @@ def get_args() -> Args:
         description='Create profile from Bracken output',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('bracken',
+    parser.add_argument('profiles',
                         metavar='FILE',
-                        help='Bracken output file',
-                        type=argparse.FileType('rt'))
+                        help='Bracken output file(s)',
+                        type=argparse.FileType('rt'),
+                        nargs='+')
 
     parser.add_argument('-t',
                         '--taxonomy',
@@ -49,7 +50,7 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.bracken, args.taxonomy, args.outdir)
+    return Args(args.profiles, args.taxonomy, args.outdir)
 
 
 # --------------------------------------------------
@@ -62,21 +63,24 @@ def main() -> None:
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
 
-    bracken_df = clean_bracken(pd.read_csv(args.bracken, sep='\t'))
     taxonomy_df = clean_taxonomy(pd.read_csv(args.taxonomy))
 
-    joined_df = join_dfs(bracken_df, taxonomy_df)
+    for profile in args.profiles:
 
-    joined_df['rescaled_abundance'] = rescale_abundances(
-        joined_df['fraction_total_reads'])
+        bracken_df = clean_bracken(pd.read_csv(profile, sep='\t'))
 
-    files_df = make_files_df(joined_df)
-    profile_df = make_profile_df(joined_df)
+        joined_df = join_dfs(bracken_df, taxonomy_df)
 
-    files_output, profile_output = make_filenames(args.bracken.name, out_dir)
+        joined_df['rescaled_abundance'] = rescale_abundances(
+            joined_df['fraction_total_reads'])
 
-    files_df.to_csv(files_output, sep=",", index=False)
-    profile_df.to_csv(profile_output, sep="\t", index=False, header=False)
+        files_df = make_files_df(joined_df)
+        profile_df = make_profile_df(joined_df)
+
+        files_output, profile_output = make_filenames(profile.name, out_dir)
+
+        files_df.to_csv(files_output, sep=",", index=False)
+        profile_df.to_csv(profile_output, sep="\t", index=False, header=False)
 
     print(f'Done. Wrote output files to "{out_dir}".')
 
