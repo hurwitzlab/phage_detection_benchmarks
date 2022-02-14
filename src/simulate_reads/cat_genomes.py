@@ -10,12 +10,12 @@ from glob import glob
 import os
 import pandas as pd
 import re
-from typing import NamedTuple, TextIO
+from typing import List, NamedTuple, TextIO
 
 
 class Args(NamedTuple):
     """ Command-line arguments """
-    globs: TextIO
+    glob_files: List[TextIO]
     parent: str
     outdir: str
 
@@ -28,10 +28,11 @@ def get_args() -> Args:
         description='Concatenate genomes from profile into single multifasta',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('globs',
-                        help='File containing genome information',
+    parser.add_argument('glob_files',
+                        help='File(s) containing genome information',
                         metavar='FILE',
-                        type=argparse.FileType('rt'))
+                        type=argparse.FileType('rt'),
+                        nargs='+')
 
     parser.add_argument('-p',
                         '--parent',
@@ -49,7 +50,7 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.globs, args.parent, args.outdir)
+    return Args(args.glob_files, args.parent, args.outdir)
 
 
 # --------------------------------------------------
@@ -59,24 +60,29 @@ def main() -> None:
     args = get_args()
     parent = args.parent
     out_dir = args.outdir
-    in_fh = args.globs
 
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
 
-    out_fh = open(make_filename(out_dir, in_fh.name), 'wt')
+    for in_fh in args.glob_files:
 
-    genomes = get_matches(parent, parse_globfile(in_fh))
+        out_fh = open(make_filename(out_dir, in_fh.name), 'wt')
 
-    n_files = 0
-    for _, row in genomes.iterrows():
-        n_files += 1
-        cat_genome(row.filename, row.seq_id, out_fh)
+        genomes = get_matches(parent, parse_globfile(in_fh))
 
-    out_fh.close()
+        n_files = 0
+        for _, row in genomes.iterrows():
+            n_files += 1
+            cat_genome(row.filename, row.seq_id, out_fh)
 
-    plu = 's' if n_files != 1 else ''
-    print(f'Done. Concatenated {n_files} file{plu} to {out_fh.name}')
+        out_fh.close()
+
+        plu = 's' if n_files != 1 else ''
+        print(f'Concatenated {n_files} file{plu} to {out_fh.name}')
+
+    n_profiles = len(args.glob_files)
+    plu = 's' if n_profiles != 1 else ''
+    print(f'Done. Concatenated files for {n_profiles} profile{plu}.')
 
 
 # --------------------------------------------------
