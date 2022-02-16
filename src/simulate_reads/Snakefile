@@ -22,10 +22,10 @@ rule all:
 
 rule make_profiles:
     input:
-        expand("{dir}/{id}.txt", dir=config["bracken_dir"], id=PROFILES),
+        "{dir}/{id}.txt",
     output:
-        expand("{dir}/{id}_profile.txt", dir=config["profiles_dir"], id=PROFILES),
-        expand("{dir}/{id}_files.txt", dir=config["profiles_dir"], id=PROFILES),
+        "{dir}/{id}_profile.txt",
+        "{dir}/{id}_files.txt",
     params:
         bracken_profiler=config["bracken_profiler"],
         refseq=config["refseq_info"],
@@ -41,9 +41,9 @@ rule make_profiles:
 
 rule cat_genomes:
     input:
-        expand("{dir}/{id}_files.txt", dir=config["profiles_dir"], id=PROFILES),
+        "{dir}/{id}_files.txt",
     output:
-        expand("{dir}/{id}_genomes.fasta", dir=config["profiles_dir"], id=PROFILES),
+        "{dir}/{id}_genomes.fasta",
     params:
         cat_genomes=config["cat_genomes"],
         out_dir=config["profiles_dir"],
