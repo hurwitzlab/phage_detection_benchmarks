@@ -31,10 +31,10 @@ source activate snakemake_env
 
 # Run snakemake cluster
 snakemake \
-	--cluster-config config/practice_cluster.yaml \
+	--cluster-config config/cluster.yaml \
 	-j 12 \
 	--latency-wait 15 \
-	--configfile config/practice_config.yaml \
+	--configfile config/config.yaml \
 	--cluster \
 		"sbatch -p {cluster.partition} \
 		-t {cluster.time} \
