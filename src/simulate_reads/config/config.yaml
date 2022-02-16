@@ -1,0 +1,24 @@
+simulator:
+        iss generate
+iss_env:
+        ../../tool_envs/insilicoseq/env
+bracken_profiler:
+        ./bracken_profiler.py
+cat_genomes:
+        ./cat_genomes.py
+simulator_cpus:
+        --cpus 8
+bracken_dir:
+        ../../data/bracken_profiles
+profiles_dir:
+        ../../data/profiles
+refseq_info:
+        ../../data/refseq_info/taxonomy.csv
+refseq_dir:
+        ../../data/refseq
+simulated_dir:
+        ../../data/simulated_reads
+model:
+        ["miseq", "hiseq", "novaseq"]
+n_reads:
+        --n_reads 5M
