@@ -27,6 +27,8 @@ rule make_profiles:
         bracken_profiler=config["bracken_profiler"],
         refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
+        time=config["make_profiles_time"],
+    threads: config["make_profiles_ntasks"],
     shell:
         """
         {params.bracken_profiler} \
@@ -45,6 +47,8 @@ rule cat_genomes:
         cat_genomes=config["cat_genomes"],
         out_dir=config["profiles_dir"],
         parent=config["refseq_dir"],
+        time=config["cat_genomes_time"],
+    threads: config["cat_genomes_ntasks"],
     shell:
         """
         {params.cat_genomes} \
@@ -64,13 +68,15 @@ rule simulate_reads:
     params:
         simulator=config["simulator"],
         env=config["iss_env"],
-        cpus=config["simulator_cpus"],
         reads=config["n_reads"],
         out_dir=config["simulated_dir"],
+        time=config["simulate_reads_time"],
+    threads: config["simulate_reads_ntasks"],
     shell:
         """
         source activate {params.env}
-        {params.simulator} {params.cpus} {params.reads} \
+        {params.simulator} {params.reads} \
+            --cpus {threads}
             --model {wildcards.model} \
             --abundance_file {input.abundances} \
             --output {params.out_dir}/{wildcards.id}_{wildcards.model} \
