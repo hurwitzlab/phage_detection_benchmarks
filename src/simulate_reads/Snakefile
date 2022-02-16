@@ -2,8 +2,6 @@
 
 
 rule all:
-    # input:
-    #     expand("{dir}/{id}_genomes.fasta", dir=config["profiles_dir"], id=PROFILES),
     input:
         expand(
             "{s}/{p}_{m}_R1.fastq",
@@ -59,7 +57,7 @@ rule cat_genomes:
 rule simulate_reads:
     input:
         genomes=config["profiles_dir"] + "/{id}_genomes.fasta",
-        abundances=config["profiles_dir"] + "/{id}_files.txt",
+        abundances=config["profiles_dir"] + "/{id}_profile.txt",
     output:
         "{out_dir}/{id}_{model}_R1.fastq",
         "{out_dir}/{id}_{model}_R2.fastq",
@@ -77,27 +75,3 @@ rule simulate_reads:
             --output {wildcards.out_dir}/{wildcards.id}_{wildcards.model} \
             --genomes {input.genomes}
         """
-
-
-# rule simulate_reads:
-#     input:
-#         genomes=config["genomes_dir"] + "/cat_genomes.fasta",
-#         abundances=config["profiles_dir"]+"/profile_{abundance}.txt",
-#     output:
-#         config["simulated_dir"] + "/{abundance}_{model}_reads_R1.fastq",
-#         config["simulated_dir"] + "/{abundance}_{model}_reads_R2.fastq",
-#     params:
-#         simulator=config["simulator"],
-#         simulated_dir=config["simulated_dir"],
-#         cpus=config["simulator_cpus"],
-#         reads=config["n_reads"],
-#     shell:
-#         """
-#         source ~/.bashrc
-#         source activate insilicoseq_env
-#         {params.simulator} {params.cpus} {params.reads} \
-#         --model {wildcards.model} \
-#         --abundance_file {input.abundances} \
-#         --output {params.simulated_dir}/{wildcards.abundance}_{wildcards.model}_reads \
-#          --genomes {input.genomes}
-#         """

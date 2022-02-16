@@ -16,15 +16,9 @@ refseq_info:
         ../../data/refseq_info/taxonomy.csv
 refseq_dir:
         ../../data/refseq
-abundances:
-        a: "profile_a.txt"
-        b: "profile_b.txt"
-        c: "profile_c.txt"
 simulated_dir:
         ../../data/simulated_reads
 model:
-        miseq: "miseq"
-        hiseq: "hiseq"
-        novaseq: "novaseq"
+        ["miseq", "hiseq", "novaseq"]
 n_reads:
         --n_reads 0.5k
