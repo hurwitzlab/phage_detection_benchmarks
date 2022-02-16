@@ -38,7 +38,7 @@ snakemake \
 	--cluster \
 		"sbatch -p {cluster.partition} \
 		-t {cluster.time} \
-		--mem-per-cpu=5gb \
+		--mem-per-cpu={cluster.mem-per-cpu} \
 		--nodes=1 \
 		--ntasks={cluster.ntasks} \
 		-e {cluster.e} \
