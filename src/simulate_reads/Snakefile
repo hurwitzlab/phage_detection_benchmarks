@@ -2,22 +2,21 @@
 
 
 rule all:
-    input:
-        expand("{dir}/{id}_genomes.fasta", dir=config["profiles_dir"], id=PROFILES),
-
-# input:
-#     expand(
-#         "{s}/{a}_{m}_reads_R1.fastq",
-#         s=config["simulated_dir"],
-#         m=config["model"],
-#         a=config["abundances"],
-#     ),
-#     expand(
-#         "{s}/{a}_{m}_reads_R2.fastq",
-#         s=config["simulated_dir"],
-#         m=config["model"],
-#         a=config["abundances"],
-#     ),
+    # input:
+    #     expand("{dir}/{id}_genomes.fasta", dir=config["profiles_dir"], id=PROFILES),
+input:
+    expand(
+        "{s}/{a}_{m}_R1.fastq",
+        s=config["simulated_dir"],
+        m=config["model"],
+        a=config["abundances"],
+    ),
+    expand(
+        "{s}/{a}_{m}_R2.fastq",
+        s=config["simulated_dir"],
+        m=config["model"],
+        a=config["abundances"],
+    ),
 
 
 rule make_profiles:
@@ -55,6 +54,29 @@ rule cat_genomes:
             -o {params.out_dir} \
             {input}
         """
+
+rule simulate_reads:
+    input:
+        genomes="{in_dir}/{id}_genomes.fasta",
+        abundances="{in_dir}/{id}_files.txt",
+    output:
+        "{out_dir}/{id}_{model}_R1.fastq",
+        "{out_dir}/{id}_{model}_R2.fastq",
+    params:
+        simulator=config["simulator"],
+        env=config["iss_env"],
+        cpus=config["simulator_cpus"],
+        reads=config["n_reads"],
+    shell:
+    """
+    source activate {params.env}
+    {params.simulator} {params.cpus} {params.reads} \
+        --model {wildcards.model} \
+        --abundance_file {input.abundances} \
+        --output {wildcards.out_dir}/{wildcards.id}_{wildcards.model} \
+        --genomes {input.genomes}
+    """
+
 
 # rule simulate_reads:
 #     input:

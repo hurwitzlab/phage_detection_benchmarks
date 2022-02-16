@@ -1,5 +1,7 @@
 simulator:
         iss generate
+iss_env:
+        ../../tool_envs/insilicoseq/env
 bracken_profiler:
         ./bracken_profiler.py
 cat_genomes:
@@ -19,7 +21,7 @@ abundances:
         b: "profile_b.txt"
         c: "profile_c.txt"
 simulated_dir:
-        ../../data/practice_simulated_reads
+        ../../data/simulated_reads
 model:
         miseq: "miseq"
         hiseq: "hiseq"
