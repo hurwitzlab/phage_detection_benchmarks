@@ -76,7 +76,7 @@ rule simulate_reads:
         """
         source activate {params.env}
         {params.simulator} {params.reads} \
-            --cpus {threads}
+            --cpus {threads} \
             --model {wildcards.model} \
             --abundance_file {input.abundances} \
             --output {params.out_dir}/{wildcards.id}_{wildcards.model} \
