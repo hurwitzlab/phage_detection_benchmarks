@@ -31,12 +31,12 @@ n_reads:
 # Resources
 ## make_profiles
 make_profiles_time: '00:05:00'
-make_profiles_ntasks: '1'
+make_profiles_ntasks: 1
 
 ## cat_genomes
 cat_genomes_time: '00:20:00'
-cat_genomes_ntasks: '4'
+cat_genomes_ntasks: 4
 
 ## simulate_reads
 simulate_reads_time: '2-00:00:00'
-simulate_reads_ntasks: '8'
+simulate_reads_ntasks: 8
