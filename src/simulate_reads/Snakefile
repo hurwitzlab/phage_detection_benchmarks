@@ -19,10 +19,10 @@ rule all:
 
 rule make_profiles:
     input:
-        "{dir}/{id}.txt",
+        config["bracken_dir"] + "/{id}.txt",
     output:
-        "{dir}/{id}_profile.txt",
-        "{dir}/{id}_files.txt",
+        config["profiles_dir"] + "/{id}_profile.txt",
+        config["profiles_dir"] + "/{id}_files.txt",
     params:
         bracken_profiler=config["bracken_profiler"],
         refseq=config["refseq_info"],
@@ -38,9 +38,9 @@ rule make_profiles:
 
 rule cat_genomes:
     input:
-        "{dir}/{id}_files.txt",
+        config["profiles_dir"] + "/{id}_files.txt",
     output:
-        "{dir}/{id}_genomes.fasta",
+        config["profiles_dir"] + "/{id}_genomes.fasta",
     params:
         cat_genomes=config["cat_genomes"],
         out_dir=config["profiles_dir"],
@@ -59,19 +59,20 @@ rule simulate_reads:
         genomes=config["profiles_dir"] + "/{id}_genomes.fasta",
         abundances=config["profiles_dir"] + "/{id}_profile.txt",
     output:
-        "{out_dir}/{id}_{model}_R1.fastq",
-        "{out_dir}/{id}_{model}_R2.fastq",
+        config["simulated_dir"] + "/{id}_{model}_R1.fastq",
+        config["simulated_dir"] + "/{id}_{model}_R2.fastq",
     params:
         simulator=config["simulator"],
         env=config["iss_env"],
         cpus=config["simulator_cpus"],
         reads=config["n_reads"],
+        out_dir=config["simulated_dir"],
     shell:
         """
         source activate {params.env}
         {params.simulator} {params.cpus} {params.reads} \
             --model {wildcards.model} \
             --abundance_file {input.abundances} \
-            --output {wildcards.out_dir}/{wildcards.id}_{wildcards.model} \
+            --output {params.out_dir}/{wildcards.id}_{wildcards.model} \
             --genomes {input.genomes}
         """
