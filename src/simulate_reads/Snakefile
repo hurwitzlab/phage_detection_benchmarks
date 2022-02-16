@@ -6,16 +6,16 @@ rule all:
     #     expand("{dir}/{id}_genomes.fasta", dir=config["profiles_dir"], id=PROFILES),
     input:
         expand(
-            "{s}/{a}_{m}_R1.fastq",
+            "{s}/{p}_{m}_R1.fastq",
             s=config["simulated_dir"],
             m=config["model"],
-            a=config["abundances"],
+            p=PROFILES,
         ),
         expand(
-            "{s}/{a}_{m}_R2.fastq",
+            "{s}/{p}_{m}_R2.fastq",
             s=config["simulated_dir"],
             m=config["model"],
-            a=config["abundances"],
+            p=PROFILES,
         ),
 
 
@@ -58,8 +58,8 @@ rule cat_genomes:
 
 rule simulate_reads:
     input:
-        genomes="{in_dir}/{id}_genomes.fasta",
-        abundances="{in_dir}/{id}_files.txt",
+        genomes=config["profiles_dir"] + "/{id}_genomes.fasta",
+        abundances=config["profiles_dir"] + "/{id}_files.txt",
     output:
         "{out_dir}/{id}_{model}_R1.fastq",
         "{out_dir}/{id}_{model}_R2.fastq",
