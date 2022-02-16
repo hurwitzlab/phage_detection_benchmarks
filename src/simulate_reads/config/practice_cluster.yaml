@@ -6,5 +6,5 @@ __default__:
         nodes: '1'
         ntasks: '8'
         mem-per-cpu: '5gb'
-        o: 'out/{rule}.{wildcards}.out'
-        e: 'err/{rule}.{wildcards}.err'
+        o: 'out/{rule}."{wildcards}".out'
+        e: 'err/{rule}."{wildcards}".err'

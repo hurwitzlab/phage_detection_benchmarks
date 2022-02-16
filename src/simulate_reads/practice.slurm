@@ -13,7 +13,7 @@
 ### Amount of memory per node
 #SBATCH --mem-per-cpu=5gb
 ### Job walltime (HHH:MM:SS)
-#SBATCH --time=24:00:00
+#SBATCH --time=1:00:00
 ### OPTIONAL:
 ### Job name
 ### SBATCH --job-name=JobName
@@ -26,13 +26,21 @@
 ### Email addresss
 ### SBATCH --mail-user=schackartk@email.arizona.edu
 
-# Source ~/.bashrc for aliases and $PATH
-source ~/.bashrc
-
 # Activate a conda environment
 source activate snakemake_env
 
 # Run snakemake cluster
-snakemake --cluster \
-"sbatch -p {cluster.partition} -t {cluster.time} --mem-per-cpu=5gb --nodes=1 --ntasks={cluster.ntasks} -e {cluster.e} -o {cluster.o}" \
---cluster-config config/practice_cluster.yaml -j 16 --latency-wait 60 --configfile config/practice_config.yaml
+snakemake \
+	--cluster-config config/practice_cluster.yaml \
+	-j 12 \
+	--latency-wait 15 \
+	--configfile config/practice_config.yaml \
+	--cluster \
+		"sbatch -p {cluster.partition} \
+		-t {cluster.time} \
+		--mem-per-cpu=5gb \
+		--nodes=1 \
+		--ntasks={cluster.ntasks} \
+		-e {cluster.e} \
+		-o {cluster.o}"
+
