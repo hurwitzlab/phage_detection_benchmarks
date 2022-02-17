@@ -4,8 +4,25 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 
 ## Pipeline description
 
-1. Concatenate genomes into single file
-2. Pass to InSilicoSeq, varying error model
+1. Generate a profile from Bracken output
+2. Concatenate the genomes present in the profile to a multifasta file
+3. *Downstream* pass to InSilicoSeq
+
+```mermaid
+graph TD
+    input(Bracken output) --> profiler[[bracken_profiler.py]];
+    taxa(taxonomy.csv) --> profiler;
+    profiler --> profile(profile.txt);
+    profiler --> globs(files.txt);
+    refseq[(local refseq)];
+    cat[[cat_genomes.py]];
+    globs --> cat;
+    refseq --> cat;
+    cat --> genomes(genomes.fasta);
+    iss[[InSilicoSeq]];
+    profile --> iss;
+    genomes --> iss;
+```
 
 ### Genome Concatenation
 
