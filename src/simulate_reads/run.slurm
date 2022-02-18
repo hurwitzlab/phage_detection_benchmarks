@@ -2,10 +2,10 @@
 
 ### REQUIRED: 
 ### Research group/PI
-### SBATCH --account=bhurwitz
+#SBATCH --account=bhurwitz
 ### Job queue (standard|windfall|high_pri)
 ### If windfall, omit --account
-#SBATCH --partition=windfall
+#SBATCH --partition=standard
 ### Number of nodes
 #SBATCH --nodes=1
 ### Number of CPUs per node 
