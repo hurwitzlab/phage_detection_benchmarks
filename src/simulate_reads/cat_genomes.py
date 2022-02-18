@@ -10,6 +10,7 @@ from glob import glob
 import os
 import pandas as pd
 import re
+import sys
 from typing import List, NamedTuple, TextIO
 
 
@@ -151,6 +152,10 @@ def cat_genome(file_name: str, seq_id: str, out_fh: TextIO) -> None:
     contents = open(file_name, 'rt').read()
 
     header_match = re.search(f'^.{seq_id}.*$', contents, re.MULTILINE)
+
+    if not header_match:
+        sys.exit(f'seq id "{seq_id}" from profile could not'
+                 f' be found for file {file_name}')
 
     out_fh.write(header_match[0] + '\n')
 
