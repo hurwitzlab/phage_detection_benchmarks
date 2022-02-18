@@ -39,4 +39,4 @@ cat_genomes_ntasks: 4
 
 ## simulate_reads
 simulate_reads_time: '2-00:00:00'
-simulate_reads_ntasks: 24
+simulate_reads_ntasks: 36
