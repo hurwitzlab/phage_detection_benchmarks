@@ -26,7 +26,7 @@ simulated_dir:
 model:
         ["miseq", "hiseq", "novaseq"]
 n_reads:
-        --n_reads 5M
+        --n_reads 20M
 
 # Resources
 ## make_profiles
@@ -39,4 +39,4 @@ cat_genomes_ntasks: 4
 
 ## simulate_reads
 simulate_reads_time: '2-00:00:00'
-simulate_reads_ntasks: 8
+simulate_reads_ntasks: 24
