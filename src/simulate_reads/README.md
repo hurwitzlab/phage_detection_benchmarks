@@ -6,22 +6,23 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 
 1. Generate a profile from Bracken output
 2. Concatenate the genomes present in the profile to a multifasta file
-3. *Downstream* pass to InSilicoSeq
+3. Simulate reads using InSilicoSeq
 
 ```mermaid
 graph TD
-    input(Bracken output) --> profiler[[bracken_profiler.py]];
+    input(Bracken output) --> profiler{make_profiles};
     taxa(taxonomy.csv) --> profiler;
     profiler --> profile(profile.txt);
     profiler --> globs(files.txt);
     refseq[(local refseq)];
-    cat[[cat_genomes.py]];
+    cat{cat_genomes};
     globs --> cat;
-    refseq --> cat;
+    refseq ----> cat;
     cat --> genomes(genomes.fasta);
-    iss[[InSilicoSeq]];
+    iss{simulate_reads};
     profile --> iss;
     genomes --> iss;
+    iss --> reads.fastq
 ```
 
 ### Genome Concatenation
