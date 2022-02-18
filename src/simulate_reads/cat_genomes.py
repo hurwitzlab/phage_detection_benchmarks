@@ -51,6 +51,12 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
+    if not os.path.isdir(args.parent):
+        parser.error(f'--parent "{args.parent}" is not a directory')
+
+    if len(os.listdir(args.parent)) == 0:
+        parser.error(f'--parent "{args.parent}" is empty')
+
     return Args(args.glob_files, args.parent, args.outdir)
 
 
@@ -129,6 +135,8 @@ def get_matches(parent: str, df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.reset_index()
 
+    missing = False
+
     for index, row in df.iterrows():
         file_glob = row['glob']
         file_match = glob(file_glob)
@@ -140,7 +148,13 @@ def get_matches(parent: str, df: pd.DataFrame) -> pd.DataFrame:
                 print('\n\t'.join(file_match))
                 print(f'Using {file_match[0]}')
         else:
-            print(f'Warning: no files match glob "{file_glob}"')
+            # This will fail, but continue to see which globs do not match
+            missing = True
+            print(f'No files match glob "{file_glob}"')
+
+    if missing:
+        sys.exit('Error: Will not create incomplete profile.\n'
+                 f'Check --parent "{parent}".')
 
     return df
 
