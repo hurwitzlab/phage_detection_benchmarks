@@ -142,6 +142,16 @@ def rescale_abundances(col: pd.Series) -> pd.Series:
 
 
 # --------------------------------------------------
+def test_rescale_abundances() -> None:
+    """ Test rescale_abundances()"""
+
+    example_col = pd.Series([0.5, 0.3])
+    rescaled_col = pd.Series([0.625, 0.375])
+
+    assert rescale_abundances(example_col).equals(rescaled_col)
+
+
+# --------------------------------------------------
 def make_files_df(df: pd.DataFrame) -> pd.DataFrame:
     """ Create file names of genomes """
 
