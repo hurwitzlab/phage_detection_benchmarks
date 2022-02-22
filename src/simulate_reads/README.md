@@ -7,6 +7,7 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 1. Generate a profile from Bracken output
 2. Concatenate the genomes present in the profile to a multifasta file
 3. Simulate reads using InSilicoSeq
+4. Assemble contigs using MegaHit
 
 ```mermaid
 graph TD
