@@ -10,6 +10,8 @@ Rscript -e "renv::restore()"
 
 ## Overview of Experiments
 
+Below are descriptions of the experiments and a broad overview of the pipelines. More detailed graphs of the pipelines can be found in `src/`.
+
 ### Fragmented Genomes
 
 Complete genomes from RefSeq are fragmented into lengths of 500, 1000, 3000, and 5000 nt. These fragments are passed to the contig classifiers, and their performance is assessed.
@@ -29,6 +31,12 @@ graph LR
         assess --> results(results)
     end
 ```
+
+The pipelines that constitute this pipeline are:
+
+* `src/chop_refseq/Snakefile`
+* `src/select_frags/Snakefile`
+* `src/classify_chopped/Snakefile`
 
 
 ### Simulated Metagenomes
@@ -56,3 +64,8 @@ graph LR
         assess --> results(results)
     end
 ```
+
+The pipelines that constitute this pipeline are:
+
+* `src/simulate_metagenomes/Snakefile`
+* `src/classify_simulated_metagenomes/Snakefile`
