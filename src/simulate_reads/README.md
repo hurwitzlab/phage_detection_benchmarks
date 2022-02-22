@@ -37,18 +37,24 @@ graph TD
     reads --> megahit{MegaHit};
     megahit --> contigs(contigs.fa);
     contigs --> metabat{MetaBAT2};
-    contigs -- classification ----> tools{classifiers}
+    contigs ----> tools{classifiers}
     metabat --> bins(bins)
     genomes --> dbizer{makeblastdb};
     dbizer ---> db[(BLAST DB)];
     db --> blast{BLASTn};
     contigs --> blast;
     blast --> mappings(mapped_contigs.out);
-    bins -- classification --> marvel{MARVEL};
-    marvel --> preds(predictions);
-    tools --> preds;
-    preds -- assessment --> results(results)
-    mappings -- assessment --> results;
+    mappings --> assess;
+    bins --> marvel{MARVEL};
+    subgraph classification
+        marvel --> preds(predictions);
+        tools --> preds;
+    end
+    subgraph assessment
+        preds --> assess{analysis}
+        assess --> results(results);
+        
+    end
 ```
 
 ### Genome Concatenation
