@@ -22,7 +22,9 @@ graph TD
     iss{simulate_reads};
     profile --> iss;
     genomes --> iss;
-    iss --> reads.fastq
+    iss --> reads(reads.fastq);
+    reads --> megahit{MegaHit};
+    megahit --> contigs(contigs.fa)
 ```
 
 ### Genome Concatenation
