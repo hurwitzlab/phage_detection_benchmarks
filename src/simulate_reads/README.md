@@ -11,6 +11,14 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 5. Bin contigs using MetaBAT2
 6. Map reads to input genomes with BLAST
 
+The following diagram shows the main portions of the pipeline. *Note* the pipeline in this directory ends with 3 results:
+
+* Contigs
+* Bins
+* Mappings
+
+`Classification` and `assessment` will be in pipelines in their own directories. I will create a master snakemake to run all 3 pipelines in the root of this repo.
+
 ```mermaid
 graph TD
     input(Bracken output) --> profiler{make_profiles};
@@ -29,12 +37,18 @@ graph TD
     reads --> megahit{MegaHit};
     megahit --> contigs(contigs.fa);
     contigs --> metabat{MetaBAT2};
+    contigs -- classification ----> tools{classifiers}
     metabat --> bins(bins)
     genomes --> dbizer{makeblastdb};
     dbizer ---> db[(BLAST DB)];
     db --> blast{BLASTn};
     contigs --> blast;
     blast --> mappings(mapped_contigs.out);
+    bins -- classification --> marvel{MARVEL};
+    marvel --> preds(predictions);
+    tools --> preds;
+    preds -- assessment --> results(results)
+    mappings -- assessment --> results;
 ```
 
 ### Genome Concatenation
