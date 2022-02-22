@@ -9,6 +9,7 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 3. Simulate reads using InSilicoSeq
 4. Assemble contigs using MegaHit
 5. Bin contigs using MetaBAT2
+6. Map reads to input genomes with BLAST
 
 ```mermaid
 graph TD
@@ -26,8 +27,14 @@ graph TD
     genomes --> iss;
     iss --> reads(reads.fastq);
     reads --> megahit{MegaHit};
-    megahit --> contigs(contigs.fa)
-    contigs --> metabat{MetaBAT2}
+    megahit --> contigs(contigs.fa);
+    contigs --> metabat{MetaBAT2};
+    metabat --> bins(bins)
+    genomes --> dbizer{makeblastdb};
+    dbizer ---> db[(BLAST DB)];
+    db --> blast{BLASTn};
+    contigs --> blast;
+    blast --> mappings(mapped_reads.out);
 ```
 
 ### Genome Concatenation
