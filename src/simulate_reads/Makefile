@@ -4,4 +4,8 @@ test:
 	python3 -m pytest -v --flake8 --pylint --mypy tests/ bracken_profiler.py cat_genomes.py
 
 dryrun:
-	snakemake -np --configfile config/practice_config.yaml
+	snakemake -np --configfile config/config.yaml
+
+coverage:
+	coverage run -m pytest -v --mypy tests/ bracken_profiler.py cat_genomes.py
+	coverage report -m
