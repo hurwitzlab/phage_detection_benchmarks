@@ -5,10 +5,18 @@ bracken_profiler:
         ./bracken_profiler.py
 cat_genomes:
         ./cat_genomes.py
+megahit:
+        megahit
+metabat:
+        metabat2
 
 # Environments
 iss_env:
         ../../tool_envs/insilicoseq/env
+megahit_env:
+        ../../tool_envs/megahit/env
+metabat_env:
+        ../../tool_envs/metabat2/env
 
 # Directories
 bracken_dir:
@@ -21,6 +29,10 @@ refseq_dir:
         ../../data/refseq
 simulated_dir:
         ../../data/simulated_reads
+contigs_dir:
+        ../../data/assembled_reads
+bins_dir:
+        ../../data/binned_contigs
 
 # Parameters
 model:
@@ -40,3 +52,11 @@ cat_genomes_ntasks: 4
 ## simulate_reads
 simulate_reads_time: '2-00:00:00'
 simulate_reads_ntasks: 36
+
+# megahit_assembly
+assembly_time: '4:00:00'
+assembly_ntasks: 47
+
+# metabat_binning
+binning_time: '00:10:00'
+binning_ntasks: 8

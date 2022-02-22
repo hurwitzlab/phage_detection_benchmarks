@@ -8,6 +8,7 @@ This is a Snakemake pipeline for generating simulated reads from reference genom
 2. Concatenate the genomes present in the profile to a multifasta file
 3. Simulate reads using InSilicoSeq
 4. Assemble contigs using MegaHit
+5. Bin contigs using MetaBAT2
 
 ```mermaid
 graph TD
@@ -26,6 +27,7 @@ graph TD
     iss --> reads(reads.fastq);
     reads --> megahit{MegaHit};
     megahit --> contigs(contigs.fa)
+    contigs --> metabat{MetaBAT2}
 ```
 
 ### Genome Concatenation

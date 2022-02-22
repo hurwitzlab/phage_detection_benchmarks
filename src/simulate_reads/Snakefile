@@ -4,19 +4,14 @@
 rule all:
     input:
         expand(
-            "{s}/{p}_{m}_R1.fastq",
-            s=config["simulated_dir"],
-            m=config["model"],
+            "{b}/{p}_{m}/bin.1.fa",
+            b=config["bins_dir"],
             p=PROFILES,
-        ),
-        expand(
-            "{s}/{p}_{m}_R2.fastq",
-            s=config["simulated_dir"],
             m=config["model"],
-            p=PROFILES,
         ),
 
 
+# Create profile for InSilicoSeq, and file globs to find necessary genomes
 rule make_profiles:
     input:
         config["bracken_dir"] + "/{id}.txt",
@@ -28,7 +23,7 @@ rule make_profiles:
         refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
         time=config["make_profiles_time"],
-    threads: config["make_profiles_ntasks"],
+    threads: config["make_profiles_ntasks"]
     shell:
         """
         {params.bracken_profiler} \
@@ -38,6 +33,7 @@ rule make_profiles:
         """
 
 
+# Concatenate input genomes for InSilicoSeq
 rule cat_genomes:
     input:
         config["profiles_dir"] + "/{id}_files.txt",
@@ -48,7 +44,7 @@ rule cat_genomes:
         out_dir=config["profiles_dir"],
         parent=config["refseq_dir"],
         time=config["cat_genomes_time"],
-    threads: config["cat_genomes_ntasks"],
+    threads: config["cat_genomes_ntasks"]
     shell:
         """
         {params.cat_genomes} \
@@ -58,6 +54,7 @@ rule cat_genomes:
         """
 
 
+# Run InSilicoSeq to create simulated reads
 rule simulate_reads:
     input:
         genomes=config["profiles_dir"] + "/{id}_genomes.fasta",
@@ -71,7 +68,7 @@ rule simulate_reads:
         reads=config["n_reads"],
         out_dir=config["simulated_dir"],
         time=config["simulate_reads_time"],
-    threads: config["simulate_reads_ntasks"],
+    threads: config["simulate_reads_ntasks"]
     shell:
         """
         source activate {params.env}
@@ -81,4 +78,53 @@ rule simulate_reads:
             --abundance_file {input.abundances} \
             --output {params.out_dir}/{wildcards.id}_{wildcards.model} \
             --genomes {input.genomes}
+        """
+
+
+# Assemble simulated reads into contigs with MegaHit
+rule megahit_assembly:
+    input:
+        fwd=config["simulated_dir"] + "/{id}_{model}_R1.fastq",
+        rev=config["simulated_dir"] + "/{id}_{model}_R2.fastq",
+    output:
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    params:
+        megahit=config["megahit"],
+        env=config["megahit_env"],
+        out_dir=config["contigs_dir"],
+        time=config["assembly_time"],
+    threads: config["assembly_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        # Snakemake creates the out_dir, but megahit fails if it exists. So remove it.
+        rm -rf {params.out_dir}/{wildcards.id}_{wildcards.model}
+        {params.megahit} \
+            -1 {input.fwd} \
+            -2 {input.rev} \
+            -o {params.out_dir}/{wildcards.id}_{wildcards.model}
+        """
+
+
+# Bin contigs from simulated reads
+rule metabat_binning:
+    input:
+        in_file=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    output:
+        config["bins_dir"] + "/{id}_{model}/bin.1.fa",
+    params:
+        metabat=config["metabat"],
+        env=config["metabat_env"],
+        out_dir=config["bins_dir"],
+	time=config["binning_time"],
+    threads: config["binning_ntasks"],
+    shell:
+        """
+        source activate {params.env}
+        if ![ -d {params.out_dir} ]; then
+            mkdir {params.out_dir};
+        fi
+        {params.metabat} \
+            -i {input.in_file} \
+            -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin
         """
