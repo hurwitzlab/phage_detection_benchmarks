@@ -34,7 +34,7 @@ graph TD
     dbizer ---> db[(BLAST DB)];
     db --> blast{BLASTn};
     contigs --> blast;
-    blast --> mappings(mapped_reads.out);
+    blast --> mappings(mapped_contigs.out);
 ```
 
 ### Genome Concatenation
