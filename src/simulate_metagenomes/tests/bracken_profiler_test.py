@@ -84,7 +84,7 @@ def test_runs_okay():
         assert os.path.isdir(out_dir)
         assert os.path.isfile(glob_file)
         assert os.path.isfile(profile_file)
-        header = ('filename,seq_id\n')
+        header = ('filename,accession\n')
         assert open(glob_file).readlines()[0] == header
         profile_lines = open(profile_file).read().count('\n')
         glob_lines = open(glob_file).read().count('\n')

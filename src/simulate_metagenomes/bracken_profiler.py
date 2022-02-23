@@ -137,7 +137,7 @@ def test_clean_bracken() -> None:
 def clean_taxonomy(df: pd.DataFrame) -> pd.DataFrame:
     """ Clean taxonomy dataframe """
 
-    df = df[['kingdom', 'accession', 'taxid', 'seq_id']]
+    df = df[['kingdom', 'accession', 'taxid']]
 
     # There may be multiple reseq files (accession #)
     # for a given tax_id. I need tax_id to be unique,
@@ -177,10 +177,9 @@ def test_clean_taxonomy() -> None:
             'species'
         ])
 
-    out_df = pd.DataFrame(
-        [['archaea', 'GCF_000006175.1', 456320, 'NC_014222.1'],
-         ['bacteria', 'GCF_003860425.1', 1613, 'NZ_CP034193.1']],
-        columns=['kingdom', 'accession', 'taxid', 'seq_id'])
+    out_df = pd.DataFrame([['archaea', 'GCF_000006175.1', 456320],
+                           ['bacteria', 'GCF_003860425.1', 1613]],
+                          columns=['kingdom', 'accession', 'taxid'])
 
     assert_frame_equal(clean_taxonomy(in_df), out_df)
 
@@ -210,17 +209,16 @@ def test_join_dfs() -> None:
         columns=['name', 'taxonomy_id', 'fraction_total_reads'])
 
     tax_df = pd.DataFrame(
-        [['archaea', 'GCF_000006175.1', 456320, 'NC_014222.1'],
-         ['bacteria', 'GCF_003860425.1', 1613, 'NZ_CP034193.1']],  # No match
-        columns=['kingdom', 'accession', 'taxid', 'seq_id'])
+        [['archaea', 'GCF_000006175.1', 456320],
+         ['bacteria', 'GCF_003860425.1', 1613]],  # No match
+        columns=['kingdom', 'accession', 'taxid'])
 
     out_df = pd.DataFrame([[
-        'Methanococcus voltae', 0.6523, 'archaea', 'GCF_000006175.1', 456320,
-        'NC_014222.1'
+        'Methanococcus voltae', 0.6523, 'archaea', 'GCF_000006175.1', 456320
     ]],
                           columns=[
                               'name', 'fraction_total_reads', 'kingdom',
-                              'accession', 'taxid', 'seq_id'
+                              'accession', 'taxid'
                           ])
 
     assert_frame_equal(join_dfs(bracken_df, tax_df), out_df)
@@ -251,13 +249,13 @@ def test_rescale_abundances() -> None:
 def make_files_df(df: pd.DataFrame) -> pd.DataFrame:
     """ Create file names of genomes """
 
-    files_df = df[['kingdom', 'accession', 'seq_id']]
+    files_df = df[['kingdom', 'accession']]
 
     files_df['filename'] = pd.Series(
         map(lambda king, acc: os.path.join(king, acc + '*.fna'),
             files_df['kingdom'], files_df['accession']))
 
-    files_df = files_df[['filename', 'seq_id']]
+    files_df = files_df[['filename', 'accession']]
 
     return files_df
 
@@ -268,16 +266,16 @@ def test_make_files_df() -> None:
 
     in_df = pd.DataFrame([[
         'Methanococcus voltae', 0.6523, 'archaea', 'GCF_000006175.1', 456320,
-        'NC_014222.1', 1.0
+        1.0
     ]],
                          columns=[
                              'name', 'fraction_total_reads', 'kingdom',
-                             'accession', 'taxid', 'seq_id',
-                             'rescaled_abundance'
+                             'accession', 'taxid', 'rescaled_abundance'
                          ])
 
-    out_df = pd.DataFrame([['archaea/GCF_000006175.1*.fna', 'NC_014222.1']],
-                          columns=['filename', 'seq_id'])
+    out_df = pd.DataFrame(
+        [['archaea/GCF_000006175.1*.fna', 'GCF_000006175.1']],
+        columns=['filename', 'accession'])
 
     assert_frame_equal(make_files_df(in_df), out_df)
 
@@ -286,7 +284,7 @@ def test_make_files_df() -> None:
 def make_profile_df(df: pd.DataFrame) -> pd.DataFrame:
     """ Create file of seq IDs and abundances """
 
-    profile_df = df[['seq_id', 'rescaled_abundance']]
+    profile_df = df[['accession', 'rescaled_abundance']]
 
     profile_df['rescaled_abundance'] = round(profile_df['rescaled_abundance'],
                                              5)
@@ -300,16 +298,15 @@ def test_make_profile_df() -> None:
 
     in_df = pd.DataFrame([[
         'Methanococcus voltae', 0.3333333, 'archaea', 'GCF_000006175.1',
-        456320, 'NC_014222.1', 0.3333333
+        456320, 0.3333333
     ]],
                          columns=[
                              'name', 'fraction_total_reads', 'kingdom',
-                             'accession', 'taxid', 'seq_id',
-                             'rescaled_abundance'
+                             'accession', 'taxid', 'rescaled_abundance'
                          ])
 
-    out_df = pd.DataFrame([['NC_014222.1', 0.33333]],
-                          columns=['seq_id', 'rescaled_abundance'])
+    out_df = pd.DataFrame([['GCF_000006175.1', 0.33333]],
+                          columns=['accession', 'rescaled_abundance'])
 
     assert_frame_equal(make_profile_df(in_df), out_df)
 

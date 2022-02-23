@@ -9,7 +9,6 @@ import argparse
 from glob import glob
 import os
 import pandas as pd
-import re
 import sys
 from typing import List, NamedTuple, TextIO
 
@@ -80,7 +79,7 @@ def main() -> None:
         n_files = 0
         for _, row in genomes.iterrows():
             n_files += 1
-            cat_genome(row.filename, row.seq_id, out_fh)
+            cat_genome(row.filename, row.accession, out_fh)
 
         out_fh.close()
 
@@ -160,18 +159,12 @@ def get_matches(parent: str, df: pd.DataFrame) -> pd.DataFrame:
 
 
 # --------------------------------------------------
-def cat_genome(file_name: str, seq_id: str, out_fh: TextIO) -> None:
+def cat_genome(file_name: str, accession: str, out_fh: TextIO) -> None:
     """ Concatenate genome file to output file """
 
     contents = open(file_name, 'rt').read()
 
-    header_match = re.search(f'^.{seq_id}.*$', contents, re.MULTILINE)
-
-    if not header_match:
-        sys.exit(f'seq id "{seq_id}" from profile could not'
-                 f' be found for file {file_name}')
-
-    out_fh.write(header_match[0] + '\n')
+    out_fh.write(f'>{accession}\n')
 
     for line in contents.split('\n'):
         if ">" not in line:

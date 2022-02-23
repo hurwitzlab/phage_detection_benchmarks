@@ -1,5 +1,5 @@
-filename,seq_id
-archaea/GCF_000006175.1*.fna,NC_014222.1
-bacteria/GCF_001742205.1*.fna,NZ_CP017151.1
-viral/GCF_000891875.6*.fna,NC_015298.1
-fungi/GCF_013402915.1*.fna,NC_050719.1
+filename,accession
+archaea/GCF_000006175.1*.fna,GCF_000006175.1
+bacteria/GCF_001742205.1*.fna,GCF_001742205.1
+viral/GCF_000891875.6*.fna,GCF_000891875.6
+fungi/GCF_013402915.1*.fna,GCF_013402915.1
