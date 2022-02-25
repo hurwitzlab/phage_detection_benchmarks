@@ -1,6 +1,6 @@
-# Simulate Reads using InSilicoSeq
+# Simulate Metagenomes using InSilicoSeq
 
-This is a Snakemake pipeline for generating simulated reads from reference genomes with specified abundances, and processing them for classification.
+This is a Snakemake pipeline for generating simulated metagenomes. Simulated reads are created by InSilicoSeq, with abundance profiles from various environments as determined by Bracken.
 
 To run the full pipeline, execute:
 
@@ -8,7 +8,13 @@ To run the full pipeline, execute:
 $ sbatch run.slurm
 ```
 
-Additional profiles can be placed in the bracken output directory (see `config/config.yaml`), and no changes need to be made to any files for the pipeline to be executed on the new profiles.
+To see a dry run of the pipeline, execute:
+
+```
+make dryrun
+```
+
+Additional profiles can be placed in the bracken output directory (see `config/config.yaml`), and no changes need to be made to any files; the pipeline will discover new profiles and run.
 
 # Pipeline description
 
@@ -25,7 +31,7 @@ The following diagram shows the main portions of the pipeline. *Note* the pipeli
 * Bins
 * Mappings
 
-`Classification` and `assessment` will be in pipelines in their own directories. I will create a master snakemake to run all 3 pipelines in the root of this repo.
+`Classification` and `Assessment` will be in pipelines in their own directories. I will create a master snakemake to run all 3 pipelines in the root of this repo.
 
 ```mermaid
 graph TD
@@ -54,11 +60,11 @@ graph TD
     blast --> mappings(mapped_contigs.out);
     mappings --> assess;
     bins --> marvel{MARVEL};
-    subgraph classification
+    subgraph Classification
         marvel --> preds(predictions);
         tools --> preds;
     end
-    subgraph assessment
+    subgraph Assessment
         preds --> assess{analysis}
         assess --> results(results);
         
@@ -67,15 +73,15 @@ graph TD
 
 ## Genome Concatenation
 
-InSiicoSeq treats each record in a multi-FASTA file as a genome, and requires a profile file giving the abundance of head record/genome. However, some genome files have multiple records (*e.g.* separated by chromosome).
+InSiicoSeq treats each record in a multi-FASTA file as a genome, and requires a profile file giving the abundance of each genome. However, some genome files have multiple records (*e.g.* separated by chromosome).
 
-The two files are created using scripts located here. First, `bracken_profiler.py` parses bracken output and creates two files: one with the profile, ready for input to InSilicoSeq, and a file with information on the genomes that need to be retrieved, such as file name globs and the record ID that was written in the profile.
+The two files are created using scripts located here. First, `bracken_profiler.py` parses bracken output and creates two files: one with the profile, ready for input to InSilicoSeq, and a file with information on the genomes that need to be retrieved, such as file name globs and the accession numbers that were written in the profile.
 
-Next, `cat_genomes.py` reads the information file, retrieves all the genomes in the profile, removes the record headers for each genome (except the one that matches that in the profile), and writes them all to one large file, which is the other input to InSilicoSeq
+Next, `cat_genomes.py` reads the information file, retrieves all the genomes in the profile, removes the record headers for each genome, adds the accession number as the header, and writes them all to one large file, which is the other input to InSilicoSeq.
 
 ## Read Simulation
 
-Several abundance profiles can be created, and the specified genomes must have identifiers that match those in `cat_genomes.fasta`. The list of desired abundance profiles should be given in the `--configfile`, as well as other `iss generate` parameters. Multiple error models can be automatically executed by inclusion in the config["model"] field, which currently includes all pre-built error models.
+Read simulation is done by InSilicoSeq. The inputs are the genomes file created by `cat_genomes.py` and the abundance profile created by `bracken_profiler.py`. Multiple error models can be automatically executed by inclusion in the config["model"] field, which currently includes all pre-built error models (novaseq, hiseq, and miseq).
 
 ## Assembly
 
@@ -95,9 +101,9 @@ BLASTn is run, querying the contigs created by MegaHit against the genomes in th
 
 ## `bracken_profiler.py`
 
-This script takes Bracken output and creates a profile for use in ISS. Taxonomic IDs are used to join the Bracken output with my list of refseq genomes. Since not all genomes may be found, the abundances are rescaled so they still add to 1. The abundance profile is written to `*_profile.txt`.
+This script takes Bracken output and creates a profile for use in InSilicoSeq. Taxonomic IDs are used to join the Bracken output with my list of refseq genomes. Since not all genomes may be found, the abundances are rescaled so they still add to 1. The abundance profile is written to `*_profile.txt`.
 
-Additionally, a file is created (`*_files.txt`) that contains acession numbers, file globs, and sequence record IDs that are in the profile. The files that match these globs are the files that contain the sequences in the profile.
+Additionally, a file is created (`*_files.txt`) that contains acession numbers and file globs. The files that match these globs are the files that contain the sequences in the profile.
 
 Example usage
 ```
@@ -139,7 +145,7 @@ GCF_013402915.1 0.0013
 ```
 ## `cat_genomes.py`
 
-This script concatenates all the genomes that are required for ISS based on the profile.
+This script concatenates all the genomes that are required for InSilicoSeq based on the profile.
 
 There are 3 inputs:
 
@@ -147,7 +153,7 @@ There are 3 inputs:
 * `-p|--parent`: the parent directory from which the file globs are defined.
 * `-o|--outdir`: output directory to write concatenated genomes.
 
-The file globs are not full relative paths, such as *archaea/GCF_000006175.1\*.fna*, so the `--parent` directory is provided to complete the relative path. For instance, if `--parent` = *../../data/refseq*, the full file glob that will be used is *../../data/refseq/archaea/GCF_000006175.1\*.fna*
+The file globs are not full relative paths, they are like *archaea/GCF_000006175.1\*.fna*, so the `--parent` directory is provided to complete the relative path. For instance, if `--parent` = *../../data/refseq*, the full file glob that will be used is *../../data/refseq/archaea/GCF_000006175.1\*.fna*
 
 Example usage
 ```
