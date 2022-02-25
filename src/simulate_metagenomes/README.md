@@ -1,8 +1,16 @@
 # Simulate Reads using InSilicoSeq
 
-This is a Snakemake pipeline for generating simulated reads from reference genomes with specified abundances.
+This is a Snakemake pipeline for generating simulated reads from reference genomes with specified abundances, and processing them for classification.
 
-## Pipeline description
+To run the full pipeline, execute:
+
+```
+$ sbatch run.slurm
+```
+
+Additional profiles can be placed in the bracken output directory (see `config/config.yaml`), and no changes need to be made to any files for the pipeline to be executed on the new profiles.
+
+# Pipeline description
 
 1. Generate a profile from Bracken output
 2. Concatenate the genomes present in the profile to a multifasta file
@@ -57,7 +65,7 @@ graph TD
     end
 ```
 
-### Genome Concatenation
+## Genome Concatenation
 
 InSiicoSeq treats each record in a multi-FASTA file as a genome, and requires a profile file giving the abundance of head record/genome. However, some genome files have multiple records (*e.g.* separated by chromosome).
 
@@ -65,10 +73,25 @@ The two files are created using scripts located here. First, `bracken_profiler.p
 
 Next, `cat_genomes.py` reads the information file, retrieves all the genomes in the profile, removes the record headers for each genome (except the one that matches that in the profile), and writes them all to one large file, which is the other input to InSilicoSeq
 
-### Read Simulation
+## Read Simulation
 
 Several abundance profiles can be created, and the specified genomes must have identifiers that match those in `cat_genomes.fasta`. The list of desired abundance profiles should be given in the `--configfile`, as well as other `iss generate` parameters. Multiple error models can be automatically executed by inclusion in the config["model"] field, which currently includes all pre-built error models.
 
+## Assembly
+
+Megahit is used for assembling the simulated reads into contigs.
+
+## Binning
+
+MetaBAT2 is used for binning the contigs. Default values are used currently, since MetaBAT2 has improved default values over MetaBAT.
+
+## BLAST alignment
+
+To determine the true origins of the contigs, BLAST is run. Each BLAST database is created from the same file of genomes that is passed to InSilicoSeq. Therefore, each profile will have its own BLAST database, containing only those organisms that constitute the profile. This prevents spurious hits to other organisms.
+
+BLASTn is run, querying the contigs created by MegaHit against the genomes in that profile.
+
+# Programs
 
 ## `bracken_profiler.py`
 
@@ -79,24 +102,26 @@ Additionally, a file is created (`*_files.txt`) that contains acession numbers, 
 Example usage
 ```
  $ ./bracken_profiler.py tests/inputs/bracken_profiler/input_1.txt
-Done. Wrote output files to "out".
+Making profile for file "tests/inputs/bracken_profiler/input_1.txt"...
+Finished.
+Done. Wrote 1 profile to out.
 
 $ ls out/
 input_1_files.txt  input_1_profile.txt
 
 # File globs do not include the parent directory (refseq)
 $ head -n 5 out/input_1_files.txt 
-accession,filename,seq_id
-GCF_000006175.1,archaea/GCF_000006175.1*.fna,NC_014222.1
-GCF_001742205.1,bacteria/GCF_001742205.1*.fna,NZ_CP017151.1
-GCF_000891875.6,viral/GCF_000891875.6*.fna,NC_015298.1
-GCF_013402915.1,fungi/GCF_013402915.1*.fna,NC_050719.1
+filename,accession
+archaea/GCF_000006175.1*.fna,GCF_000006175.1
+bacteria/GCF_001742205.1*.fna,GCF_001742205.1
+viral/GCF_000891875.6*.fna,GCF_000891875.6
+fungi/GCF_013402915.1*.fna,GCF_013402915.1
 
 $ head -n 5 out/input_1_profile.txt
-NC_014222.1     0.6525
-NZ_CP017151.1   0.21977
-NC_015298.1     0.12644
-NC_050719.1     0.0013
+GCF_000006175.1 0.6525
+GCF_001742205.1 0.21977
+GCF_000891875.6 0.12644
+GCF_013402915.1 0.0013
 ```
 ## `cat_genomes.py`
 
@@ -113,19 +138,20 @@ The file globs are not full relative paths, such as *archaea/GCF_000006175.1\*.f
 Example usage
 ```
 $ ./cat_genomes.py -p tests/inputs/cat_genomes/refseq/ tests/inputs/cat_genomes/input_1_files.txt 
-Done. Concatenated 4 files to out/input_1_genomes.fasta
+Concatenated 4 files to out/input_1_genomes.fasta
+Done. Concatenated files for 1 profile.
 
 $ head -n 5 out/input_1_genomes.fasta
->NC_014222.1 Methanococcus voltae A3, complete sequence
+>GCF_000006175.1
 AATTTAAAGATTAAAATTAGTAGACTGTCGATTTACAATATCATATTTATGAGTAATGATAATAACATTATCAAAGTATT
 ATCTAAATATTTAGATTTAATATGTTTCTCAATGGAATATGTTAAATTTTATATTTATACATTATTGTAAAATCATAAAA
 ATTTTTTAGAAAAATGTCTTAATCTTGCTAATTTTTGATTTATTGCCAAAATACACATTACTCATCAAATGAAAATTAGT
 TCAAATATTGTGTATAATGTCCTGTGTAATATTACAAATTACTGTATGTAATATACCGTATGCAATATACAATAGTAAAT
 
 $ grep ">" out/input_1_genomes.fasta 
->NC_014222.1 Methanococcus voltae A3, complete sequence
->NZ_CP017151.1 Limosilactobacillus fermentum strain NCC2970 chromosome, complete genome
->NC_015298.1 Rose rosette virus RNA1, complete genome
->NC_050719.1 Zygotorulaspora mrakii chromosome 1, complete sequence
+>GCF_000006175.1
+>GCF_001742205.1
+>GCF_000891875.6
+>GCF_013402915.1
 ```
 
