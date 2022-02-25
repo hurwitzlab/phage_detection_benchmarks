@@ -9,6 +9,10 @@ megahit:
         megahit
 metabat:
         metabat2
+make_db:
+        makeblastdb
+blast:
+        blastn
 
 # Environments
 iss_env:
@@ -17,28 +21,39 @@ megahit_env:
         ../../tool_envs/megahit/env
 metabat_env:
         ../../tool_envs/metabat2/env
+blast_env:
+        ../../tool_envs/blast/env
 
 # Directories
 bracken_dir:
-        ../../data/bracken_profiles
+        ../../data/metagenome_simulation/bracken_profiles
 profiles_dir:
-        ../../data/profiles
+        ../../data/metagenome_simulation/profiles
 refseq_info:
         ../../data/refseq_info/taxonomy.csv
 refseq_dir:
         ../../data/refseq
 simulated_dir:
-        ../../data/simulated_reads
+        ../../data/metagenome_simulation/simulated_reads
 contigs_dir:
-        ../../data/assembled_reads
+        ../../data/metagenome_simulation/assembled_reads
 bins_dir:
-        ../../data/binned_contigs
+        ../../data/metagenome_simulation/binned_contigs
+blast_dbs_dir:
+        ../../data/metagenome_simulation/blast_dbs
+blast_out_dir:
+        ../../data/metagenome_simulation/blast_out
 
 # Parameters
+## simulate_reads
 model:
         ["miseq", "hiseq", "novaseq"]
 n_reads:
         --n_reads 20M
+
+## run_blast
+e_value: '1e-20'
+
 
 # Resources
 ## make_profiles
@@ -60,3 +75,11 @@ assembly_ntasks: 47
 # metabat_binning
 binning_time: '00:10:00'
 binning_ntasks: 8
+
+# make_blast_dbs
+make_db_time: '00:10:00'
+make_db_ntasks: 4
+
+# run_blast
+blast_time: '04:00:00'
+blast_ntasks: 6
