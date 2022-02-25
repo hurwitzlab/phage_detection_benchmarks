@@ -37,6 +37,7 @@ snakemake \
 	--configfile config/config.yaml \
 	--cluster \
 		"sbatch -p {cluster.partition} \
+		--account {cluster.group} \
 		-t {cluster.time} \
 		--mem-per-cpu={cluster.mem-per-cpu} \
 		--nodes=1 \
