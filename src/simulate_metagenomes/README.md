@@ -101,6 +101,20 @@ Additionally, a file is created (`*_files.txt`) that contains acession numbers, 
 
 Example usage
 ```
+$ ./bracken_profiler.py -h
+usage: bracken_profiler.py [-h] [-t FILE] [-o DIR] FILE [FILE ...]
+
+Create profile from Bracken output
+
+positional arguments:
+  FILE                  Bracken output file(s)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t FILE, --taxonomy FILE
+                        Taxonomy mapping file (default: ../../data/refseq_info/taxonomy.csv)
+  -o DIR, --outdir DIR  Output directory (default: out)
+
  $ ./bracken_profiler.py tests/inputs/bracken_profiler/input_1.txt
 Making profile for file "tests/inputs/bracken_profiler/input_1.txt"...
 Finished.
@@ -137,6 +151,19 @@ The file globs are not full relative paths, such as *archaea/GCF_000006175.1\*.f
 
 Example usage
 ```
+$ ./cat_genomes.py -h
+usage: cat_genomes.py [-h] [-p DIR] [-o DIR] FILE [FILE ...]
+
+Concatenate genomes from profile into single multifasta
+
+positional arguments:
+  FILE                  File(s) containing genome information
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p DIR, --parent DIR  Directory prepended to file globs (default: ../../data/refseq)
+  -o DIR, --outdir DIR  Output directory (default: out)
+
 $ ./cat_genomes.py -p tests/inputs/cat_genomes/refseq/ tests/inputs/cat_genomes/input_1_files.txt 
 Concatenated 4 files to out/input_1_genomes.fasta
 Done. Concatenated files for 1 profile.
@@ -155,3 +182,57 @@ $ grep ">" out/input_1_genomes.fasta
 >GCF_013402915.1
 ```
 
+## Test Suite
+
+A test suite is provided for the programs that were written. The full suite can be run with:
+
+```
+$ make test
+python3 -m pytest -v --flake8 --pylint --mypy tests/ bracken_profiler.py cat_genomes.py
+============================ test session starts ============================
+platform linux -- Python 3.8.10, pytest-6.2.4, py-1.10.0, pluggy-0.13.1 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/ken/work/research/challenging-phage-finders/src/simulate_metagenomes
+plugins: flake8-1.0.7, mypy-0.8.1, pylint-0.18.0
+collected 35 items                                                          
+
+tests/bracken_profiler_test.py::PYLINT SKIPPED (file(s) previousl...) [  2%]
+tests/bracken_profiler_test.py::mypy PASSED                           [  5%]
+tests/bracken_profiler_test.py::mypy-status PASSED                    [  8%]
+tests/bracken_profiler_test.py::FLAKE8 SKIPPED (file(s) previousl...) [ 11%]
+tests/bracken_profiler_test.py::test_exists PASSED                    [ 14%]
+tests/bracken_profiler_test.py::test_testing_environment PASSED       [ 17%]
+tests/bracken_profiler_test.py::test_usage PASSED                     [ 20%]
+tests/bracken_profiler_test.py::test_bad_file PASSED                  [ 22%]
+tests/bracken_profiler_test.py::test_bad_taxonomy_file PASSED         [ 25%]
+tests/bracken_profiler_test.py::test_runs_okay PASSED                 [ 28%]
+tests/cat_genomes_test.py::PYLINT SKIPPED (file(s) previously pas...) [ 31%]
+tests/cat_genomes_test.py::mypy PASSED                                [ 34%]
+tests/cat_genomes_test.py::FLAKE8 SKIPPED (file(s) previously pas...) [ 37%]
+tests/cat_genomes_test.py::test_exists PASSED                         [ 40%]
+tests/cat_genomes_test.py::test_testing_environment PASSED            [ 42%]
+tests/cat_genomes_test.py::test_usage PASSED                          [ 45%]
+tests/cat_genomes_test.py::test_bad_file PASSED                       [ 48%]
+tests/cat_genomes_test.py::test_missing_parent PASSED                 [ 51%]
+tests/cat_genomes_test.py::test_empty_parent PASSED                   [ 54%]
+tests/cat_genomes_test.py::test_wrong_parent PASSED                   [ 57%]
+tests/cat_genomes_test.py::test_runs_okay PASSED                      [ 60%]
+bracken_profiler.py::PYLINT SKIPPED (file(s) previously passed py...) [ 62%]
+bracken_profiler.py::mypy PASSED                                      [ 65%]
+bracken_profiler.py::FLAKE8 SKIPPED (file(s) previously passed FL...) [ 68%]
+bracken_profiler.py::test_clean_bracken PASSED                        [ 71%]
+bracken_profiler.py::test_clean_taxonomy PASSED                       [ 74%]
+bracken_profiler.py::test_join_dfs PASSED                             [ 77%]
+bracken_profiler.py::test_rescale_abundances PASSED                   [ 80%]
+bracken_profiler.py::test_make_files_df PASSED                        [ 82%]
+bracken_profiler.py::test_make_profile_df PASSED                      [ 85%]
+bracken_profiler.py::test_make_filenames PASSED                       [ 88%]
+cat_genomes.py::PYLINT SKIPPED (file(s) previously passed pylint ...) [ 91%]
+cat_genomes.py::mypy PASSED                                           [ 94%]
+cat_genomes.py::FLAKE8 SKIPPED (file(s) previously passed FLAKE8 ...) [ 97%]
+cat_genomes.py::test_make_filename PASSED                             [100%]
+=================================== mypy ====================================
+
+Success: no issues found in 4 source files
+======================= 27 passed, 8 skipped in 5.01s =======================
+```
