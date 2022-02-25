@@ -9,6 +9,12 @@ rule all:
             p=PROFILES,
             m=config["model"],
         ),
+        expand(
+            "{b}/{p}_{m}_blast_out.txt",
+            b=config["blast_out_dir"],
+            p=PROFILES,
+            m=config["model"],
+        ),
 
 
 # Create profile for InSilicoSeq, and file globs to find necessary genomes
@@ -116,8 +122,8 @@ rule metabat_binning:
         metabat=config["metabat"],
         env=config["metabat_env"],
         out_dir=config["bins_dir"],
-	time=config["binning_time"],
-    threads: config["binning_ntasks"],
+        time=config["binning_time"],
+    threads: config["binning_ntasks"]
     shell:
         """
         source activate {params.env}
@@ -127,4 +133,51 @@ rule metabat_binning:
         {params.metabat} \
             -i {input.in_file} \
             -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin
+        """
+
+
+# Make BLAST databases from input genomes
+rule make_blast_dbs:
+    input:
+        config["profiles_dir"] + "/{id}_genomes.fasta",
+    output:
+        directory(config["blast_dbs_dir"] + "/{id}/"),
+    params:
+        out_dir=config["blast_dbs_dir"],
+        env=config["blast_env"],
+        make_db=config["make_db"],
+        time=config["make_db_time"],
+    threads: config["make_db_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.make_db} \
+            -in {input} \
+            -dbtype nucl \
+            -out {params.out_dir}/{wildcards.id}/db \
+            -title {wildcards.id}
+        """
+
+
+# Run BLAST querying assembled simulated reads against input genomes
+rule run_blast:
+    input:
+        query=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+        db=directory(config["blast_dbs_dir"] + "/{id}/"),
+    output:
+        config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
+    params:
+        out_dir=config["blast_out_dir"],
+        env=config["blast_env"],
+        e_value=config["e_value"],
+        time=config["blast_time"],
+        blast=config["blast"],
+    threads: config["blast_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.blast} \
+            -query {input.query} \
+            -db {input.db}/db \
+            -out {output}
         """
