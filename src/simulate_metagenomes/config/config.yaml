@@ -28,7 +28,7 @@ iss_env:
 megahit_env:
         ../../tool_envs/megahit/env
 bowtie_env:
-        ../../tool_envs/bowtie/env
+        ../../tool_envs/bowtie2/env
 samtools_env:
         ../../tool_envs/samtools/env
 metabat_env:
