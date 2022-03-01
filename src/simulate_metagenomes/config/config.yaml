@@ -15,8 +15,10 @@ sam_to_bam:
         samtools view -u
 sort_bam:
         samtools sort
+summarize_depths:
+        jgi_summarize_bam_contig_depths
 metabat:
-        runMetaBat.sh
+        metabat2
 make_db:
         makeblastdb
 blast:
@@ -98,9 +100,13 @@ bowtie_indexing_ntasks: 4
 bowtie_mapping_time: '04:00:00'
 bowtie_mapping_ntasks: 8
 
-# convert_sort_mappings:
+# convert_sort_mappings
 samtools_time: '00:30:00'
 samtools_ntasks: 4
+
+# calculate_depths
+calculate_depths_time: '00:15:00'
+calculate_depths_ntasks: 4
 
 # metabat_binning
 binning_time: '00:10:00'

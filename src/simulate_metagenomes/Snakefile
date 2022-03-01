@@ -189,11 +189,34 @@ rule convert_sort_mappings:
         """
 
 
+# Calculate contig depths
+rule calculate_depths:
+    input:
+        config["bowtie_map_dir"] + "/{id}_{model}_sorted.bam",
+    output:
+        config["bowtie_map_dir"] + "/{id}_{model}_depth.txt",
+    params:
+        summarize=config["summarize_depths"],
+        env=config["metabat_env"],
+        out_dir=config["bowtie_map_dir"],
+        time=config["calculate_depths_time"],
+    threads: config["calculate_depths_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/calculate_depths/{id}_{model}.txt"
+    shell:
+        """
+        source activate {params.env}
+        {params.summarize} \
+            {input} \
+            --outputDepth {output} \
+        """
+
+
 # Bin contigs from simulated reads
 rule metabat_binning:
     input:
         in_file=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
-        bam=config["bowtie_map_dir"] + "/{id}_{model}_sorted.bam",
+        depths=config["bowtie_map_dir"] + "/{id}_{model}_depth.txt",
     output:
         config["bins_dir"] + "/{id}_{model}/bin.1.fa",
     params:
@@ -210,8 +233,8 @@ rule metabat_binning:
         mkdir -p {params.out_dir}
         {params.metabat} \
             -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin \
-            {input.in_file} \
-            {input.bam}
+            -i {input.in_file} \
+            -a {input.depths}
         """
 
 
