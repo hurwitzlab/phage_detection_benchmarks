@@ -81,5 +81,5 @@ make_db_time: '00:10:00'
 make_db_ntasks: 4
 
 # run_blast
-blast_time: '04:00:00'
+blast_time: '12:00:00'
 blast_ntasks: 6
