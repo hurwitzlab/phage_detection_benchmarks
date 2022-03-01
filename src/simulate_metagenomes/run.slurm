@@ -33,7 +33,7 @@ source activate snakemake_env
 snakemake \
 	--cluster-config config/cluster.yaml \
 	-j 12 \
-	--latency-wait 15 \
+	--latency-wait 60 \
 	--configfile config/config.yaml \
 	--cluster \
 		"sbatch -p {cluster.partition} \
