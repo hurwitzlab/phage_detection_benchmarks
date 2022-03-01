@@ -111,18 +111,19 @@ rule megahit_assembly:
             -o {params.out_dir}/{wildcards.id}_{wildcards.model}
         """
 
+
 # Create Bowtie2 index of contigs, for mapping reads
 rule make_bowtie_index:
-    input: 
+    input:
         config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
     output:
-        directory(config["bowtie_index_dir"] +"/{id}_{model}"),
+        directory(config["bowtie_index_dir"] + "/{id}_{model}"),
     params:
         build=config["bowtie_build"],
         env=config["bowtie_env"],
         out_dir=config["bowtie_index_dir"],
         time=config["bowtie_indexing_time"],
-    threads: config["bowtie_indexing_ntasks"],
+    threads: config["bowtie_indexing_ntasks"]
     shell:
         """
         source activate {params.env}
@@ -132,12 +133,13 @@ rule make_bowtie_index:
             {params.out_dir}/index
         """
 
+
 # Map reads to contigs using Bowtie2
 rule bowtie_map_reads:
     input:
         fwd=config["simulated_dir"] + "/{id}_{model}_R1.fastq",
         rev=config["simulated_dir"] + "/{id}_{model}_R2.fastq",
-        index=config["bowtie_index_dir"] +"/{id}_{model}/",
+        index=config["bowtie_index_dir"] + "/{id}_{model}/",
     output:
         config["bowtie_map_dir"] + "/{id}_{model}.sam",
     params:
@@ -145,20 +147,21 @@ rule bowtie_map_reads:
         env=config["bowtie_env"],
         out_dir=config["bowtie_map_dir"],
         time=config["bowtie_mapping_time"],
-    threads: config["bowtie_mapping_ntasks"],
+    threads: config["bowtie_mapping_ntasks"]
     shell:
-    """
-    source activate {params.env}
-    {params.bowtie} \
-        -x {input.index}index \
-        -1 {input.fwd} \
-        -2 {input.rev}
-    """
+        """
+        source activate {params.env}
+        {params.bowtie} \
+            -x {input.index}index \
+            -1 {input.fwd} \
+            -2 {input.rev}
+        """
+
 
 # Convert bowtie SAM output to BAM and sort
 rule convert_sort_mappings:
     input:
-        config["bowtie_map_dir"] +"/{id}_{model}.sam",
+        config["bowtie_map_dir"] + "/{id}_{model}.sam",
     output:
         config["bowtie_map_dir"] + "/{id}_{model}_sorted.bam",
     params:
@@ -167,15 +170,16 @@ rule convert_sort_mappings:
         env=config["samtools_env"],
         out_dir=config["bowtie_map_dir"],
         time=config["samtools_time"],
-    threads: config["samtools_ntasks"],
+    threads: config["samtools_ntasks"]
     shell:
-    """
-    source activate {params.env}
-    {params.convert} \
-        {input} | \
-        {params.sort} \
-        -o {output}
-    """
+        """
+        source activate {params.env}
+        {params.convert} \
+            {input} | \
+            {params.sort} \
+            -o {output}
+        """
+
 
 # Bin contigs from simulated reads
 rule metabat_binning:
