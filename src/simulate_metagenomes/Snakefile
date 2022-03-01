@@ -124,6 +124,8 @@ rule make_bowtie_index:
         out_dir=config["bowtie_index_dir"],
         time=config["bowtie_indexing_time"],
     threads: config["bowtie_indexing_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/make_bowtie_index/{id}_{model}.txt"
     shell:
         """
         source activate {params.env}
@@ -148,6 +150,8 @@ rule bowtie_map_reads:
         out_dir=config["bowtie_map_dir"],
         time=config["bowtie_mapping_time"],
     threads: config["bowtie_mapping_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/bowtie_map_reads/{id}_{model}.txt"
     shell:
         """
         source activate {params.env}
@@ -171,6 +175,8 @@ rule convert_sort_mappings:
         out_dir=config["bowtie_map_dir"],
         time=config["samtools_time"],
     threads: config["samtools_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/convert_sort_mappings/{id}_{model}.txt"
     shell:
         """
         source activate {params.env}
@@ -194,6 +200,8 @@ rule metabat_binning:
         out_dir=config["bins_dir"],
         time=config["binning_time"],
     threads: config["binning_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/metabat_binning/{id}_{model}.txt"
     shell:
         """
         source activate {params.env}
