@@ -37,6 +37,8 @@ blast_env:
         ../../tool_envs/blast/env
 
 # Directories
+benchmarks_dir:
+        ../../data/metagenome_simulation/benchmarks
 bracken_dir:
         ../../data/metagenome_simulation/bracken_profiles
 profiles_dir:
