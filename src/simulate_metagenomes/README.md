@@ -52,6 +52,11 @@ graph TD
     megahit --> contigs(contigs.fa);
     contigs --> metabat{MetaBAT2};
     contigs ----> tools{classifiers}
+    contigs --> bowtiebuild{Bowtie2-build};
+    bowtiebuild --> bowtieindex[(index)];
+    bowtieindex --> bowtie{Bowtie2};
+    reads --> bowtie;
+    bowtie --> metabat;
     metabat --> bins(bins)
     genomes --> dbizer{makeblastdb};
     dbizer ---> db[(BLAST DB)];
