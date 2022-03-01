@@ -111,11 +111,77 @@ rule megahit_assembly:
             -o {params.out_dir}/{wildcards.id}_{wildcards.model}
         """
 
+# Create Bowtie2 index of contigs, for mapping reads
+rule make_bowtie_index:
+    input: 
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    output:
+        directory(config["bowtie_index_dir"] +"/{id}_{model}"),
+    params:
+        build=config["bowtie_build"],
+        env=config["bowtie_env"],
+        out_dir=config["bowtie_index_dir"],
+        time=config["bowtie_indexing_time"],
+    threads: config["bowtie_indexing_ntasks"],
+    shell:
+        """
+        source activate {params.env}
+        mkdir -p {params.out_dir}
+        {params.build} \
+            {input} \
+            {params.out_dir}/index
+        """
+
+# Map reads to contigs using Bowtie2
+rule bowtie_map_reads:
+    input:
+        fwd=config["simulated_dir"] + "/{id}_{model}_R1.fastq",
+        rev=config["simulated_dir"] + "/{id}_{model}_R2.fastq",
+        index=config["bowtie_index_dir"] +"/{id}_{model}/",
+    output:
+        config["bowtie_map_dir"] + "/{id}_{model}.sam",
+    params:
+        bowtie=config["bowtie"],
+        env=config["bowtie_env"],
+        out_dir=config["bowtie_map_dir"],
+        time=config["bowtie_mapping_time"],
+    threads: config["bowtie_mapping_ntasks"],
+    shell:
+    """
+    source activate {params.env}
+    {params.bowtie} \
+        -x {input.index}index \
+        -1 {input.fwd} \
+        -2 {input.rev}
+    """
+
+# Convert bowtie SAM output to BAM and sort
+rule convert_sort_mappings:
+    input:
+        config["bowtie_map_dir"] +"/{id}_{model}.sam",
+    output:
+        config["bowtie_map_dir"] + "/{id}_{model}_sorted.bam",
+    params:
+        convert=config["sam_to_bam"],
+        sort=config["sort_bam"],
+        env=config["samtools_env"],
+        out_dir=config["bowtie_map_dir"],
+        time=config["samtools_time"],
+    threads: config["samtools_ntasks"],
+    shell:
+    """
+    source activate {params.env}
+    {params.convert} \
+        {input} | \
+        {params.sort} \
+        -o {output}
+    """
 
 # Bin contigs from simulated reads
 rule metabat_binning:
     input:
         in_file=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+        bam=config["bowtie_map_dir"] + "/{id}_{model}_sorted.bam",
     output:
         config["bins_dir"] + "/{id}_{model}/bin.1.fa",
     params:
@@ -127,12 +193,11 @@ rule metabat_binning:
     shell:
         """
         source activate {params.env}
-        if ![ -d {params.out_dir} ]; then
-            mkdir {params.out_dir};
-        fi
+        mkdir -p {params.out_dir}
         {params.metabat} \
-            -i {input.in_file} \
             -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin
+            {input.in_file} \
+            {input.bam}
         """
 
 
