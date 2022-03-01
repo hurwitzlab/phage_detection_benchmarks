@@ -129,10 +129,10 @@ rule make_bowtie_index:
     shell:
         """
         source activate {params.env}
-        mkdir -p {params.out_dir}
+        mkdir -p {params.out_dir}/{wildcards.id}_{wildcards.model}
         {params.build} \
             {input} \
-            {params.out_dir}/index
+            {params.out_dir}/{wildcards.id}_{wildcards.model}/index
         """
 
 
@@ -156,9 +156,11 @@ rule bowtie_map_reads:
         """
         source activate {params.env}
         {params.bowtie} \
-            -x {input.index}index \
+            -x {input.index}/index \
             -1 {input.fwd} \
-            -2 {input.rev}
+            -2 {input.rev} \
+            -p {threads} \
+            -S {output}
         """
 
 
@@ -207,7 +209,7 @@ rule metabat_binning:
         source activate {params.env}
         mkdir -p {params.out_dir}
         {params.metabat} \
-            -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin
+            -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin \
             {input.in_file} \
             {input.bam}
         """
