@@ -25,7 +25,7 @@ Additional profiles can be placed in the bracken output directory (see `config/c
 5. Bin contigs using MetaBAT2
 6. Map reads to input genomes with BLAST
 
-The following diagram shows the main portions of the pipeline. *Note* the pipeline in this directory ends with 3 results:
+The following diagram shows the main portions of the pipeline. Each node represents a rule. *Note* the pipeline in this directory ends with 3 results:
 
 * Contigs
 * Bins
@@ -35,36 +35,27 @@ The following diagram shows the main portions of the pipeline. *Note* the pipeli
 
 ```mermaid
 graph TD
-    input(Bracken output) --> profiler{make_profiles};
+    input(Bracken output) --> profiler{make_profiles.py};
     taxa(taxonomy.csv) --> profiler;
-    profiler --> profile(profile.txt);
-    profiler --> globs(files.txt);
+    profiler -- profile.txt --> iss{InsilicoSeq};
+    profiler -- files.txt --> cat{cat_genomes.py};
     refseq[(local refseq)];
-    cat{cat_genomes};
-    globs --> cat;
-    refseq ----> cat;
-    cat --> genomes(genomes.fasta);
-    iss{simulate_reads};
-    profile --> iss;
-    genomes --> iss;
-    iss --> reads(reads.fastq);
-    reads --> megahit{MegaHit};
-    megahit --> contigs(contigs.fa);
-    contigs --> metabat{MetaBAT2};
-    contigs ----> tools{classifiers}
-    contigs --> bowtiebuild{Bowtie2-build};
-    bowtiebuild --> bowtieindex[(index)];
-    bowtieindex --> bowtie{Bowtie2};
-    reads --> bowtie;
-    bowtie --> metabat;
-    metabat --> bins(bins)
-    genomes --> dbizer{makeblastdb};
-    dbizer ---> db[(BLAST DB)];
-    db --> blast{BLASTn};
-    contigs --> blast;
-    blast --> mappings(mapped_contigs.out);
-    mappings --> assess;
-    bins --> marvel{MARVEL};
+    refseq ---> cat;
+    cat -- genomes.fasta --> iss;
+    cat -- genomes.fasta --> dbizer{makeblastdb};
+    iss -- reads.fastq --> megahit{MegaHit};
+    iss -- reads.fastq --> bowtie;
+    megahit -- contigs.fa --> metabat{MetaBAT2};
+    megahit -- contigs.fa --> tools{classifiers};
+    megahit -- contigs.fa --> bowtiebuild{Bowtie2-build};
+    megahit -- contigs.fa --> blast{BLASTn};
+    bowtiebuild -- index --> bowtie{Bowtie2};
+    bowtie -- maps.sam --> samtools{samtools};
+    samtools -- maps_sorted.bam --> calcdepths{MetaBat2_summarize};
+    calcdepths -- depths.txt --> metabat;
+    metabat -- bins --> marvel{MARVEL};
+    dbizer -- db --> blast{BLASTn};
+    blast -- mapped_contigs.out --> assess;
     subgraph Classification
         marvel --> preds(predictions);
         tools --> preds;
