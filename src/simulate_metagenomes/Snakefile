@@ -281,5 +281,7 @@ rule run_blast:
         {params.blast} \
             -query {input.query} \
             -db {input.db}/db \
-            -out {output}
+            -out {output} \
+            -outfmt 5 \
+            -num_threads {threads}
         """
