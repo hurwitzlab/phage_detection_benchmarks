@@ -118,4 +118,4 @@ make_db_ntasks: 4
 
 # run_blast
 blast_time: '12:00:00'
-blast_ntasks: 6
+blast_ntasks: 12
