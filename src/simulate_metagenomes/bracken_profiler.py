@@ -185,16 +185,20 @@ def test_clean_taxonomy() -> None:
 
 
 # --------------------------------------------------
-def join_dfs(bracken: pd.DataFrame, tax: pd.DataFrame) -> pd.DataFrame:
+def join_dfs(bracken: pd.DataFrame,
+             tax: pd.DataFrame,
+             how: str = 'inner',
+             drop_dup: bool = True) -> pd.DataFrame:
     """ Join bracken and taxonomy dfs """
 
     joined_df = pd.merge(bracken,
                          tax,
-                         how='inner',
+                         how=how,
                          left_on='taxonomy_id',
                          right_on='taxid')
 
-    joined_df.drop(['taxonomy_id'], axis='columns', inplace=True)
+    if drop_dup:
+        joined_df.drop(['taxonomy_id'], axis='columns', inplace=True)
 
     return joined_df
 
