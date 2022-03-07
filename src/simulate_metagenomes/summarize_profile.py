@@ -96,6 +96,8 @@ def main() -> None:
 
     joined_profiles.to_csv(out_file, sep="\t", index=False)
 
+    print(f'Done. Wrote output to {out_file}.')
+
 
 # --------------------------------------------------
 def join_profiles(bracken: pd.DataFrame,
