@@ -341,7 +341,9 @@ def reformat_virsorter(args: Args):
 
         # Keep only original record name
         df['record'] = df['record'].str.replace(r'_Fragment.*', '', regex=True)
-        df['record'] = df['record'].str.replace(r'(_)([\d]+)$', '.\\2')
+        df['record'] = df['record'].str.replace(r'(_)([\d]+)$',
+                                                '.\\2',
+                                                regex=True)
 
         # Keep only the category number
         df['value'] = df['value'].str[-1]
