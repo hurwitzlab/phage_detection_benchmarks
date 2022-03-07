@@ -8,5 +8,5 @@ data/
 .RData
 .Rhistory
 renv/
-env/*
+env/
 .vscode/
