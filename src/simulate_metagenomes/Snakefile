@@ -15,6 +15,17 @@ rule all:
             p=PROFILES,
             m=config["model"],
         ),
+        expand(
+            "{b}/{p}_profile_comparison.txt",
+            b=config["summary_dir"],
+            p=PROFILES,
+        )
+        expand(
+            "{b}/{p}_{m}_parsed_blast.csv",
+            b=config["summary_dir"],
+            p=PROFILES,
+            m=config["model"],
+        )
 
 
 # Create profile for InSilicoSeq, and file globs to find necessary genomes
@@ -37,6 +48,31 @@ rule make_profiles:
             -o {params.out_dir} \
             {input}
         """
+
+# Create file comparing Bracken output and generated profile
+rule summarize_profile:
+    input:
+        bracken=config["bracken_dir"] + "/{id}.txt",
+        profile=config["profiles_dir"] + "/{id}_profile.txt",
+    output:
+        config["summary_dir"] + "/{id}_profile_comparison.txt",
+    params:
+        summarize=config["summarize_profile"],
+        refseq=config["refseq_info"],
+        out_dir=config["summary_dir"],
+        env=config["project_env"],
+        time=config["summarize_profile_time"],
+    threads: config["summarize_profile_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.summarize} \
+            -o {params.out_dir} \
+            -b {input.bracken} \
+            -p {input.profile} \
+            -t {params.refseq}
+        """
+    
 
 
 # Concatenate input genomes for InSilicoSeq
@@ -284,4 +320,24 @@ rule run_blast:
             -out {output} \
             -outfmt 5 \
             -num_threads {threads}
+        """
+
+# Parse information from BLAST output for analysis
+rule summarize_blast:
+    input:
+        config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
+    output:
+        config["summary_dir"] + "/{id}_{model}_parsed_blast.csv",
+    params:
+        summarize=config["summarize_blast"],
+        out_dir=config["summary_dir"],
+        env=config["project_env"],
+        time=config["summarize_blast_time"],
+    threads: config["summarize_blast_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.summarize} \
+            -o {params.out_dir} \
+            {input}
         """
