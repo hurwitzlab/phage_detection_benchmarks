@@ -5,6 +5,8 @@ bracken_profiler:
         ./bracken_profiler.py
 cat_genomes:
         ./cat_genomes.py
+summarize_profile:
+        ./summarize_profile.py
 megahit:
         megahit
 bowtie_build:
@@ -23,8 +25,12 @@ make_db:
         makeblastdb
 blast:
         blastn
+summarize_blast:
+        ./summarize_blast.py
 
 # Environments
+project_env:
+        ../../env
 iss_env:
         ../../tool_envs/insilicoseq/env
 megahit_env:
@@ -63,6 +69,8 @@ blast_dbs_dir:
         ../../data/metagenome_simulation/blast_dbs
 blast_out_dir:
         ../../data/metagenome_simulation/blast_out
+summary_dir:
+        ../../data/metagenome_simulation/summary
 
 # Parameters
 ## simulate_reads
@@ -79,6 +87,10 @@ e_value: '1e-20'
 ## make_profiles
 make_profiles_time: '00:05:00'
 make_profiles_ntasks: 1
+
+## summarize_profile
+summarize_profile_time: '00:05:00'
+summarize_profile_ntasks: 1
 
 ## cat_genomes
 cat_genomes_time: '00:20:00'
@@ -119,3 +131,7 @@ make_db_ntasks: 4
 # run_blast
 blast_time: '12:00:00'
 blast_ntasks: 12
+
+# summarize_blast
+summarize_blast_time: '01:00:00'
+summarize_blast_ntasks: 6
