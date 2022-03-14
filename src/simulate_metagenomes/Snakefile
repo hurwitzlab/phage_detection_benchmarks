@@ -19,13 +19,13 @@ rule all:
             "{b}/{p}_profile_comparison.txt",
             b=config["summary_dir"],
             p=PROFILES,
-        )
+        ),
         expand(
             "{b}/{p}_{m}_parsed_blast.csv",
             b=config["summary_dir"],
             p=PROFILES,
             m=config["model"],
-        )
+        ),
 
 
 # Create profile for InSilicoSeq, and file globs to find necessary genomes
@@ -48,6 +48,7 @@ rule make_profiles:
             -o {params.out_dir} \
             {input}
         """
+
 
 # Create file comparing Bracken output and generated profile
 rule summarize_profile:
@@ -72,7 +73,6 @@ rule summarize_profile:
             -p {input.profile} \
             -t {params.refseq}
         """
-    
 
 
 # Concatenate input genomes for InSilicoSeq
@@ -321,6 +321,7 @@ rule run_blast:
             -outfmt 5 \
             -num_threads {threads}
         """
+
 
 # Parse information from BLAST output for analysis
 rule summarize_blast:
