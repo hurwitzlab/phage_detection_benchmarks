@@ -6,7 +6,8 @@ test:
 		bracken_profiler.py \
 		cat_genomes.py \
 		summarize_profile.py \
-		summarize_blast.py
+		summarize_blast.py \
+		filter_contigs.py
 
 dryrun:
 	snakemake -np --configfile config/config.yaml
@@ -17,5 +18,6 @@ coverage:
 		bracken_profiler.py \
 		cat_genomes.py \
 		summarize_profile.py \
-		summarize_blast.py
+		summarize_blast.py \
+		filter_contigs.py
 	coverage report -m
