@@ -7,6 +7,7 @@ test:
 		cat_genomes.py \
 		summarize_profile.py \
 		summarize_blast.py \
+		summarize_contigs.py \
 		filter_contigs.py
 
 dryrun:
@@ -19,5 +20,6 @@ coverage:
 		cat_genomes.py \
 		summarize_profile.py \
 		summarize_blast.py \
+		summarize_contigs.py \
 		filter_contigs.py
 	coverage report -m

@@ -156,13 +156,13 @@ def filter_contigs(in_fh: TextIO, thresh: float,
 def test_filter_contigs() -> None:
     """ Test filter_contigs() """
 
-    example_contigs = io.StringIO(">k141_451933 flag=1 multi=1.0000 len=16\n"
-                                  "ATGCATGCATGCATGC\n"
-                                  ">k141_55624 flag=1 multi=1.0000 len=10\n"
-                                  "ATGCATGCAT\n")
+    example_contigs = io.StringIO('>k141_451933 flag=1 multi=1.0000 len=16\n'
+                                  'ATGCATGCATGCATGC\n'
+                                  '>k141_55624 flag=1 multi=1.0000 len=10\n'
+                                  'ATGCATGCAT\n')
 
-    expected_out = io.StringIO(">k141_451933 flag=1 multi=1.0000 len=16\n"
-                               "ATGCATGCATGCATGC\n")
+    expected_out = io.StringIO('>k141_451933 flag=1 multi=1.0000 len=16\n'
+                               'ATGCATGCATGCATGC\n')
 
     out_fh = io.StringIO('')
 
