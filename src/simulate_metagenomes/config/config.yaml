@@ -9,6 +9,10 @@ summarize_profile:
         ./summarize_profile.py
 megahit:
         megahit
+sumamrize_contigs:
+        ./summarize_contigs.py
+filter_contigs:
+        ./filter_contigs.py
 bowtie_build:
         bowtie2-build
 bowtie:
@@ -79,6 +83,13 @@ model:
 n_reads:
         --n_reads 20M
 
+# filter_contigs
+model_lengths: 
+        miseq: 300
+        hiseq: 125
+        novaseq: 150
+filter_tolerance: 0.05
+
 ## run_blast
 e_value: '1e-20'
 
@@ -103,6 +114,10 @@ simulate_reads_ntasks: 36
 # megahit_assembly
 assembly_time: '4:00:00'
 assembly_ntasks: 47
+
+# filter_contigs
+filter_contigs_time: '01:00:00'
+filter_contigs_ntasks: 4
 
 # make_bowtie_index
 bowtie_indexing_time: '00:30:00'

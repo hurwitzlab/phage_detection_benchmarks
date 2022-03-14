@@ -16,16 +16,23 @@ rule all:
             m=config["model"],
         ),
         expand(
-            "{b}/{p}_profile_comparison.txt",
+            "{b}/profiles_comparisons/{p}_profile_comparison.txt",
             b=config["summary_dir"],
             p=PROFILES,
-        )
+        ),
         expand(
-            "{b}/{p}_{m}_parsed_blast.csv",
+            "{b}/parsed_blast/{p}_{m}_parsed_blast.csv",
             b=config["summary_dir"],
             p=PROFILES,
             m=config["model"],
-        )
+        ),
+        expand(
+            "{b}/{c}/{p}_{m}_contig_summary.csv",
+            b=config["summary_dir"],
+            c=["raw_contigs", "filtered_contigs"],
+            p=PROFILES,
+            m=config["model"],
+        ),
 
 
 # Create profile for InSilicoSeq, and file globs to find necessary genomes
@@ -49,17 +56,18 @@ rule make_profiles:
             {input}
         """
 
+
 # Create file comparing Bracken output and generated profile
 rule summarize_profile:
     input:
         bracken=config["bracken_dir"] + "/{id}.txt",
         profile=config["profiles_dir"] + "/{id}_profile.txt",
     output:
-        config["summary_dir"] + "/{id}_profile_comparison.txt",
+        config["summary_dir"] + "/profile_comparisons/{id}_profile_comparison.txt",
     params:
         summarize=config["summarize_profile"],
         refseq=config["refseq_info"],
-        out_dir=config["summary_dir"],
+        out_dir=config["summary_dir"] + "/profile_comparisons",
         env=config["project_env"],
         time=config["summarize_profile_time"],
     threads: config["summarize_profile_ntasks"]
@@ -72,7 +80,6 @@ rule summarize_profile:
             -p {input.profile} \
             -t {params.refseq}
         """
-    
 
 
 # Concatenate input genomes for InSilicoSeq
@@ -148,10 +155,79 @@ rule megahit_assembly:
         """
 
 
+# Get lengths of assembled contigs
+rule summarize_raw_assembly:
+    input:
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    output:
+        config["summary_dir"] + "/raw_contigs/{id}_{model}_contig_summary.csv",
+    params:
+        summarize_contigs=config["sumamrize_contigs"],
+        env=config["project_env"],
+        out_dir=config["summary_dir"] + "/raw_contigs",
+        time=config["summarize_contigs_time"],
+    threads: config["summarize_contigs_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.summarize_contigs} \
+            -o {params.out_dir} \
+            -f {wildcards.id}_{wildcards.model}_contig_summary.csv \
+            {input}
+        """
+
+
+# Filter contigs that are only single reads
+rule filter_contigs:
+    input:
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    output:
+        config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+    params:
+        filter_contigs=config["filter_contigs"],
+        env=config["project_env"],
+        out_dir=config["contigs_dir"] + "/{id}_{model}",
+        length=config["model_lengths"]["{model}"],
+        tolerance=config["filter_tolerance"],
+        time=config["filter_contigs_time"],
+    threads: config["filter_contigs_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.filter_contigs} \
+            -o {params.out_dir} \
+            -l {params.length} \
+            -t {params.tolerance} \
+            {input}
+        """
+
+
+# Get lengths of filtered contigs
+rule summarize_raw_assembly:
+    input:
+        config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+    output:
+        config["summary_dir"] + "/filtered_contigs/{id}_{model}_contig_summary.csv",
+    params:
+        summarize_contigs=config["summarize_contigs"],
+        env=config["project_env"],
+        out_dir=config["summary_dir"] + "/filtered_contigs",
+        time=config["summarize_contigs_time"],
+    threads: config["summarize_contigs_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.summarize_contigs} \
+            -o {params.out_dir} \
+            -f {wildcards.id}_{wildcards.model}_contig_summary.csv \
+            {input}
+        """
+
+
 # Create Bowtie2 index of contigs, for mapping reads
 rule make_bowtie_index:
     input:
-        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+        config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
     output:
         directory(config["bowtie_index_dir"] + "/{id}_{model}"),
     params:
@@ -251,7 +327,7 @@ rule calculate_depths:
 # Bin contigs from simulated reads
 rule metabat_binning:
     input:
-        in_file=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+        in_file=config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
         depths=config["bowtie_map_dir"] + "/{id}_{model}_depth.txt",
     output:
         config["bins_dir"] + "/{id}_{model}/bin.1.fa",
@@ -300,7 +376,7 @@ rule make_blast_dbs:
 # Run BLAST querying assembled simulated reads against input genomes
 rule run_blast:
     input:
-        query=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+        query=config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
         db=directory(config["blast_dbs_dir"] + "/{id}/"),
     output:
         config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
@@ -322,15 +398,16 @@ rule run_blast:
             -num_threads {threads}
         """
 
+
 # Parse information from BLAST output for analysis
 rule summarize_blast:
     input:
         config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
     output:
-        config["summary_dir"] + "/{id}_{model}_parsed_blast.csv",
+        config["summary_dir"] + "/parsed_blast/{id}_{model}_parsed_blast.csv",
     params:
         summarize=config["summarize_blast"],
-        out_dir=config["summary_dir"],
+        out_dir=config["summary_dir"] + "/parsed_blast",
         env=config["project_env"],
         time=config["summarize_blast_time"],
     threads: config["summarize_blast_ntasks"]
@@ -338,6 +415,6 @@ rule summarize_blast:
         """
         source activate {params.env}
         {params.summarize} \
-            -o {params.out_dir} \
+            -o {params.out_dir}\
             {input}
         """
