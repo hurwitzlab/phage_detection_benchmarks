@@ -133,5 +133,5 @@ blast_time: '12:00:00'
 blast_ntasks: 12
 
 # summarize_blast
-summarize_blast_time: '01:00:00'
+summarize_blast_time: '04:00:00'
 summarize_blast_ntasks: 6
