@@ -137,6 +137,7 @@ def output_low_mem(header: str, hits: List[Hit], fh: TextIO) -> None:
             f'{hit.align_length},{hit.start},{hit.end}',
             file=fh,
             end='')
+    fh.write('\n')
 
 
 # --------------------------------------------------
@@ -165,7 +166,7 @@ def output_fast(header: str, hits: List[Hit], fh: TextIO) -> None:
         f'{hit.align_length},{hit.start},{hit.end}' for hit in hits
     ]
 
-    fh.write('\n'.join(hits_str))
+    fh.write('\n'.join(hits_str) + '\n')
 
 
 # --------------------------------------------------
@@ -207,7 +208,7 @@ def fixture_example_out() -> TextIO:
     out_fh = io.StringIO(
         'query_id,hit_id,e_val,query_length,alignment_length,start,end\n'
         'k141_5989,GCF_002148255.1,8.40553e-160,306,306,1,306\n'
-        'k141_5989,GCF_009834925.2,2.71137e-55,306,208,70,275')
+        'k141_5989,GCF_009834925.2,2.71137e-55,306,208,70,275\n')
 
     return out_fh
 

@@ -69,7 +69,7 @@ def run(flag: str) -> None:
         assert open(out_file).readlines()[0] == header
         out_lines = open(out_file).read().count('\n')
         blast_hits = open(INPUT).read().count('Hit_num') / 2
-        assert out_lines == blast_hits
+        assert out_lines == blast_hits + 1
 
     finally:
         if os.path.isdir(out_dir):
