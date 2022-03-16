@@ -1,5 +1,9 @@
 (PROFILES,) = glob_wildcards(config["bracken_dir"] + "/{p}.txt")
 
+length_dict = {}
+for model, length in config["model_lengths"].items():
+	length_dict[model] = length
+
 
 rule all:
     input:
@@ -16,7 +20,7 @@ rule all:
             m=config["model"],
         ),
         expand(
-            "{b}/profiles_comparisons/{p}_profile_comparison.txt",
+            "{b}/profile_comparisons/{p}_profile_comparison.txt",
             b=config["summary_dir"],
             p=PROFILES,
         ),
@@ -162,7 +166,7 @@ rule summarize_raw_assembly:
     output:
         config["summary_dir"] + "/raw_contigs/{id}_{model}_contig_summary.csv",
     params:
-        summarize_contigs=config["sumamrize_contigs"],
+        summarize_contigs=config["summarize_contigs"],
         env=config["project_env"],
         out_dir=config["summary_dir"] + "/raw_contigs",
         time=config["summarize_contigs_time"],
@@ -187,7 +191,7 @@ rule filter_contigs:
         filter_contigs=config["filter_contigs"],
         env=config["project_env"],
         out_dir=config["contigs_dir"] + "/{id}_{model}",
-        length=config["model_lengths"]["{model}"],
+        length=lambda wcs: length_dict[wcs.model],
         tolerance=config["filter_tolerance"],
         time=config["filter_contigs_time"],
     threads: config["filter_contigs_ntasks"]
@@ -203,7 +207,7 @@ rule filter_contigs:
 
 
 # Get lengths of filtered contigs
-rule summarize_raw_assembly:
+rule summarize_filtered_contigs:
     input:
         config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
     output:

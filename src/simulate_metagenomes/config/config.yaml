@@ -9,7 +9,7 @@ summarize_profile:
         ./summarize_profile.py
 megahit:
         megahit
-sumamrize_contigs:
+summarize_contigs:
         ./summarize_contigs.py
 filter_contigs:
         ./filter_contigs.py
@@ -116,7 +116,7 @@ assembly_time: '4:00:00'
 assembly_ntasks: 47
 
 # filter_contigs
-filter_contigs_time: '01:00:00'
+filter_contigs_time: '04:00:00'
 filter_contigs_ntasks: 4
 
 # make_bowtie_index
@@ -150,3 +150,7 @@ blast_ntasks: 12
 # summarize_blast
 summarize_blast_time: '04:00:00'
 summarize_blast_ntasks: 6
+
+# summarize_contigs
+summarize_contigs_time: '04:00:00'
+summarize_contigs_ntasks: 4
