@@ -31,6 +31,8 @@ blast:
         blastn
 summarize_blast:
         ./summarize_blast.py
+combine:
+        ./combine_summary.py
 
 # Environments
 project_env:
@@ -93,6 +95,12 @@ filter_tolerance: 0.05
 ## run_blast
 e_value: '1e-20'
 
+# combine summaries
+# regular expressions
+profile_re: "(?P<profile>\w+)_(?P<filename>profile_comparison).csv"
+contigs_Re: "(?P<profile>\w+)_(?P<model>\w+)_(?P<filename>contig_summary).csv"
+blast_re: "(?P<profile>\w+)_(?P<model>\w+)_(?P<filename>parsed_blast).csv"
+
 
 # Resources
 ## make_profiles
@@ -154,3 +162,7 @@ summarize_blast_ntasks: 6
 # summarize_contigs
 summarize_contigs_time: '04:00:00'
 summarize_contigs_ntasks: 4
+
+# combine profile or contigs
+combine_time: '04:00:00'
+combine_ntasks: 12

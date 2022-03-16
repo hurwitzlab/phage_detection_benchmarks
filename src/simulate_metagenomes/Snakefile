@@ -20,22 +20,11 @@ rule all:
             m=config["model"],
         ),
         expand(
-            "{b}/profile_comparisons/{p}_profile_comparison.txt",
+            "{b}/{d}/combined_{s}.csv",
+            zip,
             b=config["summary_dir"],
-            p=PROFILES,
-        ),
-        expand(
-            "{b}/parsed_blast/{p}_{m}_parsed_blast.csv",
-            b=config["summary_dir"],
-            p=PROFILES,
-            m=config["model"],
-        ),
-        expand(
-            "{b}/{c}/{p}_{m}_contig_summary.csv",
-            b=config["summary_dir"],
-            c=["raw_contigs", "filtered_contigs"],
-            p=PROFILES,
-            m=config["model"],
+            d=['raw_contigs', 'filtered_contigs', 'profile_comparisons', 'parsed_blast'],
+            s=['contig_summary', 'contig_summary', 'profile_comparison', 'parsed_blast'],
         ),
 
 
@@ -67,7 +56,7 @@ rule summarize_profile:
         bracken=config["bracken_dir"] + "/{id}.txt",
         profile=config["profiles_dir"] + "/{id}_profile.txt",
     output:
-        config["summary_dir"] + "/profile_comparisons/{id}_profile_comparison.txt",
+        config["summary_dir"] + "/profile_comparisons/{id}_profile_comparison.csv",
     params:
         summarize=config["summarize_profile"],
         refseq=config["refseq_info"],
@@ -85,6 +74,29 @@ rule summarize_profile:
             -t {params.refseq}
         """
 
+# Combine summarized profiles
+rule combine_profile_summaries:
+    input:
+        expand("{d}/profile_comparisons/{id}_profile_comparison.csv",
+               d=config["summary_dir"],
+               id=PROFILES),
+    output:
+        config["summary_dir"] + "/profile_comparisons/combined_profile_comparison.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/profile_comparisons",
+        env=config["project_env"],
+        regex=config["profile_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.profile_re}' \
+            -o {params.out_dir} \
+            {input}
+        """
 
 # Concatenate input genomes for InSilicoSeq
 rule cat_genomes:
@@ -180,6 +192,31 @@ rule summarize_raw_assembly:
             {input}
         """
 
+# Combine summarized raw contigs
+rule combine_raw_assembly_summaries:
+    input:
+        expand("{d}/raw_contigs/{id}_{model}_contig_summary.csv",
+               d=config["summary_dir"],
+               id=PROFILES,
+               model=config["model"]),
+    output:
+        config["summary_dir"] + "/raw_contigs/combined_contig_summary.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/raw_contigs",
+        env=config["project_env"],
+        regex=config["contigs_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.profile_re}' \
+            -o {params.out_dir} \
+            {input}
+        """
+
 
 # Filter contigs that are only single reads
 rule filter_contigs:
@@ -224,6 +261,31 @@ rule summarize_filtered_contigs:
         {params.summarize_contigs} \
             -o {params.out_dir} \
             -f {wildcards.id}_{wildcards.model}_contig_summary.csv \
+            {input}
+        """
+
+# Combine summarized filtered contigs
+rule combine_filtered_contig_summaries:
+    input:
+        expand("{d}/filtered_contigs/{id}_{model}_contig_summary.csv",
+               d=config["summary_dir"],
+               id=PROFILES,
+               model=config["model"]),
+    output:
+        config["summary_dir"] + "/filtered_contigs/combined_contig_summary.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/filtered_contigs",
+        env=config["project_env"],
+        regex=config["contigs_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.profile_re}' \
+            -o {params.out_dir} \
             {input}
         """
 
@@ -420,5 +482,30 @@ rule summarize_blast:
         source activate {params.env}
         {params.summarize} \
             -o {params.out_dir}\
+            {input}
+        """
+
+# Combine summarized filtered contigs
+rule combine_blast_summaries:
+    input:
+        expand("{d}/parsed_blast/{id}_{model}_parsed_blast.csv",
+               d=config["summary_dir"],
+               id=PROFILES,
+               model=config["model"]),
+    output:
+        config["summary_dir"] + "/parsed_blast/combined_parsed_blast.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/parsed_blast",
+        env=config["project_env"],
+        regex=config["blast_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.profile_re}' \
+            -o {params.out_dir} \
             {input}
         """
