@@ -94,7 +94,7 @@ def main() -> None:
 
     out_file = make_filename(out_dir, bracken_profile.name)
 
-    joined_profiles.to_csv(out_file, sep="\t", index=False)
+    joined_profiles.to_csv(out_file, index=False)
 
     print(f'Done. Wrote output to {out_file}.')
 
@@ -152,14 +152,14 @@ def make_filename(out_dir: str, infile: str) -> str:
 
     root, _ = os.path.splitext(os.path.basename(infile))
 
-    return os.path.join(out_dir, root + '_profile_comparison.txt')
+    return os.path.join(out_dir, root + '_profile_comparison.csv')
 
 
 # --------------------------------------------------
 def test_make_filenames() -> None:
     """ Test make_filenames() """
 
-    file_name = 'out/input_1_profile_comparison.txt'
+    file_name = 'out/input_1_profile_comparison.csv'
     assert make_filename('out', 'input_1.txt') == file_name
     assert make_filename('out', 'tests/input_1.txt') == file_name
 

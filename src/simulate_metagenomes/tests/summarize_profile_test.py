@@ -85,12 +85,12 @@ def test_runs_okay() -> None:
                                   f'-b {BRACKEN} -p {PROFILE}')
 
         assert rv == 0
-        out_file = os.path.join(out_dir, 'input_1_profile_comparison.txt')
+        out_file = os.path.join(out_dir, 'input_1_profile_comparison.csv')
         assert re.search(f'Done. Wrote output to {out_file}.', out)
         assert os.path.isdir(out_dir)
         assert os.path.isfile(out_file)
-        header = ('taxonomy_id\taccession\tfraction_total_reads_bracken'
-                  '\tfraction_total_reads\n')
+        header = ('taxonomy_id,accession,fraction_total_reads_bracken,'
+                  'fraction_total_reads\n')
         assert open(out_file).readlines()[0] == header
         out_lines = open(out_file).read().count('\n')
         bracken_lines = open(BRACKEN).read().count('\n')
