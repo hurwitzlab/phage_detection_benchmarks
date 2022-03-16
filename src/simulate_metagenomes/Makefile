@@ -8,7 +8,8 @@ test:
 		summarize_profile.py \
 		summarize_blast.py \
 		summarize_contigs.py \
-		filter_contigs.py
+		filter_contigs.py \
+		combine_summary.py
 
 dryrun:
 	snakemake -np --configfile config/config.yaml
@@ -21,5 +22,6 @@ coverage:
 		summarize_profile.py \
 		summarize_blast.py \
 		summarize_contigs.py \
-		filter_contigs.py
+		filter_contigs.py \
+		combine_summary.py
 	coverage report -m
