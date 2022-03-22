@@ -23,8 +23,8 @@ rule all:
             "{b}/{d}/combined_{s}.csv",
             zip,
             b=config["summary_dir"],
-            d=['raw_contigs', 'filtered_contigs', 'profile_comparisons', 'parsed_blast'],
-            s=['contig_summary', 'contig_summary', 'profile_comparison', 'parsed_blast'],
+            d=['contigs','profile_comparisons', 'parsed_blast'],
+            s=['contig_summary', 'profile_comparison', 'parsed_blast'],
         ),
 
 
@@ -155,6 +155,7 @@ rule megahit_assembly:
         config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
     params:
         megahit=config["megahit"],
+        min_contig=config["min_contig"],
         env=config["megahit_env"],
         out_dir=config["contigs_dir"],
         time=config["assembly_time"],
@@ -167,6 +168,7 @@ rule megahit_assembly:
         {params.megahit} \
             -1 {input.fwd} \
             -2 {input.rev} \
+            --min-contig-len {params.min_contig} \
             -o {params.out_dir}/{wildcards.id}_{wildcards.model}
         """
 
@@ -176,11 +178,11 @@ rule summarize_raw_assembly:
     input:
         config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
     output:
-        config["summary_dir"] + "/raw_contigs/{id}_{model}_contig_summary.csv",
+        config["summary_dir"] + "/contigs/{id}_{model}_contig_summary.csv",
     params:
         summarize_contigs=config["summarize_contigs"],
         env=config["project_env"],
-        out_dir=config["summary_dir"] + "/raw_contigs",
+        out_dir=config["summary_dir"] + "/contigs",
         time=config["summarize_contigs_time"],
     threads: config["summarize_contigs_ntasks"]
     shell:
@@ -218,82 +220,10 @@ rule combine_raw_assembly_summaries:
         """
 
 
-# Filter contigs that are only single reads
-rule filter_contigs:
-    input:
-        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
-    output:
-        config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
-    params:
-        filter_contigs=config["filter_contigs"],
-        env=config["project_env"],
-        out_dir=config["contigs_dir"] + "/{id}_{model}",
-        length=lambda wcs: length_dict[wcs.model],
-        tolerance=config["filter_tolerance"],
-        time=config["filter_contigs_time"],
-    threads: config["filter_contigs_ntasks"]
-    shell:
-        """
-        source activate {params.env}
-        {params.filter_contigs} \
-            -o {params.out_dir} \
-            -l {params.length} \
-            -t {params.tolerance} \
-            {input}
-        """
-
-
-# Get lengths of filtered contigs
-rule summarize_filtered_contigs:
-    input:
-        config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
-    output:
-        config["summary_dir"] + "/filtered_contigs/{id}_{model}_contig_summary.csv",
-    params:
-        summarize_contigs=config["summarize_contigs"],
-        env=config["project_env"],
-        out_dir=config["summary_dir"] + "/filtered_contigs",
-        time=config["summarize_contigs_time"],
-    threads: config["summarize_contigs_ntasks"]
-    shell:
-        """
-        source activate {params.env}
-        {params.summarize_contigs} \
-            -o {params.out_dir} \
-            -f {wildcards.id}_{wildcards.model}_contig_summary.csv \
-            {input}
-        """
-
-# Combine summarized filtered contigs
-rule combine_filtered_contig_summaries:
-    input:
-        expand("{d}/filtered_contigs/{id}_{model}_contig_summary.csv",
-               d=config["summary_dir"],
-               id=PROFILES,
-               model=config["model"]),
-    output:
-        config["summary_dir"] + "/filtered_contigs/combined_contig_summary.csv",
-    params:
-        combine=config["combine"],
-        out_dir=config["summary_dir"] + "/filtered_contigs",
-        env=config["project_env"],
-        regex=config["contigs_re"],
-        time=config["combine_time"],
-    threads: config["combine_ntasks"]
-    shell:
-        """
-        source activate {params.env}
-        {params.combine} \
-            -r '{params.profile_re}' \
-            -o {params.out_dir} \
-            {input}
-        """
-
-
 # Create Bowtie2 index of contigs, for mapping reads
 rule make_bowtie_index:
     input:
-        config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
     output:
         directory(config["bowtie_index_dir"] + "/{id}_{model}"),
     params:
@@ -393,7 +323,7 @@ rule calculate_depths:
 # Bin contigs from simulated reads
 rule metabat_binning:
     input:
-        in_file=config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+        in_file=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
         depths=config["bowtie_map_dir"] + "/{id}_{model}_depth.txt",
     output:
         config["bins_dir"] + "/{id}_{model}/bin.1.fa",
@@ -442,7 +372,7 @@ rule make_blast_dbs:
 # Run BLAST querying assembled simulated reads against input genomes
 rule run_blast:
     input:
-        query=config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+        query=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
         db=directory(config["blast_dbs_dir"] + "/{id}/"),
     output:
         config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
