@@ -90,6 +90,7 @@ min_contig: 500
 
 ## run_blast
 e_value: '1e-20'
+max_hits: 5
 
 # combine summaries
 # regular expressions

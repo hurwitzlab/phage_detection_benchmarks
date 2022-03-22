@@ -380,6 +380,7 @@ rule run_blast:
         out_dir=config["blast_out_dir"],
         env=config["blast_env"],
         e_value=config["e_value"],
+        max_hits=config["max_hits"],
         time=config["blast_time"],
         blast=config["blast"],
     threads: config["blast_ntasks"]
@@ -391,6 +392,8 @@ rule run_blast:
             -db {input.db}/db \
             -out {output} \
             -outfmt 5 \
+            -evalue {params.e_value} \
+            -max_hsps {params.max_hits} \
             -num_threads {threads}
         """
 
