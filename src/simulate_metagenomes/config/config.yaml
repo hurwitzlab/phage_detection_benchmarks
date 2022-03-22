@@ -85,12 +85,8 @@ model:
 n_reads:
         --n_reads 20M
 
-# filter_contigs
-model_lengths: 
-        miseq: 300
-        hiseq: 125
-        novaseq: 150
-filter_tolerance: 0.05
+# megahit_assembly
+min_contig: 500
 
 ## run_blast
 e_value: '1e-20'
