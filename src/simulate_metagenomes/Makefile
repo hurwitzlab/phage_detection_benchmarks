@@ -3,6 +3,7 @@
 test:
 	python3 -m pytest -v --flake8 --pylint --pylint-rcfile=../../.pylintrc --mypy \
 		tests/ \
+		phage_injector.py \
 		bracken_profiler.py \
 		cat_genomes.py \
 		summarize_profile.py \
@@ -17,6 +18,7 @@ dryrun:
 coverage:
 	coverage run -m pytest -v --mypy \
 		tests/ \
+		phage_injector.py \
 		bracken_profiler.py \
 		cat_genomes.py \
 		summarize_profile.py \

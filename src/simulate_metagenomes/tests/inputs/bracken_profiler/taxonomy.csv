@@ -1,5 +1,6 @@
 "kingdom","accession","seq_id","taxid","species_taxid","superkingdom","phylum","class","order","family","genus","species"
 "archaea","GCF_000006175.1","NC_014222.1",456320,2188,"Archaea","Euryarchaeota","Methanococci","Methanococcales","Methanococcaceae","Methanococcus","Methanococcus voltae"
-"bacteria","GCF_003860425.1","NZ_CP034193.1",1613,1613,"Bacteria","Firmicutes","Bacilli","Lactobacillales","Lactobacillaceae","Limosilactobacillus","Limosilactobacillus fermentum"
+"bacteria","GCF_000007825.1","NC004722.1",1396,1396,"Bacteria","Firmicutes","Bacilli","Bacillales","Bacillaceae","Bacillus","Bacillus cereus"
 "viral","GCF_000891875.6","NC_034980.1",1980433,1980433,"Viruses","Negarnaviricota","Ellioviricetes","Bunyavirales","Fimoviridae","Emaravirus","Rose rosette emaravirus"
 "fungi","GCF_013402915.1","NC_050724.1",42260,42260,"Eukaryota","Ascomycota","Saccharomycetes","Saccharomycetales","Saccharomycetaceae","Zygotorulaspora","Zygotorulaspora mrakii"
+"viral","GCF_000867025.1","NC007814.1",345922,345922,"Viruses","Urovicota","Caudoviricetes","Caudovirales","Siphoviridae","Wbetavirus","Bacillus phage Fah"

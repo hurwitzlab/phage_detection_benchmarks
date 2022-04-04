@@ -11,6 +11,9 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 from typing import List, NamedTuple, TextIO, Tuple
 
+from phage_injector import rescale_abundances
+from phage_injector import get_phage_content, supplement_phage
+
 pd.options.mode.chained_assignment = None
 
 
@@ -19,9 +22,12 @@ class Args(NamedTuple):
     profiles: List[TextIO]
     taxonomy: TextIO
     outdir: str
+    phage: float
+    min_phage: int
+    num_phage: int
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def get_args() -> Args:
     """ Get command-line arguments """
 
@@ -29,32 +35,61 @@ def get_args() -> Args:
         description='Create profile from Bracken output',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('profiles',
+    inputs = parser.add_argument_group('Input and Output')
+    params = parser.add_argument_group('Phage Injection Parameters')
+
+    inputs.add_argument('profiles',
                         metavar='FILE',
                         help='Bracken output file(s)',
                         type=argparse.FileType('rt'),
                         nargs='+')
 
-    parser.add_argument('-t',
+    inputs.add_argument('-t',
                         '--taxonomy',
                         metavar='FILE',
                         help='Taxonomy mapping file',
                         type=argparse.FileType('rt'),
                         default='../../data/refseq_info/taxonomy.csv')
 
-    parser.add_argument('-o',
+    inputs.add_argument('-o',
                         '--outdir',
                         metavar='DIR',
                         help='Output directory',
                         type=str,
                         default='out')
 
+    params.add_argument('-p',
+                        '--phage',
+                        metavar='PCT',
+                        help='Minimum phage content',
+                        type=float,
+                        default=0.05)
+
+    params.add_argument('-mp',
+                        '--min_phage',
+                        metavar='',
+                        help='Minimum number of phage species',
+                        type=int,
+                        default=3)
+
+    params.add_argument('-np',
+                        '--num_phage',
+                        metavar='',
+                        help='Maximum number of injected phage species',
+                        type=int,
+                        default=10)
+
     args = parser.parse_args()
 
-    return Args(args.profiles, args.taxonomy, args.outdir)
+    # Convert percent to decimal
+    if args.phage >= 1:
+        args.phage = args.phage / 100
+
+    return Args(args.profiles, args.taxonomy, args.outdir, args.phage,
+                args.min_phage, args.num_phage)
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def main() -> None:
     """ Do the stuff """
 
@@ -77,6 +112,10 @@ def main() -> None:
         joined_df['rescaled_abundance'] = rescale_abundances(
             joined_df['fraction_total_reads'])
 
+        if get_phage_content(joined_df) < args.phage:
+            joined_df = supplement_phage(joined_df, taxonomy_df, args.phage,
+                                         args.num_phage)
+
         files_df = make_files_df(joined_df)
         profile_df = make_profile_df(joined_df)
 
@@ -92,14 +131,15 @@ def main() -> None:
     print(f'Done. Wrote {n_profiles} profile{plu} to {out_dir}.')
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def clean_bracken(df: pd.DataFrame) -> pd.DataFrame:
     """ Clean bracken output dataframe """
 
     df = df[df['fraction_total_reads'] > 0.]
 
     df.drop([
-        'taxonomy_lvl', 'kraken_assigned_reads', 'added_reads', 'new_est_reads'
+        'name', 'taxonomy_lvl', 'kraken_assigned_reads', 'added_reads',
+        'new_est_reads'
     ],
             axis='columns',
             inplace=True)
@@ -112,7 +152,7 @@ def clean_bracken(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def test_clean_bracken() -> None:
     """ Test clean_bracken() """
 
@@ -125,21 +165,19 @@ def test_clean_bracken() -> None:
                              'new_est_reads', 'fraction_total_reads'
                          ])
 
-    out_df = pd.DataFrame(
-        [['Methanococcus voltae', 456320, 0.6523],
-         ['Maydup orguhnizum', 000000, 0.0003]],
-        columns=['name', 'taxonomy_id', 'fraction_total_reads'])
+    out_df = pd.DataFrame([[456320, 0.6523], [000000, 0.0003]],
+                          columns=['taxonomy_id', 'fraction_total_reads'])
 
     assert_frame_equal(clean_bracken(in_df), out_df)
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def clean_taxonomy(df: pd.DataFrame) -> pd.DataFrame:
     """ Clean taxonomy dataframe """
 
-    df = df[['kingdom', 'accession', 'taxid']]
+    df = df[['kingdom', 'genus', 'species', 'accession', 'taxid']]
 
-    # There may be multiple reseq files (accession #)
+    # There may be multiple refseq files (accession #)
     # for a given tax_id. I need tax_id to be unique,
     # so I will drop duplicate tax id's, keeping only the
     # first accession.
@@ -148,7 +186,7 @@ def clean_taxonomy(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def test_clean_taxonomy() -> None:
     """ Test clean_taxonomy() """
 
@@ -177,14 +215,21 @@ def test_clean_taxonomy() -> None:
             'species'
         ])
 
-    out_df = pd.DataFrame([['archaea', 'GCF_000006175.1', 456320],
-                           ['bacteria', 'GCF_003860425.1', 1613]],
-                          columns=['kingdom', 'accession', 'taxid'])
+    out_df = pd.DataFrame(
+        [[
+            'archaea', 'Methanococcus', 'Methanococcus voltae',
+            'GCF_000006175.1', 456320
+        ],
+         [
+             'bacteria', 'Limosilactobacillus',
+             'Limosilactobacillus fermentum', 'GCF_003860425.1', 1613
+         ]],
+        columns=['kingdom', 'genus', 'species', 'accession', 'taxid'])
 
     assert_frame_equal(clean_taxonomy(in_df), out_df)
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def join_dfs(bracken: pd.DataFrame,
              tax: pd.DataFrame,
              how: str = 'inner',
@@ -203,53 +248,40 @@ def join_dfs(bracken: pd.DataFrame,
     return joined_df
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def test_join_dfs() -> None:
     """ Test join_dfs() """
 
     bracken_df = pd.DataFrame(
-        [['Methanococcus voltae', 456320, 0.6523],
-         ['Maydup orguhnizum', 000000, 0.0003]],  # No match
-        columns=['name', 'taxonomy_id', 'fraction_total_reads'])
+        [[456320, 0.6523], [000000, 0.0003]],  # No match
+        columns=['taxonomy_id', 'fraction_total_reads'])
 
     tax_df = pd.DataFrame(
-        [['archaea', 'GCF_000006175.1', 456320],
-         ['bacteria', 'GCF_003860425.1', 1613]],  # No match
-        columns=['kingdom', 'accession', 'taxid'])
+        [
+            [
+                'archaea', 'Methanococcus', 'Methanococcus voltae',
+                'GCF_000006175.1', 456320
+            ],
+            [  # No match
+                'bacteria', 'Limosilactobacillus',
+                'Limosilactobacillus fermentum', 'GCF_003860425.1', 1613
+            ]
+        ],
+        columns=['kingdom', 'genus', 'species', 'accession', 'taxid'])
 
     out_df = pd.DataFrame([[
-        'Methanococcus voltae', 0.6523, 'archaea', 'GCF_000006175.1', 456320
+        0.6523, 'archaea', 'Methanococcus', 'Methanococcus voltae',
+        'GCF_000006175.1', 456320
     ]],
                           columns=[
-                              'name', 'fraction_total_reads', 'kingdom',
-                              'accession', 'taxid'
+                              'fraction_total_reads', 'kingdom', 'genus',
+                              'species', 'accession', 'taxid'
                           ])
 
     assert_frame_equal(join_dfs(bracken_df, tax_df), out_df)
 
 
-# --------------------------------------------------
-def rescale_abundances(col: pd.Series) -> pd.Series:
-    """ Rescale abundances to add to 1 """
-
-    rescale_factor = 1 / col.sum()
-
-    rescaled = rescale_factor * col
-
-    return rescaled
-
-
-# --------------------------------------------------
-def test_rescale_abundances() -> None:
-    """ Test rescale_abundances() """
-
-    example_col = pd.Series([0.5, 0.3])
-    rescaled_col = pd.Series([0.625, 0.375])
-
-    assert rescale_abundances(example_col).equals(rescaled_col)
-
-
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def make_files_df(df: pd.DataFrame) -> pd.DataFrame:
     """ Create file names of genomes """
 
@@ -264,17 +296,14 @@ def make_files_df(df: pd.DataFrame) -> pd.DataFrame:
     return files_df
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def test_make_files_df() -> None:
     """ Test make_files_df() """
 
-    in_df = pd.DataFrame([[
-        'Methanococcus voltae', 0.6523, 'archaea', 'GCF_000006175.1', 456320,
-        1.0
-    ]],
+    in_df = pd.DataFrame([[0.6523, 'archaea', 'GCF_000006175.1', 456320, 1.0]],
                          columns=[
-                             'name', 'fraction_total_reads', 'kingdom',
-                             'accession', 'taxid', 'rescaled_abundance'
+                             'fraction_total_reads', 'kingdom', 'accession',
+                             'taxid', 'rescaled_abundance'
                          ])
 
     out_df = pd.DataFrame(
@@ -284,9 +313,9 @@ def test_make_files_df() -> None:
     assert_frame_equal(make_files_df(in_df), out_df)
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def make_profile_df(df: pd.DataFrame) -> pd.DataFrame:
-    """ Create file of seq IDs and abundances """
+    """ Create profile of seq IDs and abundances """
 
     profile_df = df[['accession', 'rescaled_abundance']]
 
@@ -296,18 +325,16 @@ def make_profile_df(df: pd.DataFrame) -> pd.DataFrame:
     return profile_df
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def test_make_profile_df() -> None:
     """ Test make_profile_df() """
 
-    in_df = pd.DataFrame([[
-        'Methanococcus voltae', 0.3333333, 'archaea', 'GCF_000006175.1',
-        456320, 0.3333333
-    ]],
-                         columns=[
-                             'name', 'fraction_total_reads', 'kingdom',
-                             'accession', 'taxid', 'rescaled_abundance'
-                         ])
+    in_df = pd.DataFrame(
+        [[0.3333333, 'archaea', 'GCF_000006175.1', 456320, 0.3333333]],
+        columns=[
+            'fraction_total_reads', 'kingdom', 'accession', 'taxid',
+            'rescaled_abundance'
+        ])
 
     out_df = pd.DataFrame([['GCF_000006175.1', 0.33333]],
                           columns=['accession', 'rescaled_abundance'])
@@ -315,7 +342,7 @@ def test_make_profile_df() -> None:
     assert_frame_equal(make_profile_df(in_df), out_df)
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def make_filenames(out_dir: str, infile: str) -> Tuple[str, str]:
     """ Create names of output files """
 
@@ -329,7 +356,7 @@ def make_filenames(out_dir: str, infile: str) -> Tuple[str, str]:
     return files_output, profile_output
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 def test_make_filenames() -> None:
     """ Test make_filenames() """
     file_names = ('out/input_1_files.txt', 'out/input_1_profile.txt')
@@ -337,6 +364,6 @@ def test_make_filenames() -> None:
     assert make_filenames('out', 'tests/input_1.txt') == file_names
 
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------------
 if __name__ == '__main__':
     main()
