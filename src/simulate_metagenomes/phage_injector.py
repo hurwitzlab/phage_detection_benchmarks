@@ -5,6 +5,7 @@ Purpose: Provide fucntions to increase pahge content of profile
 """
 
 import pandas as pd
+import sys
 from pandas.testing import assert_frame_equal
 from typing import List, Tuple
 
@@ -141,7 +142,7 @@ def get_phage_from_hosts(phages: pd.DataFrame, nonviral: pd.DataFrame,
                          all_phage: pd.DataFrame) -> List[Tuple[str, str]]:
     """
     Retrieve phages corresponging to nonviral hosts
-    
+
     Parameters:
     `phages`: Phages in profile
     `nonviral`: Nonviral portion of profile
@@ -155,6 +156,11 @@ def get_phage_from_hosts(phages: pd.DataFrame, nonviral: pd.DataFrame,
     # Cannot use dict since neither host nor phage are always unique
     host_phage = []
     n_phage = len(phages)
+
+    nonviral.sort_values('abundance',
+                         ascending=False,
+                         inplace=True,
+                         ignore_index=True)
 
     for _, organism in nonviral.iterrows():
 
@@ -188,13 +194,14 @@ def add_host_phages(phages: pd.DataFrame, host_phage: List[Tuple[str, str]],
                     all_phage: pd.DataFrame) -> pd.DataFrame:
     """
     Add phages corresponsing to hosts and columns about host
-    
+
     Parameters:
     `phages`: Phages in profile
     `host_phage`: List of tuples with (host_taxid, phage_taxid)
 
     Return:
-    Updated `phages` df, with new phages and columns "host_abundance" and "host_taxid
+    Updated `phages` df, with new phages and columns
+    "host_abundance" and "host_taxid
     """
 
     phages['host_abundance'] = ''
@@ -268,6 +275,11 @@ def supplement_phage(profile: pd.DataFrame, tax: pd.DataFrame,
     hosted = hosted.drop(['host_abundance', 'host_taxid'], axis='columns')
     non_hosted = non_hosted.drop(['host_abundance', 'host_taxid'],
                                  axis='columns')
+
+    total_phages = len(non_hosted) + len(hosted)
+
+    if total_phages == 0:
+        sys.exit('Failed to supplement phages.')
 
     new_profile = pd.concat([profile_non_phage, non_hosted, hosted])
 
