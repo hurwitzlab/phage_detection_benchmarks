@@ -202,7 +202,7 @@ rule summarize_raw_assembly:
 rule combine_raw_assembly_summaries:
     input:
         expand(
-            "{d}/raw_contigs/{id}_{model}_contig_summary.csv",
+            "{d}/contigs/{id}_{model}_contig_summary.csv",
             d=config["summary_dir"],
             id=PROFILES,
             model=config["model"],
