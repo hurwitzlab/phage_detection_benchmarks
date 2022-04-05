@@ -79,6 +79,10 @@ summary_dir:
         ../../data/metagenome_simulation/summary
 
 # Parameters
+## make_profiles
+min_num_phage: 10
+min_phage: 0.05
+
 ## simulate_reads
 model:
         ["miseq", "hiseq", "novaseq"]

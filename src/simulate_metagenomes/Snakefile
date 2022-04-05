@@ -37,6 +37,8 @@ rule make_profiles:
         config["profiles_dir"] + "/{id}_files.txt",
     params:
         bracken_profiler=config["bracken_profiler"],
+        min_phage=config["min_phage"],
+        num_phage=config["min_num_phage"],
         refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
         time=config["make_profiles_time"],
@@ -45,6 +47,8 @@ rule make_profiles:
         """
         {params.bracken_profiler} \
             -t {params.refseq} \
+            -p {params.min_phage} \
+            -np {params.min_num_phage} \
             -o {params.out_dir} \
             {input}
         """
