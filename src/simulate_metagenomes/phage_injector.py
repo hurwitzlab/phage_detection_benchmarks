@@ -85,6 +85,8 @@ def get_phages(df: pd.DataFrame) -> pd.DataFrame:
                                                   regex=True,
                                                   case=False)]
 
+    phages.reset_index(inplace=True, drop=True)
+
     return phages
 
 
@@ -95,9 +97,11 @@ def test_get_phages() -> None:
     in_df = pd.DataFrame([[
         0.00103, 'viral', 'Bellamyvirus', 'Synechococcus phage S-SM2',
         'GCF_000890815.1', 444860
-    ], [
-        0.00007, 'viral', '', 'Cyanophage S-RIM32', 'GCF_001754165.1', 1278479
-    ],
+    ], [0.00103, 'viral', 'Bellamyvirus', '', 'GCF_000890815.1', 444860],
+                          [
+                              0.00007, 'viral', '', 'Cyanophage S-RIM32',
+                              'GCF_001754165.1', 1278479
+                          ],
                           [
                               0.00002, 'bacteria', 'Troponema',
                               'Treponema phagedenis', 'GCF_008152505.1', 162
