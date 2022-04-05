@@ -23,7 +23,6 @@ class Args(NamedTuple):
     taxonomy: TextIO
     outdir: str
     phage: float
-    min_phage: int
     num_phage: int
 
 
@@ -65,13 +64,6 @@ def get_args() -> Args:
                         type=float,
                         default=0.05)
 
-    params.add_argument('-mp',
-                        '--min_phage',
-                        metavar='',
-                        help='Minimum number of phage species',
-                        type=int,
-                        default=3)
-
     params.add_argument('-np',
                         '--num_phage',
                         metavar='',
@@ -86,7 +78,7 @@ def get_args() -> Args:
         args.phage = args.phage / 100
 
     return Args(args.profiles, args.taxonomy, args.outdir, args.phage,
-                args.min_phage, args.num_phage)
+                args.num_phage)
 
 
 # ---------------------------------------------------------------------------
