@@ -43,7 +43,7 @@ rule make_profiles:
         {params.bracken_profiler} \
             -t {params.refseq} \
             -p {params.min_phage} \
-            -np {params.min_num_phage} \
+            -np {params.num_phage} \
             -o {params.out_dir} \
             {input}
         """
