@@ -9,7 +9,6 @@ from subprocess import getstatusoutput
 
 PRG = './bracken_profiler.py'
 INPUT1 = 'tests/inputs/bracken_profiler/input_1.txt'
-INPUT2 = 'tests/inputs/bracken_profiler/input_1.txt'
 TAX = 'tests/inputs/bracken_profiler/taxonomy.csv'
 
 
@@ -25,7 +24,6 @@ def test_testing_environment():
     """ Test files are in place """
 
     assert os.path.isfile(INPUT1)
-    assert os.path.isfile(INPUT2)
     assert os.path.isfile(TAX)
 
 
@@ -75,7 +73,8 @@ def test_runs_okay():
         if os.path.isdir(out_dir):
             shutil.rmtree(out_dir)
 
-        rv, out = getstatusoutput(f'{PRG} -o {out_dir} -t {TAX} {INPUT1}')
+        rv, out = getstatusoutput(
+            f'{PRG} -np 1 -o {out_dir} -t {TAX} {INPUT1}')
 
         assert rv == 0
         glob_file = os.path.join(out_dir, 'input_1_files.txt')
@@ -89,7 +88,6 @@ def test_runs_okay():
         profile_lines = open(profile_file).read().count('\n')
         glob_lines = open(glob_file).read().count('\n')
         assert glob_lines == profile_lines + 1
-        assert profile_lines == 4
 
     finally:
         if os.path.isdir(out_dir):

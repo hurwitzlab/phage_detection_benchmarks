@@ -22,18 +22,8 @@ rule all:
         expand(
             config["summary_dir"] + "/{d}/combined_{s}.csv",
             zip,
-            d=[
-                "raw_contigs",
-                "filtered_contigs",
-                "profile_comparisons",
-                "parsed_blast",
-            ],
-            s=[
-                "contig_summary",
-                "contig_summary",
-                "profile_comparison",
-                "parsed_blast",
-            ],
+            d=['contigs','profile_comparisons', 'parsed_blast'],
+            s=['contig_summary', 'profile_comparison', 'parsed_blast'],
         ),
 
 
@@ -46,6 +36,8 @@ rule make_profiles:
         config["profiles_dir"] + "/{id}_files.txt",
     params:
         bracken_profiler=config["bracken_profiler"],
+        min_phage=config["min_phage"],
+        num_phage=config["min_num_phage"],
         refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
         time=config["make_profiles_time"],
@@ -54,6 +46,8 @@ rule make_profiles:
         """
         {params.bracken_profiler} \
             -t {params.refseq} \
+            -p {params.min_phage} \
+            -np {params.min_num_phage} \
             -o {params.out_dir} \
             {input}
         """
@@ -168,6 +162,7 @@ rule megahit_assembly:
         config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
     params:
         megahit=config["megahit"],
+        min_contig=config["min_contig"],
         env=config["megahit_env"],
         out_dir=config["contigs_dir"],
         time=config["assembly_time"],
@@ -180,6 +175,7 @@ rule megahit_assembly:
         {params.megahit} \
             -1 {input.fwd} \
             -2 {input.rev} \
+            --min-contig-len {params.min_contig} \
             -o {params.out_dir}/{wildcards.id}_{wildcards.model}
         """
 
@@ -189,11 +185,11 @@ rule summarize_raw_assembly:
     input:
         config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
     output:
-        config["summary_dir"] + "/raw_contigs/{id}_{model}_contig_summary.csv",
+        config["summary_dir"] + "/contigs/{id}_{model}_contig_summary.csv",
     params:
         summarize_contigs=config["summarize_contigs"],
         env=config["project_env"],
-        out_dir=config["summary_dir"] + "/raw_contigs",
+        out_dir=config["summary_dir"] + "/contigs",
         time=config["summarize_contigs_time"],
     threads: config["summarize_contigs_ntasks"]
     shell:
@@ -234,6 +230,7 @@ rule combine_raw_assembly_summaries:
         """
 
 
+<<<<<<< HEAD
 # Filter contigs that are only single reads
 rule filter_contigs:
     input:
@@ -309,10 +306,12 @@ rule combine_filtered_contig_summaries:
         """
 
 
+=======
+>>>>>>> a3414fadae60197866e13aba845e0e265a3a34eb
 # Create Bowtie2 index of contigs, for mapping reads
 rule make_bowtie_index:
     input:
-        config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
     output:
         directory(config["bowtie_index_dir"] + "/{id}_{model}"),
     params:
@@ -412,7 +411,7 @@ rule calculate_depths:
 # Bin contigs from simulated reads
 rule metabat_binning:
     input:
-        in_file=config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+        in_file=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
         depths=config["bowtie_map_dir"] + "/{id}_{model}_depth.txt",
     output:
         config["bins_dir"] + "/{id}_{model}/bin.1.fa",
@@ -461,7 +460,7 @@ rule make_blast_dbs:
 # Run BLAST querying assembled simulated reads against input genomes
 rule run_blast:
     input:
-        query=config["contigs_dir"] + "/{id}_{model}/filtered_contigs.fa",
+        query=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
         db=directory(config["blast_dbs_dir"] + "/{id}/"),
     output:
         config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
@@ -469,6 +468,7 @@ rule run_blast:
         out_dir=config["blast_out_dir"],
         env=config["blast_env"],
         e_value=config["e_value"],
+        max_hits=config["max_hits"],
         time=config["blast_time"],
         blast=config["blast"],
     threads: config["blast_ntasks"]
@@ -480,6 +480,8 @@ rule run_blast:
             -db {input.db}/db \
             -out {output} \
             -outfmt 5 \
+            -evalue {params.e_value} \
+            -max_hsps {params.max_hits} \
             -num_threads {threads}
         """
 
