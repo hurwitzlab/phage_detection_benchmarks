@@ -83,7 +83,8 @@ def get_phages(df: pd.DataFrame) -> pd.DataFrame:
 
     phages = viruses[viruses.species.str.contains('phage',
                                                   regex=True,
-                                                  case=False)]
+                                                  case=False,
+                                                  na=False)]
 
     phages.reset_index(inplace=True, drop=True)
 
@@ -166,8 +167,7 @@ def get_phage_from_hosts(phages: pd.DataFrame, nonviral: pd.DataFrame,
                          ignore_index=True)
 
     for organism in nonviral.itertuples():
-
-        genus = organism.genus.lower()
+        genus = str(organism.genus).lower()
 
         # First, check if host's phage is already present in profile
         matches = phages['species'].str.lower().str.contains(genus)
