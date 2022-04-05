@@ -208,10 +208,10 @@ rule combine_raw_assembly_summaries:
             model=config["model"],
         ),
     output:
-        config["summary_dir"] + "/raw_contigs/combined_contig_summary.csv",
+        config["summary_dir"] + "/contigs/combined_contig_summary.csv",
     params:
         combine=config["combine"],
-        out_dir=config["summary_dir"] + "/raw_contigs",
+        out_dir=config["summary_dir"] + "/contigs",
         env=config["project_env"],
         regex=config["contigs_re"],
         time=config["combine_time"],
