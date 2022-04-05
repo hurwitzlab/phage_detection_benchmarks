@@ -73,7 +73,8 @@ def test_runs_okay():
         if os.path.isdir(out_dir):
             shutil.rmtree(out_dir)
 
-        rv, out = getstatusoutput(f'{PRG} -o {out_dir} -t {TAX} {INPUT1}')
+        rv, out = getstatusoutput(
+            f'{PRG} -np 1 -o {out_dir} -t {TAX} {INPUT1}')
 
         assert rv == 0
         glob_file = os.path.join(out_dir, 'input_1_files.txt')
