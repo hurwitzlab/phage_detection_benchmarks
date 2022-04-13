@@ -580,3 +580,48 @@ def test_case14() -> None:
     assert_frame_equal(supplement_phage(profile, tax, 0.05, 3),
                        out_df,
                        check_dtype=False)
+
+
+# ---------------------------------------------------------------------------
+def test_case15() -> None:
+    """
+    Do not allow partial match to host genus
+    """
+
+    profile = pd.DataFrame([
+        [0.33, 'bacteria', 'Thermus', 'Thermus thermophilus', 'GCF1', 123],
+        [0.33, 'bacteria', 'Thermus', 'Thermus oshimai', 'GCF12', 687],
+        [0.33, 'bacteria', 'Salmonella', 'Salmonella enteric', 'GCF2', 456],
+        [0.004, 'viral', '', 'Bacthermus phage phiYS40', 'GCF5', 852],
+        [0.002, 'viral', '', 'Salmonella phage g341c', 'GCF7', 147],
+        [0.004, 'viral', '', 'Thermus phage TMA', 'GCF9', 369],
+    ],
+                           columns=[
+                               'rescaled_abundance', 'kingdom', 'genus',
+                               'species', 'accession', 'taxid'
+                           ])
+
+    tax = pd.DataFrame(
+        [['bacteria', 'Thermus', 'Thermus thermophilus', 'GCF1', 123],
+         ['bacteria', 'Thermus', 'Thermus oshimai', 'GCF12', 687],
+         ['viral', '', 'Thermus phage phiYS40', 'GCF5', 852],
+         ['viral', '', 'Thermus phage TMA', 'GCF9', 369],
+         ['viral', '', 'Salmonella phage g341c', 'GCF7', 147]],
+        columns=['kingdom', 'genus', 'species', 'accession', 'taxid'])
+
+    out_df = pd.DataFrame([
+        [0.31667, 'bacteria', 'Thermus', 'Thermus thermophilus', 'GCF1', 123],
+        [0.31667, 'bacteria', 'Thermus', 'Thermus oshimai', 'GCF12', 687],
+        [0.31667, 'bacteria', 'Salmonella', 'Salmonella enteric', 'GCF2', 456],
+        [0.004, 'viral', '', 'Bacthermus phage phiYS40', 'GCF5', 852],
+        [0.01533, 'viral', '', 'Salmonella phage g341c', 'GCF7', 147],
+        [0.03067, 'viral', '', 'Thermus phage TMA', 'GCF9', 369]
+    ],
+                          columns=[
+                              'rescaled_abundance', 'kingdom', 'genus',
+                              'species', 'accession', 'taxid'
+                          ])
+
+    assert_frame_equal(supplement_phage(profile, tax, 0.05, 3),
+                       out_df,
+                       check_dtype=False)
