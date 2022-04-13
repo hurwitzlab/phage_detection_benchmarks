@@ -245,7 +245,7 @@ def supplement_phage(profile: pd.DataFrame, tax: pd.DataFrame,
     host_abundances = hosted.drop_duplicates('host_taxid')
     total_host_abundance = host_abundances['host_abundance'].sum()
 
-    if non_hosted['abundance'].count() >= num_phage:
+    if len(hosted) == 0:
         non_hosted['abundance'] = rescale_abundances(non_hosted['abundance'],
                                                      phage_content)
 
