@@ -94,7 +94,7 @@ def test_runs_okay() -> None:
         assert open(out_file).readlines()[0] == header
         out_lines = open(out_file).read().count('\n')
         bracken_lines = open(BRACKEN).read().count('\n')
-        assert out_lines == bracken_lines
+        assert out_lines >= bracken_lines
 
     finally:
         if os.path.isdir(out_dir):

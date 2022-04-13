@@ -133,10 +133,12 @@ def test_join_profiles() -> None:
                                'kingdom', 'accession', 'taxid'
                            ])
 
-    profile = pd.DataFrame([['GCF_000006175.1', 0.65250]],
-                           columns=['accession', 'fraction_total_reads'])
+    profile = pd.DataFrame(
+        [['GCF_000006175.1', 0.65250], ['GCF_000006171.1', 0.034750]],
+        columns=['accession', 'fraction_total_reads'])
 
-    out_df = pd.DataFrame([[456320, 'GCF_000006175.1', 0.6523, 0.65250]],
+    out_df = pd.DataFrame([[456320, 'GCF_000006175.1', 0.6523, 0.65250],
+                           [None, 'GCF_000006171.1', None, 0.034750]],
                           columns=[
                               'taxonomy_id', 'accession',
                               'fraction_total_reads_bracken',
