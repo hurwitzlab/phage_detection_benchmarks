@@ -242,7 +242,8 @@ def supplement_phage(profile: pd.DataFrame, tax: pd.DataFrame,
     non_hosted = profile_phage[profile_phage['host_abundance'] == 0.]
     hosted = profile_phage[profile_phage['host_abundance'] != 0.]
 
-    host_counts = hosted.groupby(['host_taxid'])['host_abundance'].count()
+    hosted['count'] = hosted.groupby(['host_taxid'
+                                      ])['host_abundance'].transform('count')
     host_abundances = hosted.drop_duplicates('host_taxid')
     total_host_abundance = host_abundances['host_abundance'].sum()
 
@@ -252,15 +253,13 @@ def supplement_phage(profile: pd.DataFrame, tax: pd.DataFrame,
 
     remaining_abundance = phage_content - non_hosted['abundance'].sum()
 
-    abundance_by_host = remaining_abundance * host_abundances[
-        'host_abundance'].values / total_host_abundance / host_counts.values
+    hosted['abundance'] = remaining_abundance * hosted[
+        'host_abundance'].values / total_host_abundance / hosted['count']
 
-    new_abundances = dict(zip(host_abundances['host_taxid'],
-                              abundance_by_host))
+    hosted['abundance'] = hosted['abundance'].round(5)
 
-    hosted['abundance'] = hosted['host_taxid'].map(new_abundances.get).round(5)
-
-    hosted = hosted.drop(['host_abundance', 'host_taxid'], axis='columns')
+    hosted = hosted.drop(['host_abundance', 'host_taxid', 'count'],
+                         axis='columns')
     non_hosted = non_hosted.drop(['host_abundance', 'host_taxid'],
                                  axis='columns')
 
