@@ -106,7 +106,7 @@ def join_profiles(bracken: pd.DataFrame,
 
     joined_df = pd.merge(bracken,
                          profile,
-                         how='left',
+                         how='outer',
                          on='accession',
                          suffixes=['_bracken', None])
 
