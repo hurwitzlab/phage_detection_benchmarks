@@ -170,7 +170,7 @@ def get_phage_from_hosts(phages: pd.DataFrame, nonviral: pd.DataFrame,
         genus = organism.genus.lower()
 
         # First, check if host's phage is already present in profile
-        matches = phages['species'].str.lower().str.contains(genus)
+        matches = phages['species'].str.lower().str.startswith(genus)
         if any(matches):
             phage_matches = phages[matches]
             for _, phage_match in phage_matches.iterrows():
@@ -183,7 +183,7 @@ def get_phage_from_hosts(phages: pd.DataFrame, nonviral: pd.DataFrame,
             continue
 
         # Now search for phages matching host in all phages
-        matches = all_phage['species'].str.lower().str.contains(genus)
+        matches = all_phage['species'].str.lower().str.startswith(genus)
         if any(matches):
             phage_matches = all_phage[matches]
             phage_match = phage_matches.iloc[0]
@@ -254,7 +254,7 @@ def supplement_phage(profile: pd.DataFrame, tax: pd.DataFrame,
     remaining_abundance = phage_content - non_hosted['abundance'].sum()
 
     hosted['abundance'] = remaining_abundance * hosted[
-        'host_abundance'].values / total_host_abundance / hosted['count']
+        'host_abundance'] / total_host_abundance / hosted['count']
 
     hosted['abundance'] = hosted['abundance'].round(5)
 
