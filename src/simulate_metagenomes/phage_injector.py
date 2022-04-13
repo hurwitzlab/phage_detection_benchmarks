@@ -158,7 +158,7 @@ def get_phage_from_hosts(phages: pd.DataFrame, nonviral: pd.DataFrame,
     List of tuples with (host_taxid, phage_taxid)
     """
 
-    phages['host_abundance'] = ''
+    phages['host_abundance'] = 0.
     phages['host_taxid'] = ''
 
     nonviral.sort_values('abundance',
@@ -210,8 +210,9 @@ def add_host_phage(host: pd.Series, phage: pd.Series, phages: pd.DataFrame):
 
     if phage_taxid not in phages['taxid'].values:
         phages = phages.append(phage)
+        phages['host_abundance'][phages['taxid'] == phage_taxid] = 0.
 
-    phages['host_abundance'][phages['taxid'] == phage_taxid] = host.abundance
+    phages['host_abundance'][phages['taxid'] == phage_taxid] += host.abundance
     phages['host_taxid'][phages['taxid'] == phage_taxid] = host.taxid
 
     return phages
@@ -238,14 +239,14 @@ def supplement_phage(profile: pd.DataFrame, tax: pd.DataFrame,
         profile_non_phage[profile_non_phage['kingdom'] != 'viral'], num_phage,
         get_phages(tax))
 
-    non_hosted = profile_phage[profile_phage['host_abundance'] == '']
-    hosted = profile_phage[profile_phage['host_abundance'] != '']
+    non_hosted = profile_phage[profile_phage['host_abundance'] == 0.]
+    hosted = profile_phage[profile_phage['host_abundance'] != 0.]
 
     host_counts = hosted.groupby(['host_taxid'])['host_abundance'].count()
     host_abundances = hosted.drop_duplicates('host_taxid')
     total_host_abundance = host_abundances['host_abundance'].sum()
 
-    if non_hosted['abundance'].count() >= num_phage:
+    if len(hosted) == 0:
         non_hosted['abundance'] = rescale_abundances(non_hosted['abundance'],
                                                      phage_content)
 
