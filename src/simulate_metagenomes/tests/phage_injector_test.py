@@ -536,3 +536,47 @@ def test_case13() -> None:
     assert_frame_equal(supplement_phage(profile, tax, 0.05, 2),
                        out_df,
                        check_dtype=False)
+
+
+# ---------------------------------------------------------------------------
+def test_case14() -> None:
+    """
+    Multiple hosts for multiple phages
+    """
+
+    profile = pd.DataFrame([
+        [0.33, 'bacteria', 'Thermus', 'Thermus thermophilus', 'GCF1', 123],
+        [0.33, 'bacteria', 'Thermus', 'Thermus oshimai', 'GCF12', 687],
+        [0.33, 'bacteria', 'Salmonella', 'Salmonella enteric', 'GCF2', 456],
+        [0.005, 'viral', '', 'Thermus phage phiYS40', 'GCF5', 852],
+        [0.005, 'viral', '', 'Thermus phage TMA', 'GCF9', 369],
+    ],
+                           columns=[
+                               'rescaled_abundance', 'kingdom', 'genus',
+                               'species', 'accession', 'taxid'
+                           ])
+
+    tax = pd.DataFrame(
+        [['bacteria', 'Thermus', 'Thermus thermophilus', 'GCF1', 123],
+         ['bacteria', 'Thermus', 'Thermus oshimai', 'GCF12', 687],
+         ['viral', '', 'Thermus phage phiYS40', 'GCF5', 852],
+         ['viral', '', 'Thermus phage TMA', 'GCF9', 369],
+         ['viral', '', 'Salmonella phage g341c', 'GCF7', 147]],
+        columns=['kingdom', 'genus', 'species', 'accession', 'taxid'])
+
+    out_df = pd.DataFrame([
+        [0.31667, 'bacteria', 'Thermus', 'Thermus thermophilus', 'GCF1', 123],
+        [0.31667, 'bacteria', 'Thermus', 'Thermus oshimai', 'GCF12', 687],
+        [0.31667, 'bacteria', 'Salmonella', 'Salmonella enteric', 'GCF2', 456],
+        [0.01667, 'viral', '', 'Thermus phage phiYS40', 'GCF5', 852],
+        [0.01667, 'viral', '', 'Thermus phage TMA', 'GCF9', 369],
+        [0.01667, 'viral', '', 'Salmonella phage g341c', 'GCF7', 147]
+    ],
+                          columns=[
+                              'rescaled_abundance', 'kingdom', 'genus',
+                              'species', 'accession', 'taxid'
+                          ])
+
+    assert_frame_equal(supplement_phage(profile, tax, 0.05, 3),
+                       out_df,
+                       check_dtype=False)
