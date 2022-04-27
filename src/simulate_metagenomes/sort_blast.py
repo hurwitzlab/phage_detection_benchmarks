@@ -11,7 +11,6 @@ from typing import NamedTuple, TextIO
 
 import pandas as pd
 from blast_sorter import assign_tax
-from bracken_profiler import clean_taxonomy, join_dfs
 
 
 class Args(NamedTuple):
