@@ -18,8 +18,8 @@ rule all:
         expand(
             config["summary_dir"] + "/{d}/combined_{s}.csv",
             zip,
-            d=['contigs','profile_comparisons', 'parsed_blast'],
-            s=['contig_summary', 'profile_comparison', 'parsed_blast'],
+            d=['contigs','profile_comparisons', 'parsed_blast', 'contig_taxa'],
+            s=['contig_summary', 'profile_comparison', 'parsed_blast', 'contig_taxonomy'],
         ),
 
 
@@ -441,6 +441,57 @@ rule combine_blast_summaries:
         out_dir=config["summary_dir"] + "/parsed_blast",
         env=config["project_env"],
         regex=config["blast_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.regex}' \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Assign taxonomy to contigs based on BLAST results
+rule asssign_contig_taxonomy:
+    input:
+        config["summary_dir"] + "/parsed_blast/{id}_{model}_parsed_blast.csv",
+    output:
+        config["summary_dir"] + "/contig_taxa/{id}_{model}_contig_taxonomy.csv",
+    params:
+        assign=config["contig_assignment"],
+        refseq=config["refseq_info"],
+        out_dir=config["summary_dir"] + "/contig_taxa",
+        env=config["project_env"],
+        time=config["assign_time"],
+    threads: config["assign_ntasks"],
+    shell:
+        """
+        source activate {params.env}
+        {params.assign} \
+            -t {params.refseq} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Combine contig taxonomic assignments
+rule combine_contig_taxnomy:
+    input:
+        expand(
+            "{d}/contig_taxa/{id}_{model}_contig_taxonomy.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+            model=config["model"],
+        ),
+    output:
+        config["summary_dir"] + "/contig_taxa/combined_contig_taxonomy.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/contig_taxa",
+        env=config["project_env"],
+        regex=config["assignmed_re"],
         time=config["combine_time"],
     threads: config["combine_ntasks"]
     shell:
