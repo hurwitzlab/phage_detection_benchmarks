@@ -9,6 +9,7 @@ test:
 		summarize_profile.py \
 		summarize_blast.py \
 		summarize_contigs.py \
+		sort_blast.py \
 		combine_summary.py
 
 dryrun:
@@ -23,5 +24,6 @@ coverage:
 		summarize_profile.py \
 		summarize_blast.py \
 		summarize_contigs.py \
+		sort_blast.py \
 		combine_summary.py
 	coverage report -m

@@ -93,6 +93,22 @@ To determine the true origins of the contigs, BLAST is run. Each BLAST database 
 
 BLASTn is run, querying the contigs created by MegaHit against the genomes in that profile.
 
+## Contig origin assignment
+
+Since many contigs had strong hits to several organisms, and we hoped to detect chimera, the following decision tree was implemented to assign origin to each contig.
+
+```mermaid
+graph TD
+  hits(BLAST Hits) --> exact[Exact Length]
+  exact -- yes, choose best e-val --> origin(Single origin)
+  exact -- no --> longer[Longer than query]
+  longer -- yes, choose best e-val --> origin
+  longer -- no --> overlap[All hits overlap]
+  overlap -- yes, choose best e-val & length --> origin
+  overlap -- no --> chimera[chimera]
+  chimera -- best e-val & length per region --> chimeric(Chimeric origins)
+```
+
 # Programs
 
 ## `bracken_profiler.py`
@@ -101,23 +117,32 @@ This script takes Bracken output and creates a profile for use in InSilicoSeq. T
 
 Additionally, a file is created (`*_files.txt`) that contains acession numbers and file globs. The files that match these globs are the files that contain the sequences in the profile.
 
+In order to ensure that all profiles have adequate phage content to be a good test dataset, the `--phage` and `--num_phage` arguments allow you to specify the minimum phage content in the final profile, as well as the maximum number of artificially added phages.
+
 Example usage
 ```
 $ ./bracken_profiler.py -h
-usage: bracken_profiler.py [-h] [-t FILE] [-o DIR] FILE [FILE ...]
+usage: bracken_profiler.py [-h] [-t FILE] [-o DIR] [-p PCT] [-np] FILE [FILE ...]
 
 Create profile from Bracken output
 
-positional arguments:
-  FILE                  Bracken output file(s)
-
-optional arguments:
+options:
   -h, --help            show this help message and exit
+
+Input and Output:
+  FILE                  Bracken output file(s)
   -t FILE, --taxonomy FILE
                         Taxonomy mapping file (default: ../../data/refseq_info/taxonomy.csv)
   -o DIR, --outdir DIR  Output directory (default: out)
 
- $ ./bracken_profiler.py tests/inputs/bracken_profiler/input_1.txt
+Phage Injection Parameters:
+  -p PCT, --phage PCT   Minimum phage content (default: 0.05)
+  -np , --num_phage     Maximum number of injected phage species (default: 10)
+
+ $ ./bracken_profiler.py \
+    -np 1 \
+    -p 0.05 \
+    tests/inputs/bracken_profiler/input_1.txt
 Making profile for file "tests/inputs/bracken_profiler/input_1.txt"...
 Finished.
 Done. Wrote 1 profile to out.
@@ -129,16 +154,42 @@ input_1_files.txt  input_1_profile.txt
 $ head -n 5 out/input_1_files.txt 
 filename,accession
 archaea/GCF_000006175.1*.fna,GCF_000006175.1
-bacteria/GCF_001742205.1*.fna,GCF_001742205.1
+bacteria/GCF_000007825.1*.fna,GCF_000007825.1
 viral/GCF_000891875.6*.fna,GCF_000891875.6
 fungi/GCF_013402915.1*.fna,GCF_013402915.1
+viral/GCF_000867025.1*.fna,GCF_000867025.1
 
-$ head -n 5 out/input_1_profile.txt
-GCF_000006175.1 0.6525
-GCF_001742205.1 0.21977
-GCF_000891875.6 0.12644
-GCF_013402915.1 0.0013
+$ head out/input_1_profile.txt
+GCF_000006175.1 0.61987
+GCF_000007825.1 0.20878
+GCF_000891875.6 0.12012
+GCF_013402915.1 0.00123
+GCF_000867025.1 0.05
 ```
+
+## `phage_injector.py`
+
+This scipt is utilized in `bracken_profiler.py` to add phages that correspond to non-viral species present in the profile.
+
+For each non-viral species, there is an attempt to match the organism's family name to a phage present in the local RefSeq database.
+
+For instance if *Thermus thermophilus* is present, and the profile is lacking in phage, then *Thermus phage* TMA may be added to the profile.
+
+Since the phage content of the input profiles can vary, how phages are added must also vary. The following table illustrates how this is done:
+
+profile | method
+-- | --
+Phages present in profile, none have present hosts, # >= `-np` | Rescale phages to `-p`
+Phages present in profile, none have present hosts, # < `-np`, phage found for hosts | Leave present non-hosted phage abundances, add new hosted phages, scale to make total phage = `-p`
+Phages present in profile, none have present hosts, # < `-np`, no phage found for hosts | Rescale phages to `-p`
+Phages present in profile, all have present hosts, # >= `-np` | Rescale phages to `-p` with each phage scaled proportionally to (host abundance / sum(host abundances))
+Phages present in profile, all have present hosts, # < `-np`, phage found for hosts | Add additional hosted phages, rescale all proportionally to (host abundance / sum (host abundances))
+Phages present in profile, all have present hosts, # < `-np`, no phage found for hosts | Rescale all proportionally to (host abundance / sum(host abundances))
+Phages present in profile, some have present hosts, # < `-np`, phage found for hosts | Leave present non-hosted phage abundances, add more hosted phages, scale to make total phage = `-p`
+Phages present in profile, some have present hosts, # < `-np`, no phage found for hosts | Leave present non-hosted phage abundances, rescale hosted phages to make total phage = `-p`
+Phages present in profile, some have present hosts, # >= `-np` | Leave present non-hosted phage abundances, rescale hosted phages to make total phage = `-p`
+No phages present, phages found for hosts | Add hosted phages, scale to `-p`
+
 ## `cat_genomes.py`
 
 This script concatenates all the genomes that are required for InSilicoSeq based on the profile.
@@ -184,57 +235,188 @@ $ grep ">" out/input_1_genomes.fasta
 >GCF_013402915.1
 ```
 
+## `summarize_blast.py`
+
+This script reduces the size of the BLAST output (.xml) files by extracting the necessary information such as query_id, hit_id, query_length, alignment_length, alignment start, and alignment end. No sequences are included in the output of this program.
+
+By default, these whole BLAST files are read into memory. Since they can be large and exceed available memory, the `--low_mem` flag is available to reduce memory needs. The tradeoff is that it will run slower due to large number of I/O operations.
+
+```
+$ ./summarize_blast.py -h
+usage: summarize_blast.py [-h] [-o DIR] [-l] FILE
+
+parse BLAST output
+
+positional arguments:
+  FILE                  BLAST output
+
+options:
+  -h, --help            show this help message and exit
+  -o DIR, --outdir DIR  Output directory (default: out)
+
+$ ./summarize_blast.py tests/inputs/summarize_blast/input_1_blast_out.xml
+Done. Wrote output to out/input_1_parsed_blast.csv.
+
+$ head -n 5 out/input_1_parsed_blast.csv 
+query_id,hit_id,e_val,query_length,alignment_length,start,end
+k141_5989,GCF_002148255.1,8.40553e-160,306,306,1,306
+k141_5989,GCF_009834925.2,2.71137e-55,306,208,70,275
+k141_7797,GCF_013393365.1,0.0,345,344,1,344
+k141_7797,GCF_002082765.1,1.69651e-117,345,341,4,344
+```
+
+## summarize_contigs.py
+
+This script scrapes the contig ID and length from an assembled FASTA file.
+
+```
+$ ./summarize_contigs.py -h
+usage: summarize_contigs.py [-h] [-f NAME] [-o DIR] FILE
+
+Get lengths of all contigs
+
+positional arguments:
+  FILE                  Assembled contigs FASTA file
+
+options:
+  -h, --help            show this help message and exit
+  -f NAME, --filename NAME
+                        Output filename (default: contig_summary.csv)
+  -o DIR, --outdir DIR  Output directory (default: out)
+
+$ ./summarize_contigs.py tests/inputs/summarize_contigs/final.contigs.fa 
+Done. Wrote output to out/contig_summary.csv
+
+$ head out/contig_summary.csv 
+contig_id,length
+k141_451933,301
+k141_55624,602
+k141_618781,302
+k141_146013,301
+k141_62577,602
+```
+
+
+## `summarize_profile.py`
+
+This script compares the Bracken profile, to that created by `bracken_profiler.py`.
+
+```
+$ ./summarize_profile.py -h
+usage: summarize_profile.py [-h] -b FILE -p FILE [-t FILE] [-o DIR]
+
+Compare original Bracken and InSilicoSeq input profiles
+
+options:
+  -h, --help            show this help message and exit
+  -b FILE, --bracken FILE
+                        Bracken output file (default: None)
+  -p FILE, --profile FILE
+                        Generated profile (default: None)
+  -t FILE, --taxonomy FILE
+                        Taxonomy mapping file (default: ../../data/refseq_info/taxonomy.csv)
+  -o DIR, --outdir DIR  Output directory (default: out)
+
+$ ./summarize_profile.py \
+    -t tests/inputs/bracken_profiler/taxonomy.csv \
+    -b tests/inputs/summarize_profile/input_1.txt \
+    -p tests/inputs/summarize_profile/input_1_profile.txt 
+Done. Wrote output to out/input_1_profile_comparison.csv.
+
+$ head out/input_1_profile_comparison.csv
+taxonomy_id,accession,fraction_total_reads_bracken,fraction_total_reads
+456320.0,GCF_000006175.1,0.6523,0.6525
+1613.0,,0.2197,
+123456.0,,0.0003,
+1980433.0,GCF_000891875.6,0.1264,0.12644
+42260.0,GCF_013402915.1,0.0013,0.0013
+,GCF_003860425.1,,0.21977
+```
+
+## `sort_blast.py`
+
+Since the contigs often have perfect or strong hits to several organisms, I need to assign a taxonomic "origin" to each contig based on the BLAST output. This program takes the output from `summarize_blast.py`. The method of assigning origin to the contigs comes from `blast_sorter.py`.
+
+```
+$ ./sort_blast.py -h
+usage: sort_blast.py [-h] [-t FILE] [-o DIR] FILE
+
+Assign taxonomy to BLASTed contigs
+
+positional arguments:
+  FILE                  Parsed BLAST output file
+
+options:
+  -h, --help            show this help message and exit
+  -t FILE, --taxonomy FILE
+                        Taxonomy mapping file (default: ../../data/refseq_info/taxonomy.csv)
+  -o DIR, --outdir DIR  Output directory (default: out)
+
+$ ./sort_blast.py tests/inputs/sort_blast/example_profile_hiseq_parsed_blast.csv 
+Done. Wrote output to out/example_profile_hiseq_contig_taxonomy.csv
+```
+
+## `blast_sorter.py`
+
+Taxonomy is assigned in the following order, after sorting by increasing e-value (low e-val is prioritized):
+
+* Any alignments equal to query length
+* Any alignments greater than query length
+* If all alignments overlap, choose longest alignment length
+* If not all alignments overlap, choose longest alignment length for each hit region
+
+In the case where not all alignments overlap, that contig is deemed as chimera.
+
+A flow chart of this decision tree is found above in *Contig origin assignment*
+
+## `combine_summary.py`
+
+This script combines summarized data files, such as the output from `summarize_blast.py`, `summarize_contigs.py`, `summarize_profile.py`, and `sort_blast.py`.
+
+Parts of the input filename are used to generate the output filename, so a required argument is a regular expression describing the input filename.
+
+```
+$ ./combine_summary.py -h
+usage: combine_summary.py [-h] -r STR [-o DIR] FILE [FILE ...]
+
+Combine summary files
+
+positional arguments:
+  FILE                  Summary files
+
+options:
+  -h, --help            show this help message and exit
+  -r STR, --regex STR   Filename regular expression (default: None)
+  -o DIR, --outdir DIR  Output directory (default: out)
+
+# Profiles
+$ ./combine_summary.py \
+    -r '(?P<profile>[\w.]+)_(?P<filename>profile_comparison).csv' \
+    tests/inputs/combine_summary/profile_1_profile_comparison.csv 
+Done. Wrote output to out/combined_profile_comparison.csv
+
+# Contigs
+$ ./combine_summary.py \
+    -r '(?P<profile>[\w.]+)_(?P<model>\w+)_(P<filename>contig_summary).csv' \
+    tests/inputs/combine_summary/profile_1_model_contig_summary.csv 
+Done. Wrote output to out/combined_contig_summary.csv
+
+# Parsed BLAST
+$ ./combine_summary.py \
+    -r '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>parsed_blast).csv' \
+    tests/inputs/combine_summary/profile_1_model_parsed_blast.csv 
+Done. Wrote output to out/combined_parsed_blast.csv
+
+# Contig taxonomy assignment
+$ ./combine_summary.py \
+    -r '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>contig_taxonomy).csv'\
+    out/example_profile_hiseq_contig_taxonomy.csv 
+Done. Wrote output to out/combined_contig_taxonomy.csv
+```
+
+The above examples only use 1 input file, but in real usage, all files for each profile or profile/model combinations are supplied at once, and the program puts them all into 1 large combined file
+
 ## Test Suite
 
-A test suite is provided for the programs that were written. The full suite can be run with:
+A test suite is provided for the programs that were written. The full suite can be run with: `make test`
 
-```
-$ make test
-python3 -m pytest -v --flake8 --pylint --mypy tests/ bracken_profiler.py cat_genomes.py
-============================ test session starts ============================
-platform linux -- Python 3.8.10, pytest-6.2.4, py-1.10.0, pluggy-0.13.1 -- /usr/bin/python3
-cachedir: .pytest_cache
-rootdir: /home/ken/work/research/challenging-phage-finders/src/simulate_metagenomes
-plugins: flake8-1.0.7, mypy-0.8.1, pylint-0.18.0
-collected 35 items                                                          
-
-tests/bracken_profiler_test.py::PYLINT SKIPPED (file(s) previousl...) [  2%]
-tests/bracken_profiler_test.py::mypy PASSED                           [  5%]
-tests/bracken_profiler_test.py::mypy-status PASSED                    [  8%]
-tests/bracken_profiler_test.py::FLAKE8 SKIPPED (file(s) previousl...) [ 11%]
-tests/bracken_profiler_test.py::test_exists PASSED                    [ 14%]
-tests/bracken_profiler_test.py::test_testing_environment PASSED       [ 17%]
-tests/bracken_profiler_test.py::test_usage PASSED                     [ 20%]
-tests/bracken_profiler_test.py::test_bad_file PASSED                  [ 22%]
-tests/bracken_profiler_test.py::test_bad_taxonomy_file PASSED         [ 25%]
-tests/bracken_profiler_test.py::test_runs_okay PASSED                 [ 28%]
-tests/cat_genomes_test.py::PYLINT SKIPPED (file(s) previously pas...) [ 31%]
-tests/cat_genomes_test.py::mypy PASSED                                [ 34%]
-tests/cat_genomes_test.py::FLAKE8 SKIPPED (file(s) previously pas...) [ 37%]
-tests/cat_genomes_test.py::test_exists PASSED                         [ 40%]
-tests/cat_genomes_test.py::test_testing_environment PASSED            [ 42%]
-tests/cat_genomes_test.py::test_usage PASSED                          [ 45%]
-tests/cat_genomes_test.py::test_bad_file PASSED                       [ 48%]
-tests/cat_genomes_test.py::test_missing_parent PASSED                 [ 51%]
-tests/cat_genomes_test.py::test_empty_parent PASSED                   [ 54%]
-tests/cat_genomes_test.py::test_wrong_parent PASSED                   [ 57%]
-tests/cat_genomes_test.py::test_runs_okay PASSED                      [ 60%]
-bracken_profiler.py::PYLINT SKIPPED (file(s) previously passed py...) [ 62%]
-bracken_profiler.py::mypy PASSED                                      [ 65%]
-bracken_profiler.py::FLAKE8 SKIPPED (file(s) previously passed FL...) [ 68%]
-bracken_profiler.py::test_clean_bracken PASSED                        [ 71%]
-bracken_profiler.py::test_clean_taxonomy PASSED                       [ 74%]
-bracken_profiler.py::test_join_dfs PASSED                             [ 77%]
-bracken_profiler.py::test_rescale_abundances PASSED                   [ 80%]
-bracken_profiler.py::test_make_files_df PASSED                        [ 82%]
-bracken_profiler.py::test_make_profile_df PASSED                      [ 85%]
-bracken_profiler.py::test_make_filenames PASSED                       [ 88%]
-cat_genomes.py::PYLINT SKIPPED (file(s) previously passed pylint ...) [ 91%]
-cat_genomes.py::mypy PASSED                                           [ 94%]
-cat_genomes.py::FLAKE8 SKIPPED (file(s) previously passed FLAKE8 ...) [ 97%]
-cat_genomes.py::test_make_filename PASSED                             [100%]
-=================================== mypy ====================================
-
-Success: no issues found in 4 source files
-======================= 27 passed, 8 skipped in 5.01s =======================
-```
