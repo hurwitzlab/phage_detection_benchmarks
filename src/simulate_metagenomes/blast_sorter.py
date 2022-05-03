@@ -111,6 +111,70 @@ def test_get_coverages() -> None:
 
 
 # --------------------------------------------------
+def merge_same_adjacent(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Check if adjacent distinct hit regions align to same genome
+    If so, merge those regions
+    """
+
+    out_df = pd.DataFrame()
+    for i in range(1, len(df)):
+        if df['hit_id'][i] == df['hit_id'][i - 1]:
+            start = df['start'][i - 1]
+            end = df['end'][i]
+            e_val = max(df['e_val'][i], df['e_val'][i - 1])
+            merged_hit = make_sorted_df([[
+                df['query_id'][i], df['hit_id'][i], e_val,
+                df['query_length'][i], end - start + 1, start, end, 'chimera'
+            ]])
+            df.iloc[i] = merged_hit.iloc[0]
+
+            if i != len(df) - 1:
+                if df['hit_id'][i] == df['hit_id'][i + 1]:
+                    continue
+            out_df = pd.concat([out_df, merged_hit])
+        else:
+            if i == 1:
+                out_df = pd.concat([out_df, df.iloc[[0]]])
+            out_df = pd.concat([out_df, df.iloc[[i]]])
+
+    out_df = out_df.reset_index(drop=True)
+
+    if len(out_df) == 1:
+        out_df['origin'] = 'single'
+
+    return out_df
+
+
+# --------------------------------------------------
+def test_merge_same_adjacent() -> None:
+    """ Test merge_same_adjacent() """
+
+    in_df = make_sorted_df(
+        [['k1_1', 'GCF_001', 0.05, 1000, 500, 1, 500, 'chimera'],
+         ['k1_1', 'GCF_001', 0, 1000, 50, 601, 650, 'chimera'],
+         ['k1_1', 'GCF_001', 0, 1000, 100, 701, 800, 'chimera']])
+
+    # Coverage of adjacent same-hit regions spans length of both
+    # Take larger e-val of adjacent hits (shouldn't be used later)
+    out_df = make_sorted_df(
+        [['k1_1', 'GCF_001', 0.05, 1000, 800, 1, 800, 'single']])
+
+    assert_frame_equal(merge_same_adjacent(in_df), out_df, check_dtype=False)
+
+    in_df = make_sorted_df(
+        [['k1_1', 'GCF_001', 0.05, 1000, 500, 1, 500, 'chimera'],
+         ['k1_1', 'GCF_001', 0, 1000, 100, 701, 800, 'chimera'],
+         ['k1_1', 'GCF_002', 0, 1000, 100, 901, 1000, 'chimera']])
+
+    out_df = make_sorted_df(
+        [['k1_1', 'GCF_001', 0.05, 1000, 800, 1, 800, 'chimera'],
+         ['k1_1', 'GCF_002', 0, 1000, 100, 901, 1000, 'chimera']])
+
+    assert_frame_equal(merge_same_adjacent(in_df), out_df, check_dtype=False)
+
+
+# --------------------------------------------------
 def assign_tax(df: pd.DataFrame) -> pd.DataFrame:
     """ Assign taxonomy for a single contig """
 
@@ -138,6 +202,7 @@ def assign_tax(df: pd.DataFrame) -> pd.DataFrame:
     start_sorted_df = df.sort_values(by='start', ascending=True)
     coverages = get_coverages(start_sorted_df['start'], start_sorted_df['end'])
 
+    # All hits are overlapping
     if len(coverages) == 1:
         df = df.sort_values(by=['e_val', 'alignment_length'],
                             ascending=[True, False])
@@ -145,6 +210,7 @@ def assign_tax(df: pd.DataFrame) -> pd.DataFrame:
         df['origin'] = 'single'
         return df
 
+    # Not all hits are overlapping
     out_df = pd.DataFrame()
     for start, end in coverages:
         df['origin'] = 'chimera'
@@ -155,6 +221,9 @@ def assign_tax(df: pd.DataFrame) -> pd.DataFrame:
         out_df = pd.concat([out_df, best_hit])
 
     out_df = out_df.reset_index(drop=True)
+
+    # Merge adjacent hit regions aligning to same genome
+    out_df = merge_same_adjacent(out_df)
 
     return out_df
 
@@ -230,6 +299,24 @@ def test_no_full_hits() -> None:
 
 
 # --------------------------------------------------
+def test_single_but_separate() -> None:
+    """
+    Distinct hit regions
+    Single origin, not chimeric
+    """
+
+    in_df = make_raw_df([['k1_1', 'GCF_001', 0, 500, 200, 1, 199],
+                         ['k1_1', 'GCF_001', 0, 500, 200, 3, 201],
+                         ['k1_1', 'GCF_001', 0, 500, 200, 301, 500],
+                         ['k1_1', 'GCF_001', 0.05, 500, 250, 251, 500]])
+
+    out_df = make_sorted_df(
+        [['k1_1', 'GCF_001', 0, 500, 500, 1, 500, 'single']])
+
+    assert_frame_equal(assign_tax(in_df), out_df, check_dtype=False)
+
+
+# --------------------------------------------------
 def test_chimera() -> None:
     """
     Distinct regions with hits
@@ -245,5 +332,28 @@ def test_chimera() -> None:
     out_df = make_sorted_df(
         [['k1_1', 'GCF_001', 0, 500, 200, 1, 199, 'chimera'],
          ['k1_1', 'GCF_003', 0, 500, 200, 301, 500, 'chimera']])
+
+    assert_frame_equal(assign_tax(in_df), out_df, check_dtype=False)
+
+
+# --------------------------------------------------
+def test_separate_and_chimera() -> None:
+    """
+    Distinct hit regions
+    Some same origin
+    Others different origin
+    """
+
+    in_df = make_raw_df([['k1_1', 'GCF_001', 0, 1000, 200, 1, 199],
+                         ['k1_1', 'GCF_001', 0, 1000, 200, 3, 201],
+                         ['k1_1', 'GCF_001', 0, 1000, 200, 301, 500],
+                         ['k1_1', 'GCF_001', 0.05, 1000, 250, 251, 500],
+                         ['k1_1', 'GCF_002', 0, 1000, 100, 701, 800],
+                         ['k1_1', 'GCF_001', 0, 1000, 100, 901, 1000]])
+
+    out_df = make_sorted_df(
+        [['k1_1', 'GCF_001', 0, 1000, 500, 1, 500, 'chimera'],
+         ['k1_1', 'GCF_002', 0, 1000, 100, 701, 800, 'chimera'],
+         ['k1_1', 'GCF_001', 0, 1000, 100, 901, 1000, 'chimera']])
 
     assert_frame_equal(assign_tax(in_df), out_df, check_dtype=False)
