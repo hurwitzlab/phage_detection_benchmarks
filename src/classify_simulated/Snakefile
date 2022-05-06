@@ -1,0 +1,523 @@
+(METAGENOMES,) = glob_wildcards(config["contigs_dir" + "/{p}/"])
+
+rule all:
+    input:
+        config["out_dir"] + "/combined_out/combined.csv",
+        config["out_dir"] + "/combined_out/combined_benchmarks.csv",
+
+
+rule combine_preds:
+    input:
+        expand(
+            "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
+            out_dir=config["out_dir"],
+            kingdom=config["kingdoms"],
+            length=config["lengths"],
+            tool=config["tools"],
+        ),
+    output:
+        config["out_dir"] + "/combined_out/combined.csv",
+    params:
+        out_dir=config["out_dir"],
+        combine=config["combine"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.combine} \
+            -o {params.out_dir}/combined_out \
+            {input}
+        """
+
+
+rule combine_benchmarks:
+    input:
+        expand(
+            config["out_dir"] + "/benchmarks/{tool}/{metagenome}_benchmark.txt",
+            tool=config["tools"],
+            kingdom=config["kingdoms"],
+            length=config["lengths"],
+        ),
+    output:
+        config["out_dir"] + "/combined_out/combined_benchmarks.csv",
+    params:
+        out_dir=config["out_dir"] + "/combined_out",
+        benchmark=config["benchmark"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.benchmark} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+
+rule pred_deepvirfinder:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/dvf/final.contigs.fa_gt1bp_dvfpred.txt",
+    params:
+        dvf=config["deepvirfinder"],
+        env=config["dvf_env"],
+        cores=config["deepvirfinder_cores"],
+        out_dir=config["out_dir"] + "/{metagenome}/dvf",
+    log:
+        config["out_dir"] + "/logs/dvf/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/dvf/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        ({params.dvf} \
+            -i {input} \
+            -o {params.out_dir} \
+            -c {params.cores}) 2> {log}
+        """
+
+
+rule reformat_dvf:
+    input:
+        config["out_dir"]
+        + "/{metagenome}/dvf/final.contigs.fa_gt1bp_dvfpred.txt",
+    output:
+        config["out_dir"] + "/{metagenome}/dvf/dvf_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/dvf",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t dvf \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule pred_metaphinder:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"] + "/{metagenome}/metaphinder/output.txt",
+    params:
+        metaphinder=config["metaphinder"],
+        env=config["metaphinder_env"],
+        blast=config["metaphinder_blast"],
+        db=config["metaphinder_db"],
+        out_dir=config["out_dir"] + "{metagenome}/metaphinder",
+    log:
+        config["out_dir"] + "/logs/metaphinder/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/metaphinder/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        rm -rf {params.out_dir}
+        mkdir {params.out_dir}
+
+        ({params.metaphinder} \
+            -i {input} \
+            -o {params.out_dir} \
+            -d {params.db} \
+            -b {params.blast}
+        ) 2> {log}
+        """
+
+
+rule reformat_metaphinder:
+    input:
+        config["out_dir"] + "/{metagenome}/metaphinder/output.txt",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/metaphinder/metaphinder_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/metaphinder/",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t metaphinder \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule pred_seeker:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"] + "/{metagenome}/seeker/pred.txt",
+    params:
+        seeker=config["seeker"],
+        out_dir=config["out_dir"] + "/{metagenome}/seeker/",
+        env=config["seeker_env"],
+    log:
+        config["out_dir"] + "/logs/seeker/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/seeker/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        ({params.seeker} \
+            {input} \
+            > {params.out_dir}/pred.txt \
+        ) 2> {log}
+        """
+
+
+rule reformat_seeker:
+    input:
+        config["out_dir"] + "/{metagenome}/seeker/pred.txt",
+    output:
+        config["out_dir"] + "/{metagenome}/seeker/seeker_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/seeker/",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t seeker \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule pred_vibrant:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/vibrant/VIBRANT_final/VIBRANT_phages_final/final.phages_combined.txt",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/vibrant",
+        env=config["vibrant_env"],
+        vibrant=config["vibrant"],
+    log:
+        config["out_dir"] + "/logs/vibrant/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        rm -rf {params.out_dir}
+
+        {params.vibrant} \
+            -i {input} \
+            -folder {params.out_dir}
+
+        if [ ! -f {output} ]; then
+            mkdir -p {params.out_dir}/VIBRANT_final/VIBRANT_phages_final
+            touch {output}
+            echo "No output created by VIBRANT, touching empty file: {output}."
+        fi
+        ) 2> {log}
+        """
+
+
+rule reformat_vibrant:
+    input:
+        config["out_dir"]
+        + "/{metagenome}/vibrant/VIBRANT_final/VIBRANT_phages_final/final.phages_combined.txt",
+    output:
+        config["out_dir"] + "/{metagenome}/vibrant/vibrant_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/vibrant",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t vibrant \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule pred_viralverify:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/viralverify/selected_frags_result_table.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
+        env=config["viralverify_env"],
+        db=config["viralverify_db"],
+        threads=config["viralverify_threads"],
+    log:
+        config["out_dir"] + "/logs/viralverify/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/viralverify/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        (viralverify \
+            -f {input} \
+            --hmm {params.db} \
+            -o {params.out_dir} \
+            -t {params.threads}
+        ) 2> {log}
+        """
+
+
+rule reformat_viralverify:
+    input:
+        config["out_dir"]
+        + "/{metagenome}/viralverify/selected_frags_result_table.csv",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/viralverify/viralverify_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t viralverify \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule pred_virfinder:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/virfinder/final_vf_preds.csv",
+    params:
+        virfinder=config["virfinder"],
+        env=config["virfinder_env"],
+        out_dir=config["out_dir"] + "/{metagenome}/virfinder",
+    log:
+        config["out_dir"] + "logs/virfinder/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/virfinder/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        ({params.virfinder} \
+            -o {params.out_dir} \
+            {input}
+        ) 2> {log}
+        """
+
+
+rule reformat_virfinder:
+    input:
+        config["out_dir"]
+        + "/{metagenome}/virfinder/final_vf_preds.csv",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/virfinder/virfinder_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/virfinder",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t virfinder \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule pred_virsorster:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-1.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-2.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-3.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta",
+    params:
+        virsorter=config["virsorter"],
+        env=config["virsorter_env"],
+        out_dir=config["out_dir"] + "/{metagenome}/virsorter",
+        cpu=config["virsorter_cpu"],
+        db=config["virsorter_db"],
+        data=config["virsorter_data"],
+    log:
+        config["out_dir"] + "/logs/virsorter/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/virsorter/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+        rm -rf {params.out_dir}
+
+        ({params.virsorter} \
+            -f {input} \
+            --db {params.db} \
+            --wdir {params.out_dir} \
+            --ncpu {params.cpu} \
+            --data-dir {params.data}
+
+        pred_dir="{params.out_dir}/Predicted_viral_sequences"
+
+        if ! [[ "$(ls -A $pred_dir)" ]]; then
+            echo "No viruses found, creating empty output files."
+            echo "sequences" > $pred_dir/VIRSorter_cat-1.fasta
+            echo "sequences" > $pred_dir/VIRSorter_cat-2.fasta
+            echo "sequences" > $pred_dir/VIRSorter_cat-3.fasta
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-4.fasta
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-5.fasta
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-6.fasta
+        fi
+
+        ) 2> {log}
+        """
+
+
+rule wrangle_virsorter:
+    input:
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-1.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-2.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-3.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta",
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/combined_sequences.txt",
+    params:
+        wrangle=config["virsorter_wrangler"],
+        out_dir=config["out_dir"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.wrangle} {params.out_dir}/Predicted_viral_sequences
+        """
+
+
+rule reformat_virsorter:
+    input:
+        config["out_dir"]
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/combined_sequences.txt",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/virsorter/virsorter_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"],
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t virsorter \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule pred_virsorter2:
+    input:
+        config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/virsorter2/final-viral-boundary.tsv",
+        config["out_dir"] + "/{metagenome}/virsorter2/final-viral-combined.fa",
+        config["out_dir"] + "/{metagenome}/virsorter2/final-viral-score.tsv",
+    params:
+        virsorter2=config["virsorter2"],
+        env=config["virsorter2_env"],
+        out_dir=config["out_dir"] + "/{metagenome}/virsorter2",
+    log:
+        config["out_dir"] + "/logs/virsorter2/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/virsorter2/{metagenome}_benchmark.txt"
+    shell:
+        """
+        source activate {params.env}
+
+
+        ({params.virsorter2} \
+            -i {input} \
+            -w {params.out_dir} \
+            
+        ) 2> {log}
+        """
+
+
+rule reformat_virsorter2:
+    input:
+        config["out_dir"] + "/{metagenome}/virsorter2/final-viral-score.tsv",
+    output:
+        config["out_dir"]
+        + "/{metagenome}/virsorter2/virsorter2_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/virsorter2",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -l {wildcards.length} \
+            -a {wildcards.kingdom} \
+            -t virsorter2 \
+            -o {params.out_dir} \
+            {input}
+        """
