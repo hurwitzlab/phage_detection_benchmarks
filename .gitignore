@@ -1,6 +1,7 @@
 # Output files
 *.out
 *.swp
+*.svg
 
 # Data
 data/
@@ -8,3 +9,5 @@ data/
 .RData
 .Rhistory
 renv/
+env/
+.vscode/

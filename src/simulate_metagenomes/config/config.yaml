@@ -5,8 +5,14 @@ bracken_profiler:
         ./bracken_profiler.py
 cat_genomes:
         ./cat_genomes.py
+summarize_profile:
+        ./summarize_profile.py
 megahit:
         megahit
+summarize_contigs:
+        ./summarize_contigs.py
+filter_contigs:
+        ./filter_contigs.py
 bowtie_build:
         bowtie2-build
 bowtie:
@@ -23,8 +29,16 @@ make_db:
         makeblastdb
 blast:
         blastn
+summarize_blast:
+        ./summarize_blast.py
+combine:
+        ./combine_summary.py
+contig_assignment:
+        ./sort_blast.py
 
 # Environments
+project_env:
+        ../../env
 iss_env:
         ../../tool_envs/insilicoseq/env
 megahit_env:
@@ -63,22 +77,44 @@ blast_dbs_dir:
         ../../data/metagenome_simulation/blast_dbs
 blast_out_dir:
         ../../data/metagenome_simulation/blast_out
+summary_dir:
+        ../../data/metagenome_simulation/summary
 
 # Parameters
+## make_profiles
+min_num_phage: 10
+min_phage: 0.05
+
 ## simulate_reads
 model:
         ["miseq", "hiseq", "novaseq"]
 n_reads:
         --n_reads 20M
 
+# megahit_assembly
+min_contig: 500
+
 ## run_blast
 e_value: '1e-20'
+max_hits: 5
+
+# combine summaries
+# regular expressions
+profile_re: '(?P<profile>[\w.]+)_(?P<filename>profile_comparison).csv'
+contigs_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>contig_summary).csv'
+blast_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>parsed_blast).csv'
+assigned_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>contig_taxonomy).csv'
+
 
 
 # Resources
 ## make_profiles
 make_profiles_time: '00:05:00'
 make_profiles_ntasks: 1
+
+## summarize_profile
+summarize_profile_time: '00:05:00'
+summarize_profile_ntasks: 1
 
 ## cat_genomes
 cat_genomes_time: '00:20:00'
@@ -91,6 +127,10 @@ simulate_reads_ntasks: 36
 # megahit_assembly
 assembly_time: '4:00:00'
 assembly_ntasks: 47
+
+# filter_contigs
+filter_contigs_time: '04:00:00'
+filter_contigs_ntasks: 4
 
 # make_bowtie_index
 bowtie_indexing_time: '00:30:00'
@@ -119,3 +159,19 @@ make_db_ntasks: 4
 # run_blast
 blast_time: '12:00:00'
 blast_ntasks: 12
+
+# summarize_blast
+summarize_blast_time: '04:00:00'
+summarize_blast_ntasks: 6
+
+# summarize_contigs
+summarize_contigs_time: '04:00:00'
+summarize_contigs_ntasks: 4
+
+# combine profile or contigs
+combine_time: '04:00:00'
+combine_ntasks: 12
+
+# assign_contig_taxonomy
+assign_time: '00:30:00'
+assign_ntasks: 4
