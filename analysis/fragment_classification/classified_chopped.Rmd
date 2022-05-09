@@ -43,7 +43,7 @@ Kingdom  | 500 nt | 1000 nt | 3000 nt | 5000 nt
 archaea  | 10k    | 10k     | 10k     | 10k
 bacteria | 10k    | 10k     | 10k     | 10k
 fungi    | 10k    | 10k     | 10k     | 10k
-virus    | 10k    | 10k     | 10k     | 10k
+viruses    | 10k    | 10k     | 10k     | 10k
 
 Fragment selection was done using the Snakemake pipeline in `src/data_selection/`. Currently, it was performed with replacement. The selected fragments were written to `data/selected_frags/`. Other folders may be added, such as `data/selected_frags_1/`, `data/selected_frags_2/`, *etc.* for replicates.
 
@@ -108,7 +108,7 @@ The final file containing taxonomy of all genomes that were chopped is `data/ref
 All analysis included here is conducted on the combined files:
 
 * `data/classified_chopped/combined_out/cleaned_combined.csv`
-* `data/classified_chopped/combined_out/combined_benchmarks.csv`
+* `data/classified_chopped/combined_out/cleaned_benchmarks.csv`
 
 ```{r imports, echo = FALSE}
 library(caret)
@@ -130,44 +130,19 @@ theme_set(theme_light() +
 
 # Read in all classifications
 class_df <-
-  read.csv('../../data/classified_chopped/combined_out/cleaned_combined.csv')
+  read.csv('../../data/classified_chopped/combined_out/cleaned_combined.csv') %>%
+  mutate(across(
+    c(length, tool, actual_class, predict_class, order),
+    as.factor
+  ))
 
 # Read in Snakemake benchmarks
-raw_bench_df <-
-  read.csv('../../data/classified_chopped/combined_out/combined_benchmarks.csv')
-```
-
-
-
-## Data Cleaning
-
-
-### Clean Resource Usage
-
----
-
-
-```{r fix_bench_names, echo = FALSE}
-bench_df <- raw_bench_df %>%
-  rename(runtime = s) %>%
-  mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
-
-bench_df %>% colnames()
-
-bench_df <- bench_df %>%
-  mutate(
-    tool = case_when(
-      tool == "breadsticks" ~ "Unlimited Breadsticks",
-      tool == "dvf" ~ "DeepVirFinder",
-      tool == "metaphinder" ~ "MetaPhinder",
-      tool == "seeker" ~ "Seeker",
-      tool == "vibrant" ~ "VIBRANT",
-      tool == "viralverify" ~ "viralVerify",
-      tool == "virfinder" ~ "VirFinder",
-      tool == "virsorter" ~ "VirSorter",
-      tool == "virsorter2" ~ "VirSorter2",
-    )
-  )
+bench_df <-
+  read.csv('../../data/classified_chopped/combined_out/cleaned_benchmarks.csv') %>% 
+  mutate(across(
+    c(length, tool, kingdom),
+    as.factor
+  ))
 ```
 
 
@@ -366,11 +341,6 @@ get_metrics <- function(df) {
 
 
 ```{r, echo = FALSE}
-factor_columns <- c("length","tool", "actual_class", "predict_class", "order")
-
-class_df <- class_df %>% 
-  mutate_each(funs(factor(.)), factor_columns)
-
 metrics <- class_df %>% 
   get_metrics() %>% 
   mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
@@ -621,37 +591,53 @@ viral %>%
 
 ---
 
+```{r distribution_function, echo = FALSE}
+plot_order_dist <- function(df) {
+  df %>%
+    mutate(order = if_else(is.na(order), "Unknown", as.character(order))) %>%
+    group_by(order, length) %>%
+    count() %>%
+    mutate(num_frags = n / length(levels(viral$tool))) %>%
+    mutate(
+      order_grouping = case_when(
+        order == "Caudovirales" ~ "Caudovirales",
+        order == "Unknown" ~ "Unknown",
+        TRUE ~ "All others"
+      )
+    ) %>%
+    ggplot(aes(
+      y = fct_reorder(order, num_frags),
+      x = num_frags,
+      color = fct_reorder(order_grouping, -num_frags),
+      fill = fct_reorder(order_grouping, -num_frags)
+    )) +
+    scale_color_hurwitz("main") +
+    scale_fill_hurwitz("main") +
+    geom_col() +
+    facet_wrap(~ length) +
+    theme(
+      axis.text.y = element_blank(),
+      panel.grid.major.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      plot.caption = element_text(hjust = 0.5)
+    ) +
+    labs(
+      y = "Viral order",
+      x = "Number of fragments",
+      color = "Order",
+      fill = "Order",
+      title = "Fragment distribution by length and viral order"
+    )
+}
+
+```
+
+
 ```{r order_histo, echo=FALSE}
 viral %>%
-  mutate(order = if_else(is.na(order), "unknown", as.character(order))) %>%
-  group_by(order) %>%
-  count() %>%
-  mutate(num_frags = n / length(levels(viral$tool))) %>%
-  select(-n) %>%
-  mutate(is_na = (order == "unknown")) %>%
-  ggplot(aes(
-    x = fct_reorder(order,-num_frags),
-    y = num_frags / 40000,
-    color = is_na,
-    fill = is_na
-  )) +
-  scale_color_hurwitz("contrast") +
-  scale_fill_hurwitz("contrast") +
-  geom_col() +
-  theme(
-    axis.text.x = element_blank(),
-    panel.grid.major.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    legend.position = "none",
-    plot.caption = element_text(hjust = 0.5)
-  ) +
-  labs(
-    title = "Distribution of viral orders",
-    subtitle = "Red: Unretrieved taxonomy",
-    x = "Viral order",
-    y = "Proportion of fragments",
-    caption = "Caudovirales makes up >50% of fragments"
-  )
+  plot_order_dist() +
+  labs(subtitle = "All viral fragments included")
+  
 ```
 
 
@@ -661,42 +647,103 @@ viral %>%
 
 ---
 
-Were the true positive (TP) and false negative (FN) rates different for caudovirales and other orders?
+Was sensitivity different for caudovirales and other orders?
 
-This is only looking at fragments that were truly viral, so *F1*-score, etc are not relevant.
+This is only looking at fragments that were truly viral, so *F1*-score, etc are not relevant. All "viral" sequences are included here.
 
 ```{r, echo = FALSE}
-caudo_metrics <- viral %>% 
-  filter(order == "Caudovirales") %>% 
-  get_metrics() %>% 
-  mutate(caudo = "Caudovirales")
-
-noncaudo_metrics <- viral %>% 
-  filter(order != "Caudovirales") %>% 
-  get_metrics() %>% 
-  mutate(caudo = "other")
-
-viral_metrics <- bind_rows(caudo_metrics, noncaudo_metrics)
-
-viral_metrics %>%
-  ggplot(aes(x = as.integer(length)/1000, y= sensitivity, color = caudo)) +
-  facet_wrap(~ tool) +
-  geom_point() +
-  labs(x = "Fragment length (1000 nt)",
-       y = "Sensitivity",
-       color = "")
+plot_order_performance <- function(df) {
+  caudo_metrics <- df %>%
+    filter(order == "Caudovirales") %>%
+    get_metrics() %>%
+    mutate(caudo = "Caudovirales")
+  
+  noncaudo_metrics <- df %>%
+    filter(order != "Caudovirales") %>%
+    get_metrics() %>%
+    mutate(caudo = "All others")
+  
+  metrics <- bind_rows(caudo_metrics, noncaudo_metrics)
+  
+  metrics %>%
+    ggplot(aes(
+      x = as.integer(length) / 1000,
+      y = sensitivity,
+      color = fct_rev(caudo)
+    )) +
+    facet_wrap(~ tool) +
+    geom_point() +
+    scale_color_hurwitz("distinguish") +
+    labs(
+      x = "Fragment length (1000 nt)",
+      y = "Sensitivity",
+      color = "Order",
+      title = "Sensitivity differences by viral order"
+    )
+}
 ```
 
+```{r, echo = FALSE}
+viral %>% 
+  plot_order_performance() +
+  labs(subtitle = "All viral fragments included")
+```
+
+
+## Phages only
+
+### Phage selection
+
+---
+
+Previous results include all viral sequences, of which many are eukaryotic viruses. To filter only for bacteriophage, I am using a string match on the species, searching for "phage" (case insensitive).
+
+The distribution is even more skewed when only including phages. I would like to verify that my method of finding phages is sound.
+
+```{r, echo = FALSE}
+phages <- viral %>% 
+  filter(str_detect(species, regex("phage", ignore_case = T)))
+
+phages %>%
+  plot_order_dist() +
+  labs(subtitle = "Only phage fragments included") +
+  theme(axis.text.y = element_text())
+```
+
+<hr style="border:1px solid gray"> </hr>
+
+### Performance Differences
+
+---
+
+```{r, echo = FALSE}
+phages %>% 
+  plot_order_performance() +
+  labs(subtitle = "Only phage fragments included")
+```
 
 
 ## Binary Classification
 
-This analysis only includes phage and bacteria.
+This analysis only includes phage (as determined previously) and bacteria. Because I am only including phage and not all viral fragments, the classes are imbalanced.
 
 ```{r, echo=FALSE}
-two_class <- class_df %>% 
-  filter(actual %in% c('bacteria', 'viral'))
+bacteria <- class_df %>%
+  filter(actual == "bacteria")
 
+two_class <- bind_rows(bacteria, phages) %>%
+  mutate(actual = if_else(actual == "viral", "phage", actual))
+
+two_class %>%
+  group_by(actual, length) %>%
+  count() %>%
+  mutate(num_frags = n / length(levels(two_class$tool))) %>%
+  select(-n) %>%
+  pivot_wider(names_from = length, values_from = num_frags) %>%
+  rename("class" = "actual")
+
+```
+```{r, echo = FALSE}
 binary_metrics <- get_metrics(two_class) %>%
   mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
 
@@ -833,7 +880,7 @@ anim_save(
 
 <hr style="border:1px solid gray"> </hr>
 
-### ROC Snapshot
+### FPR vs TPR
 
 ---
 
@@ -869,4 +916,127 @@ anim_save("figures/animated_binary_tpr_fpr.gif",
 ```
 
 ![](figures/animated_binary_tpr_fpr.gif)
+
+## Caudovirales
+
+Here, I will dig deeper into the caudoviral sequences taxonomies.Again, these are only including seqeunces determined to be phage (not just viral)
+
+### Top families
+
+```{r, echo = FALSE}
+caudo <- phages %>% 
+  filter(order == "Caudovirales") %>% 
+  group_by(family)
+
+caudo %>%
+  count() %>%
+  mutate(num_frags = n / length(levels(viral$tool))) %>%
+  select(-n) %>%
+  arrange(desc(num_frags))
+```
+
+<hr style="border:1px solid gray"> </hr>
+
+### Sensitivity by family
+
+---
+
+This plot becomes a bit complicated because there are lots of variables, and I cannot aggregate any of them, so here is how they are mapped:
+
+
+* length - $x$
+* sensitivity - $y$ 
+* caudovirus family - $facet\_wrap$
+* tool - $color$
+
+To make it a little easier on the eyes, I also scaled the $alpha$ by log of number of fragments in each family.
+
+```{r, echo = FALSE}
+caudo_metrics <- caudo %>% 
+  get_metrics() %>% 
+  mutate(family = "combined")
+
+for(family_i in levels(as.factor(caudo$family))) {
+  family_df <- caudo %>%
+    filter(family == family_i)
+  
+  family_metrics <- family_df %>% 
+    get_metrics() %>% 
+    mutate(family = family_i)
+  
+  caudo_metrics <- bind_rows(caudo_metrics, family_metrics)
+}
+
+caudo_metrics %>%
+  left_join(caudo %>%
+              count() %>%
+              mutate(num_frags = n / length(levels(viral$tool))) %>%
+              select(-n)) %>%
+  filter(family != "combined") %>%
+  ggplot(aes(
+    x = as.integer(length) / 1000,
+    y = sensitivity,
+    color = tool,
+    alpha = num_frags
+  )) +
+  facet_wrap(~ family) +
+  geom_point(aes()) +
+  scale_color_hurwitz("distinguish") +
+  scale_alpha(range = c(0.25, 1),
+              trans = "log",
+              guide = "none") +
+  labs(
+    x = "Fragment length (1000 nt)",
+    y = "Sensitivity",
+    color = "Tool",
+    title = "Sensitivity differences by caudoviral family",
+    subtitle = "Transparency ~ log(n_frags)"
+  )
+```
+
+<hr style="border:1px solid gray"> </hr>
+
+### Top families
+
+---
+
+
+Alternatively, we can just look at the top (3) families
+
+```{r}
+top_caudo <- caudo %>%
+  count() %>%
+  mutate(num_frags = n / length(levels(viral$tool))) %>%
+  ungroup() %>%
+  top_n(n = 3)
+
+top_caudo_metrics <- caudo_metrics %>%
+  filter(family %in% top_caudo$family) %>%
+  left_join(caudo %>%
+              count() %>%
+              mutate(num_frags = n / length(levels(viral$tool))) %>%
+              select(-n))
+
+top_caudo_metrics %>%
+  ggplot(aes(
+    x = as.integer(length) / 1000,
+    y = sensitivity,
+    color = family,
+    alpha = num_frags
+  )) +
+  facet_wrap(~ tool) +
+  geom_point(aes()) +
+  scale_color_hurwitz("main") +
+  scale_alpha(range = c(0.5, 1),
+              trans = "log",
+              guide = "none") +
+  labs(
+    x = "Fragment length (1000 nt)",
+    y = "Sensitivity",
+    color = "Family",
+    title = "Sensitivity differences by caudoviral family",
+    subtitle = "Transparency ~ log(n_frags)"
+  )
+```
+
 
