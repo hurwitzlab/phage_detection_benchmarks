@@ -11,8 +11,7 @@ rule combine_preds:
         expand(
             "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
             out_dir=config["out_dir"],
-            kingdom=config["kingdoms"],
-            length=config["lengths"],
+            metagenome=METAGENOMES,
             tool=config["tools"],
         ),
     output:
@@ -36,8 +35,7 @@ rule combine_benchmarks:
         expand(
             config["out_dir"] + "/benchmarks/{tool}/{metagenome}_benchmark.txt",
             tool=config["tools"],
-            kingdom=config["kingdoms"],
-            length=config["lengths"],
+            metagenome=METAGENOMES,
         ),
     output:
         config["out_dir"] + "/combined_out/combined_benchmarks.csv",
