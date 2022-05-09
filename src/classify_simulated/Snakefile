@@ -208,7 +208,7 @@ rule pred_vibrant:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
     output:
         config["out_dir"]
-        + "/{metagenome}/vibrant/VIBRANT_final/VIBRANT_phages_final/final.phages_combined.txt",
+        + "/{metagenome}/vibrant/VIBRANT_final.contigs/VIBRANT_phages_final.contigs/final.contigs.phages_combined.txt",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/vibrant",
         env=config["vibrant_env"],
