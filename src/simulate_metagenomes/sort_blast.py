@@ -6,10 +6,12 @@ Purpose: Assign taxonomy to BLASTed contigs
 """
 
 import argparse
+import multiprocessing as mp
 import os
 from typing import NamedTuple, TextIO
 
 import pandas as pd
+
 from blast_sorter import assign_tax
 
 
@@ -77,6 +79,8 @@ def test_make_filename() -> None:
 def main() -> None:
     """ Just go for it """
 
+    pool = mp.Pool(mp.cpu_count())
+
     args = get_args()
     out_dir = args.outdir
 
@@ -87,8 +91,12 @@ def main() -> None:
     taxonomy_df = pd.read_csv(args.taxonomy)
 
     assignment_df = pd.DataFrame()
-    for _, query_hits in df.groupby('query_id'):
-        assignment_df = pd.concat([assignment_df, assign_tax(query_hits)])
+    assignments = pool.map(
+        assign_tax, [query_hits for _, query_hits in df.groupby('query_id')])
+
+    pool.close()
+
+    assignment_df = pd.concat([assignment_df, *assignments])
 
     assignment_df = assignment_df.reset_index(drop=True)
 
