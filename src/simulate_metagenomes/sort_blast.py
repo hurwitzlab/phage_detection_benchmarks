@@ -79,7 +79,9 @@ def test_make_filename() -> None:
 def main() -> None:
     """ Just go for it """
 
-    pool = mp.Pool(mp.cpu_count())
+    n_cpu = mp.cpu_count()
+    pool = mp.Pool(n_cpu)
+    print(f'Running with {n_cpu} CPUs')
 
     args = get_args()
     out_dir = args.outdir
