@@ -1,6 +1,6 @@
 name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
 Methanococcus voltae	456320	S	365288	287012	652300	0.6523
-Limosilactobacillus fermentum	1613	S	164775	54925	219700	0.2197
+Bacillus cereus	1396	S	164775	54925	219700	0.2197
 Rose rosette emaravirus	1980433	S	103648	22752	126400	0.1264
 Zygotorulaspora mrakii	42260	S	533	767	1300	0.0013
 Maydup orguhnizum	000000	S	36	264	300	0.0003

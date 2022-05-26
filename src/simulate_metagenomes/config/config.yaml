@@ -33,6 +33,8 @@ summarize_blast:
         ./summarize_blast.py
 combine:
         ./combine_summary.py
+contig_assignment:
+        ./sort_blast.py
 
 # Environments
 project_env:
@@ -79,6 +81,10 @@ summary_dir:
         ../../data/metagenome_simulation/summary
 
 # Parameters
+## make_profiles
+min_num_phage: 10
+min_phage: 0.05
+
 ## simulate_reads
 model:
         ["miseq", "hiseq", "novaseq"]
@@ -94,9 +100,11 @@ max_hits: 5
 
 # combine summaries
 # regular expressions
-profile_re: "(?P<profile>\w+)_(?P<filename>profile_comparison).csv"
-contigs_Re: "(?P<profile>\w+)_(?P<model>\w+)_(?P<filename>contig_summary).csv"
-blast_re: "(?P<profile>\w+)_(?P<model>\w+)_(?P<filename>parsed_blast).csv"
+profile_re: '(?P<profile>[\w.]+)_(?P<filename>profile_comparison).csv'
+contigs_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>contig_summary).csv'
+blast_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>parsed_blast).csv'
+assigned_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>contig_taxonomy).csv'
+
 
 
 # Resources
@@ -163,3 +171,7 @@ summarize_contigs_ntasks: 4
 # combine profile or contigs
 combine_time: '04:00:00'
 combine_ntasks: 12
+
+# assign_contig_taxonomy
+assign_time: '00:30:00'
+assign_ntasks: 4

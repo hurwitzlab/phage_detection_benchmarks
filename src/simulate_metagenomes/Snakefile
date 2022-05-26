@@ -1,9 +1,5 @@
 (PROFILES,) = glob_wildcards(config["bracken_dir"] + "/{p}.txt")
 
-length_dict = {}
-for model, length in config["model_lengths"].items():
-	length_dict[model] = length
-
 
 rule all:
     input:
@@ -20,11 +16,10 @@ rule all:
             m=config["model"],
         ),
         expand(
-            "{b}/{d}/combined_{s}.csv",
+            config["summary_dir"] + "/{d}/combined_{s}.csv",
             zip,
-            b=config["summary_dir"],
-            d=['contigs','profile_comparisons', 'parsed_blast'],
-            s=['contig_summary', 'profile_comparison', 'parsed_blast'],
+            d=['contigs','profile_comparisons', 'parsed_blast', 'contig_taxa'],
+            s=['contig_summary', 'profile_comparison', 'parsed_blast', 'contig_taxonomy'],
         ),
 
 
@@ -37,6 +32,8 @@ rule make_profiles:
         config["profiles_dir"] + "/{id}_files.txt",
     params:
         bracken_profiler=config["bracken_profiler"],
+        min_phage=config["min_phage"],
+        num_phage=config["min_num_phage"],
         refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
         time=config["make_profiles_time"],
@@ -45,6 +42,8 @@ rule make_profiles:
         """
         {params.bracken_profiler} \
             -t {params.refseq} \
+            -p {params.min_phage} \
+            -np {params.num_phage} \
             -o {params.out_dir} \
             {input}
         """
@@ -74,12 +73,15 @@ rule summarize_profile:
             -t {params.refseq}
         """
 
+
 # Combine summarized profiles
 rule combine_profile_summaries:
     input:
-        expand("{d}/profile_comparisons/{id}_profile_comparison.csv",
-               d=config["summary_dir"],
-               id=PROFILES),
+        expand(
+            "{d}/profile_comparisons/{id}_profile_comparison.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+        ),
     output:
         config["summary_dir"] + "/profile_comparisons/combined_profile_comparison.csv",
     params:
@@ -93,10 +95,11 @@ rule combine_profile_summaries:
         """
         source activate {params.env}
         {params.combine} \
-            -r '{params.profile_re}' \
+            -r '{params.regex}' \
             -o {params.out_dir} \
             {input}
         """
+
 
 # Concatenate input genomes for InSilicoSeq
 rule cat_genomes:
@@ -194,18 +197,21 @@ rule summarize_raw_assembly:
             {input}
         """
 
+
 # Combine summarized raw contigs
 rule combine_raw_assembly_summaries:
     input:
-        expand("{d}/raw_contigs/{id}_{model}_contig_summary.csv",
-               d=config["summary_dir"],
-               id=PROFILES,
-               model=config["model"]),
+        expand(
+            "{d}/contigs/{id}_{model}_contig_summary.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+            model=config["model"],
+        ),
     output:
-        config["summary_dir"] + "/raw_contigs/combined_contig_summary.csv",
+        config["summary_dir"] + "/contigs/combined_contig_summary.csv",
     params:
         combine=config["combine"],
-        out_dir=config["summary_dir"] + "/raw_contigs",
+        out_dir=config["summary_dir"] + "/contigs",
         env=config["project_env"],
         regex=config["contigs_re"],
         time=config["combine_time"],
@@ -214,7 +220,7 @@ rule combine_raw_assembly_summaries:
         """
         source activate {params.env}
         {params.combine} \
-            -r '{params.profile_re}' \
+            -r '{params.regex}' \
             -o {params.out_dir} \
             {input}
         """
@@ -418,13 +424,16 @@ rule summarize_blast:
             {input}
         """
 
+
 # Combine summarized filtered contigs
 rule combine_blast_summaries:
     input:
-        expand("{d}/parsed_blast/{id}_{model}_parsed_blast.csv",
-               d=config["summary_dir"],
-               id=PROFILES,
-               model=config["model"]),
+        expand(
+            "{d}/parsed_blast/{id}_{model}_parsed_blast.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+            model=config["model"],
+        ),
     output:
         config["summary_dir"] + "/parsed_blast/combined_parsed_blast.csv",
     params:
@@ -438,7 +447,58 @@ rule combine_blast_summaries:
         """
         source activate {params.env}
         {params.combine} \
-            -r '{params.profile_re}' \
+            -r '{params.regex}' \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Assign taxonomy to contigs based on BLAST results
+rule asssign_contig_taxonomy:
+    input:
+        config["summary_dir"] + "/parsed_blast/{id}_{model}_parsed_blast.csv",
+    output:
+        config["summary_dir"] + "/contig_taxa/{id}_{model}_contig_taxonomy.csv",
+    params:
+        assign=config["contig_assignment"],
+        refseq=config["refseq_info"],
+        out_dir=config["summary_dir"] + "/contig_taxa",
+        env=config["project_env"],
+        time=config["assign_time"],
+    threads: config["assign_ntasks"],
+    shell:
+        """
+        source activate {params.env}
+        {params.assign} \
+            -t {params.refseq} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Combine contig taxonomic assignments
+rule combine_contig_taxnomy:
+    input:
+        expand(
+            "{d}/contig_taxa/{id}_{model}_contig_taxonomy.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+            model=config["model"],
+        ),
+    output:
+        config["summary_dir"] + "/contig_taxa/combined_contig_taxonomy.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/contig_taxa",
+        env=config["project_env"],
+        regex=config["assignmed_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.regex}' \
             -o {params.out_dir} \
             {input}
         """
