@@ -91,8 +91,9 @@ def main() -> None:
     taxonomy_df = pd.read_csv(args.taxonomy)
 
     assignment_df = pd.DataFrame()
-    assignments = pool.map(
-        assign_tax, [query_hits for _, query_hits in df.groupby('query_id')])
+    assignments = pool.map_async(
+        assign_tax,
+        [query_hits for _, query_hits in df.groupby('query_id')]).get()
 
     pool.close()
 
