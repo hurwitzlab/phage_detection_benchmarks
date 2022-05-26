@@ -95,8 +95,7 @@ rule reformat_dvf:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t dvf \
             -o {params.out_dir} \
             {input}
@@ -149,8 +148,7 @@ rule reformat_metaphinder:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t metaphinder \
             -o {params.out_dir} \
             {input}
@@ -195,8 +193,7 @@ rule reformat_seeker:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t seeker \
             -o {params.out_dir} \
             {input}
@@ -208,7 +205,7 @@ rule pred_vibrant:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
     output:
         config["out_dir"]
-        + "/{metagenome}/vibrant/VIBRANT_final/VIBRANT_phages_final/final.phages_combined.txt",
+        + "/{metagenome}/vibrant/VIBRANT_final.contigs/VIBRANT_phages_final.contigs/final.contigs.phages_combined.txt",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/vibrant",
         env=config["vibrant_env"],
@@ -251,8 +248,7 @@ rule reformat_vibrant:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t vibrant \
             -o {params.out_dir} \
             {input}
@@ -303,8 +299,7 @@ rule reformat_viralverify:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t viralverify \
             -o {params.out_dir} \
             {input}
@@ -352,8 +347,7 @@ rule reformat_virfinder:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t virfinder \
             -o {params.out_dir} \
             {input}
@@ -461,8 +455,7 @@ rule reformat_virsorter:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t virsorter \
             -o {params.out_dir} \
             {input}
@@ -513,8 +506,7 @@ rule reformat_virsorter2:
         source activate {params.env}
 
         {params.reformat} \
-            -l {wildcards.length} \
-            -a {wildcards.kingdom} \
+            -m {wildcards.metagenome}
             -t virsorter2 \
             -o {params.out_dir} \
             {input}

@@ -3,9 +3,9 @@ contigs_dir: "../../data/metagenome_simulation/assembled_reads"
 out_dir: "../../data/classified_simulated"
 
 # House scripts
-reformat: "python3 ../post_proc/reformat.py"
-combine: "python3 ../post_proc/combine.py"
-benchmark: "python3 ../post_proc/benchmark.py"
+reformat: "python3 ./reformat.py"
+combine: "python3 ./combine.py"
+benchmark: "python3 ./benchmark.py"
 get_organisms: "../post_proc/get_meta.sh"
 
 # General conda environments
