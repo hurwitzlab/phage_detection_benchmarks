@@ -291,7 +291,7 @@ rule pred_vibrant:
 rule reformat_vibrant:
     input:
         config["out_dir"]
-        + "/{metagenome}/vibrant/VIBRANT_final/VIBRANT_phages_final/final.contigs.phages_combined.txt",
+        + "/{metagenome}/vibrant/VIBRANT_final.contigs/VIBRANT_phages_final.contigs/final.contigs.phages_combined.txt",
     output:
         config["out_dir"] + "/{metagenome}/vibrant/vibrant_pred_formatted.csv",
     params:
