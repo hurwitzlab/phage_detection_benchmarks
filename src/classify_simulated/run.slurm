@@ -34,5 +34,13 @@ source activate snakemake_env
 
 # Run snakemake cluster
 snakemake --cluster \
-"sbatch -p {cluster.partition} -t {cluster.time} --mem-per-cpu=5gb --nodes=1 --ntasks={cluster.ntasks} -e {cluster.e} -o {cluster.o}" \
---cluster-config config/cluster.yaml -j 16 --latency-wait 60 --configfile config/config.yaml
+    "sbatch -p {cluster.partition} \
+    -t {cluster.time} \
+    --mem-per-cpu=5gb \
+    --nodes=1 \
+    --ntasks={cluster.ntasks} \
+    -e {cluster.e} \
+    -o {cluster.o}" \
+    --cluster-config config/cluster.yaml \
+    -j 16 --latency-wait 60 \
+    --configfile config/config.yaml
