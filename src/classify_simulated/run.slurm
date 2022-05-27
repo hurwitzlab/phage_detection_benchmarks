@@ -13,7 +13,7 @@
 ### Amount of memory per node
 #SBATCH --mem-per-cpu=5gb
 ### Job walltime (HHH:MM:SS)
-#SBATCH --time=96:00:00
+#SBATCH --time=7-00:00:00
 ### OPTIONAL:
 ### Job name
 ### SBATCH --job-name=JobName
