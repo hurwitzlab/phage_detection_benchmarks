@@ -65,6 +65,7 @@ rule summarize_profile:
     threads: config["summarize_profile_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.summarize} \
             -o {params.out_dir} \
@@ -93,6 +94,7 @@ rule combine_profile_summaries:
     threads: config["combine_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.combine} \
             -r '{params.regex}' \
@@ -139,6 +141,7 @@ rule simulate_reads:
     threads: config["simulate_reads_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.simulator} {params.reads} \
             --cpus {threads} \
@@ -165,6 +168,7 @@ rule megahit_assembly:
     threads: config["assembly_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         # Snakemake creates the out_dir, but megahit fails if it exists. So remove it.
         rm -rf {params.out_dir}/{wildcards.id}_{wildcards.model}
@@ -190,6 +194,7 @@ rule summarize_raw_assembly:
     threads: config["summarize_contigs_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.summarize_contigs} \
             -o {params.out_dir} \
@@ -218,6 +223,7 @@ rule combine_raw_assembly_summaries:
     threads: config["combine_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.combine} \
             -r '{params.regex}' \
@@ -242,6 +248,7 @@ rule make_bowtie_index:
         config["benchmarks_dir"] + "/make_bowtie_index/{id}_{model}.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
         mkdir -p {params.out_dir}/{wildcards.id}_{wildcards.model}
         {params.build} \
@@ -268,6 +275,7 @@ rule bowtie_map_reads:
         config["benchmarks_dir"] + "/bowtie_map_reads/{id}_{model}.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.bowtie} \
             -x {input.index}/index \
@@ -295,6 +303,7 @@ rule convert_sort_mappings:
         config["benchmarks_dir"] + "/convert_sort_mappings/{id}_{model}.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.convert} \
             {input} | \
@@ -319,6 +328,7 @@ rule calculate_depths:
         config["benchmarks_dir"] + "/calculate_depths/{id}_{model}.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.summarize} \
             {input} \
@@ -343,6 +353,7 @@ rule metabat_binning:
         config["benchmarks_dir"] + "/metabat_binning/{id}_{model}.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
         mkdir -p {params.out_dir}
         {params.metabat} \
@@ -366,6 +377,7 @@ rule make_blast_dbs:
     threads: config["make_db_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.make_db} \
             -in {input} \
@@ -392,6 +404,7 @@ rule run_blast:
     threads: config["blast_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.blast} \
             -query {input.query} \
@@ -418,6 +431,7 @@ rule summarize_blast:
     threads: config["summarize_blast_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.summarize} \
             -o {params.out_dir}\
@@ -445,6 +459,7 @@ rule combine_blast_summaries:
     threads: config["combine_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.combine} \
             -r '{params.regex}' \
