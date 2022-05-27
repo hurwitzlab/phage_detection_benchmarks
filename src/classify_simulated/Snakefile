@@ -23,6 +23,7 @@ rule combine_preds:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.combine} \
@@ -46,6 +47,7 @@ rule combine_benchmarks:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.benchmark} \
@@ -70,6 +72,7 @@ rule pred_deepvirfinder:
         config["out_dir"] + "/benchmarks/dvf/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         ({params.dvf} \
@@ -90,6 +93,7 @@ rule reformat_dvf:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -117,6 +121,7 @@ rule pred_marvel:
         config["out_dir"] + "/benchmarks/marvel/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         cd {params.marvel_dir}
@@ -148,6 +153,7 @@ rule reformat_marvel:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -175,6 +181,7 @@ rule pred_metaphinder:
         config["out_dir"] + "/benchmarks/metaphinder/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         rm -rf {params.out_dir}
@@ -200,6 +207,7 @@ rule reformat_metaphinder:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -225,6 +233,7 @@ rule pred_seeker:
         config["out_dir"] + "/benchmarks/seeker/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         ({params.seeker} \
@@ -245,6 +254,7 @@ rule reformat_seeker:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -271,6 +281,7 @@ rule pred_vibrant:
         config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         rm -rf {params.out_dir}
@@ -300,6 +311,7 @@ rule reformat_vibrant:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -326,6 +338,7 @@ rule pred_viralverify:
         config["out_dir"] + "/benchmarks/viralverify/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         (viralverify \
@@ -348,6 +361,7 @@ rule reformat_viralverify:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -373,6 +387,7 @@ rule pred_virfinder:
         config["out_dir"] + "/benchmarks/virfinder/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         ({params.virfinder} \
@@ -393,6 +408,7 @@ rule reformat_virfinder:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -432,6 +448,7 @@ rule pred_virsorster:
         config["out_dir"] + "/benchmarks/virsorter/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
         rm -rf {params.out_dir}
@@ -482,6 +499,7 @@ rule wrangle_virsorter:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.wrangle} {params.out_dir}/Predicted_viral_sequences
@@ -500,6 +518,7 @@ rule reformat_virsorter:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
@@ -527,6 +546,7 @@ rule pred_virsorter2:
         config["out_dir"] + "/benchmarks/virsorter2/{metagenome}_benchmark.txt"
     shell:
         """
+        set +eu
         source activate {params.env}
 
 
@@ -549,6 +569,7 @@ rule reformat_virsorter2:
         env=config["project_env"],
     shell:
         """
+        set +eu
         source activate {params.env}
 
         {params.reformat} \
