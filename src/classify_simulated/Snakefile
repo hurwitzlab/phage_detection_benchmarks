@@ -1,4 +1,5 @@
-(METAGENOMES,) = glob_wildcards(config["contigs_dir" + "/{p}/"])
+(METAGENOMES,) = glob_wildcards(config["contigs_dir"] + "/{p}/")
+
 
 rule all:
     input:
@@ -53,13 +54,11 @@ rule combine_benchmarks:
         """
 
 
-
 rule pred_deepvirfinder:
     input:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"]
-        + "/{metagenome}/dvf/final.contigs.fa_gt1bp_dvfpred.txt",
+        config["out_dir"] + "/{metagenome}/dvf/final.contigs.fa_gt1bp_dvfpred.txt",
     params:
         dvf=config["deepvirfinder"],
         env=config["dvf_env"],
@@ -82,8 +81,7 @@ rule pred_deepvirfinder:
 
 rule reformat_dvf:
     input:
-        config["out_dir"]
-        + "/{metagenome}/dvf/final.contigs.fa_gt1bp_dvfpred.txt",
+        config["out_dir"] + "/{metagenome}/dvf/final.contigs.fa_gt1bp_dvfpred.txt",
     output:
         config["out_dir"] + "/{metagenome}/dvf/dvf_pred_formatted.csv",
     params:
@@ -112,11 +110,11 @@ rule pred_marvel:
         marvel_dir=config["marvel_dir"],
         env=config["marvel_env"],
         threads=config["marvel_cores"],
-    threads: config["marvel_cores"],
+    threads: config["marvel_cores"]
     log:
         config["out_dir"] + "/logs/marvel/{metagenome}.log",
     benchmark:
-        config["out_dir"] + "/benchmarks/marvel/{metagenome}_benchmark.txt",
+        config["out_dir"] + "/benchmarks/marvel/{metagenome}_benchmark.txt"
     shell:
         """
         source activate {params.env}
@@ -195,8 +193,7 @@ rule reformat_metaphinder:
     input:
         config["out_dir"] + "/{metagenome}/metaphinder/output.txt",
     output:
-        config["out_dir"]
-        + "/{metagenome}/metaphinder/metaphinder_pred_formatted.csv",
+        config["out_dir"] + "/{metagenome}/metaphinder/metaphinder_pred_formatted.csv",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/metaphinder/",
         reformat=config["reformat"],
@@ -317,8 +314,7 @@ rule pred_viralverify:
     input:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"]
-        + "/{metagenome}/viralverify/selected_frags_result_table.csv",
+        config["out_dir"] + "/{metagenome}/viralverify/selected_frags_result_table.csv",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
         env=config["viralverify_env"],
@@ -343,11 +339,9 @@ rule pred_viralverify:
 
 rule reformat_viralverify:
     input:
-        config["out_dir"]
-        + "/{metagenome}/viralverify/selected_frags_result_table.csv",
+        config["out_dir"] + "/{metagenome}/viralverify/selected_frags_result_table.csv",
     output:
-        config["out_dir"]
-        + "/{metagenome}/viralverify/viralverify_pred_formatted.csv",
+        config["out_dir"] + "/{metagenome}/viralverify/viralverify_pred_formatted.csv",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
         reformat=config["reformat"],
@@ -368,8 +362,7 @@ rule pred_virfinder:
     input:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"]
-        + "/{metagenome}/virfinder/final_vf_preds.csv",
+        config["out_dir"] + "/{metagenome}/virfinder/final_vf_preds.csv",
     params:
         virfinder=config["virfinder"],
         env=config["virfinder_env"],
@@ -391,11 +384,9 @@ rule pred_virfinder:
 
 rule reformat_virfinder:
     input:
-        config["out_dir"]
-        + "/{metagenome}/virfinder/final_vf_preds.csv",
+        config["out_dir"] + "/{metagenome}/virfinder/final_vf_preds.csv",
     output:
-        config["out_dir"]
-        + "/{metagenome}/virfinder/virfinder_pred_formatted.csv",
+        config["out_dir"] + "/{metagenome}/virfinder/virfinder_pred_formatted.csv",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/virfinder",
         reformat=config["reformat"],
@@ -502,8 +493,7 @@ rule reformat_virsorter:
         config["out_dir"]
         + "/{metagenome}/virsorter/Predicted_viral_sequences/combined_sequences.txt",
     output:
-        config["out_dir"]
-        + "/{metagenome}/virsorter/virsorter_pred_formatted.csv",
+        config["out_dir"] + "/{metagenome}/virsorter/virsorter_pred_formatted.csv",
     params:
         out_dir=config["out_dir"],
         reformat=config["reformat"],
@@ -524,8 +514,7 @@ rule pred_virsorter2:
     input:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"]
-        + "/{metagenome}/virsorter2/final-viral-boundary.tsv",
+        config["out_dir"] + "/{metagenome}/virsorter2/final-viral-boundary.tsv",
         config["out_dir"] + "/{metagenome}/virsorter2/final-viral-combined.fa",
         config["out_dir"] + "/{metagenome}/virsorter2/final-viral-score.tsv",
     params:
@@ -544,7 +533,7 @@ rule pred_virsorter2:
         ({params.virsorter2} \
             -i {input} \
             -w {params.out_dir} \
-            
+
         ) 2> {log}
         """
 
@@ -553,8 +542,7 @@ rule reformat_virsorter2:
     input:
         config["out_dir"] + "/{metagenome}/virsorter2/final-viral-score.tsv",
     output:
-        config["out_dir"]
-        + "/{metagenome}/virsorter2/virsorter2_pred_formatted.csv",
+        config["out_dir"] + "/{metagenome}/virsorter2/virsorter2_pred_formatted.csv",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/virsorter2",
         reformat=config["reformat"],
