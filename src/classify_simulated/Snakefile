@@ -1,4 +1,4 @@
-(METAGENOMES,) = glob_wildcards(config["contigs_dir"] + "/{p}/")
+(METAGENOMES,) = glob_wildcards(config["contigs_dir"] + "/{p}/final.contigs.fa")
 
 
 rule all:
