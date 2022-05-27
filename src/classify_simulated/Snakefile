@@ -126,7 +126,9 @@ rule pred_marvel:
 
         cd {params.marvel_dir}
 
-        {params.marvel} -i ../{input} -t {params.threads}
+        ({params.marvel} \
+            -i ../{input} \
+            -t {params.threads}
 
         # Create output file
         echo "record" > ../{output}
@@ -138,7 +140,8 @@ rule pred_marvel:
         grep ">" ../{input}/results/phage_bins >> ../{output}
 
         # Remove output from MARVEL
-        rm -rf ../{input}"results"
+        rm -rf ../{input}"results" \
+        ) 2> {log}
         """
 
 
