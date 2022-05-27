@@ -132,7 +132,7 @@ def reformat_dvf(args: Args):
 def reformat_marvel(args: Args):
     """ Reformat MARVEL output """
 
-    df = pd.read_csv(args.file, sep='\t')
+    df = pd.read_csv(args.file)
 
     # Shorten record to just ID
     df['record'] = df['record'].str.strip(">")
