@@ -129,6 +129,27 @@ def reformat_dvf(args: Args):
 
 
 # --------------------------------------------------
+def reformat_marvel(args: Args):
+    """ Reformat MARVEL output """
+
+    df = pd.read_csv(args.file)
+
+    # Shorten record to just ID
+    df['record'] = df['record'].str.strip(">")
+
+    # Add constant columns
+    df['tool'] = args.tool
+    df['metagenome'] = args.metagenome
+    df['prediction'] = 'phage'
+    df['lifecycle'] = None
+    df['value'] = None
+    df['stat'] = None
+    df['stat_name'] = None
+
+    return df
+
+
+# --------------------------------------------------
 def reformat_metaphinder(args: Args):
     """ Reformat MetaPhinder output """
 
@@ -383,6 +404,7 @@ def reformat_virsorter2(args: Args):
 # --------------------------------------------------
 reformatters = {
     'dvf': reformat_dvf,
+    'marvel': reformat_marvel,
     'metaphinder': reformat_metaphinder,
     'seeker': reformat_seeker,
     'vibrant': reformat_vibrant,

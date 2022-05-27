@@ -102,6 +102,64 @@ rule reformat_dvf:
         """
 
 
+rule pred_marvel:
+    input:
+        config["bins_dir"] + "/{metagenome}/",
+    output:
+        config["out_dir"] + "/{metagenome}/marvel/results.txt",
+    params:
+        marvel=config["marvel"],
+        marvel_dir=config["marvel_dir"],
+        env=config["marvel_env"],
+        threads=config["marvel_cores"],
+    threads: config["marvel_cores"],
+    log:
+        config["out_dir"] + "/logs/marvel/{metagenome}.log",
+    benchmark:
+        config["out_dir"] + "/benchmarks/marvel/{metagenome}_benchmark.txt",
+    shell:
+        """
+        source activate {params.env}
+
+        cd {params.marvel_dir}
+
+        {params.marvel} -i ../{input} -t {params.threads}
+
+        # Create output file
+        echo "record" > ../{output}
+
+        # Create phage bin dir if it doesn't exist
+        mkdir -p ../{input}/results/phage_bins
+
+        # Copy all contig IDs to the output file
+        grep ">" ../{input}/results/phage_bins >> ../{output}
+
+        # Remove output from MARVEL
+        rm -rf ../{input}"results"
+        """
+
+
+rule reformat_marvel:
+    input:
+        config["out_dir"] + "/{metagenome}/marvel/results.txt",
+    output:
+        config["out_dir"] + "/{metagenome}/marvel/marvel_pred_formatted.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}/marvel",
+        reformat=config["reformat"],
+        env=config["project_env"],
+    shell:
+        """
+        source activate {params.env}
+
+        {params.reformat} \
+            -m {wildcards.metagenome}
+            -t marvel \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
 rule pred_metaphinder:
     input:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
