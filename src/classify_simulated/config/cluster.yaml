@@ -2,7 +2,7 @@ __default__:
         partition: 'windfall'
         group: 'bhurwitz'
         M: 'schackartk@email.arizona.edu'
-        time: '48:00:00'
+        time: '4-00:00:00'
         nodes: '1'
         ntasks: '5'
         mem-per-cpu: '5gb'
