@@ -54,7 +54,7 @@ def get_args() -> Args:
                         metavar='',
                         type=str,
                         choices=[
-                            'breadsticks', 'dvf', 'metaphinder', 'seeker',
+                            'breadsticks', 'dvf', 'marvel', 'metaphinder', 'seeker',
                             'vibrant', 'viralverify', 'virfinder', 'virsorter',
                             'virsorter2'
                         ],
