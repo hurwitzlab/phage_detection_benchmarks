@@ -160,7 +160,7 @@ rule reformat_marvel:
         source activate {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t marvel \
             -o {params.out_dir} \
             {input}
@@ -177,7 +177,7 @@ rule pred_metaphinder:
         env=config["metaphinder_env"],
         blast=config["metaphinder_blast"],
         db=config["metaphinder_db"],
-        out_dir=config["out_dir"] + "{metagenome}/metaphinder",
+        out_dir=config["out_dir"] + "/{metagenome}/metaphinder",
     log:
         config["out_dir"] + "/logs/metaphinder/{metagenome}.log",
     benchmark:
@@ -281,7 +281,7 @@ rule pred_vibrant:
     log:
         config["out_dir"] + "/logs/vibrant/{metagenome}.log",
     benchmark:
-        config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt"
+        config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt",
     shell:
         """
         set +eu
@@ -289,12 +289,12 @@ rule pred_vibrant:
 
         rm -rf {params.out_dir}
 
-        {params.vibrant} \
+        ({params.vibrant} \
             -i {input} \
             -folder {params.out_dir}
 
         if [ ! -f {output} ]; then
-            mkdir -p {params.out_dir}/VIBRANT_final/VIBRANT_phages_final
+            mkdir -p {params.out_dir}/VIBRANT_final.contigs/VIBRANT_phages_final.contigs
             touch {output}
             echo "No output created by VIBRANT, touching empty file: {output}."
         fi
@@ -329,7 +329,7 @@ rule pred_viralverify:
     input:
         config["contigs_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"] + "/{metagenome}/viralverify/selected_frags_result_table.csv",
+        config["out_dir"] + "/{metagenome}/viralverify/final.contigs_result_table.csv",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
         env=config["viralverify_env"],
@@ -355,7 +355,7 @@ rule pred_viralverify:
 
 rule reformat_viralverify:
     input:
-        config["out_dir"] + "/{metagenome}/viralverify/selected_frags_result_table.csv",
+        config["out_dir"] + "/{metagenome}/viralverify/final.contigs_result_table.csv",
     output:
         config["out_dir"] + "/{metagenome}/viralverify/viralverify_pred_formatted.csv",
     params:

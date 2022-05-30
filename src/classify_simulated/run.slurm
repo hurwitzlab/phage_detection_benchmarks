@@ -13,7 +13,7 @@
 ### Amount of memory per node
 #SBATCH --mem-per-cpu=5gb
 ### Job walltime (HHH:MM:SS)
-#SBATCH --time=7-00:00:00
+#SBATCH --time=10-00:00:00
 ### OPTIONAL:
 ### Job name
 ### SBATCH --job-name=JobName
@@ -30,7 +30,10 @@
 source ~/.bashrc
 
 # Activate a conda environment
-source activate snakemake_env
+source activate ../../env
+
+# Make sure it is being run from the correct directory
+cd /xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/src/classify_simulated 
 
 # Run snakemake cluster
 snakemake --cluster \
