@@ -62,7 +62,7 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.file, args.out_dir, args.length, args.actual, args.tool)
+    return Args(args.file, args.out_dir, args.metagenome, args.tool)
 
 
 # --------------------------------------------------
