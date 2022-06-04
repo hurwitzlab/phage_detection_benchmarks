@@ -101,7 +101,7 @@ rule reformat_dvf:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t dvf \
             -o {params.out_dir} \
             {input}
@@ -221,7 +221,7 @@ rule reformat_metaphinder:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t metaphinder \
             -o {params.out_dir} \
             {input}
@@ -270,7 +270,7 @@ rule reformat_seeker:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t seeker \
             -o {params.out_dir} \
             {input}
@@ -329,7 +329,7 @@ rule reformat_vibrant:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t vibrant \
             -o {params.out_dir} \
             {input}
@@ -381,7 +381,7 @@ rule reformat_viralverify:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t viralverify \
             -o {params.out_dir} \
             {input}
@@ -430,7 +430,7 @@ rule reformat_virfinder:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t virfinder \
             -o {params.out_dir} \
             {input}
@@ -543,7 +543,7 @@ rule reformat_virsorter:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t virsorter \
             -o {params.out_dir} \
             {input}
@@ -596,7 +596,7 @@ rule reformat_virsorter2:
         source {params.activate} {params.env}
 
         {params.reformat} \
-            -m {wildcards.metagenome}
+            -m {wildcards.metagenome} \
             -t virsorter2 \
             -o {params.out_dir} \
             {input}
