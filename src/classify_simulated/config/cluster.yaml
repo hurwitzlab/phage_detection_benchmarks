@@ -1,5 +1,5 @@
 __default__:
-        partition: 'windfall'
+        partition: 'standard'
         group: 'bhurwitz'
         M: 'schackartk@email.arizona.edu'
         time: '4-00:00:00'

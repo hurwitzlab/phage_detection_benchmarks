@@ -35,9 +35,11 @@ source activate ../../env
 # Make sure it is being run from the correct directory
 cd /xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/src/classify_simulated 
 
+
 # Run snakemake cluster
 snakemake --cluster \
     "sbatch -p {cluster.partition} \
+    --account {cluster.group} \
     -t {cluster.time} \
     --mem-per-cpu=5gb \
     --nodes=1 \
