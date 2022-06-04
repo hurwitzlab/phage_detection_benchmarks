@@ -21,10 +21,11 @@ rule combine_preds:
         out_dir=config["out_dir"],
         combine=config["combine"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.combine} \
             -o {params.out_dir}/combined_out \
@@ -45,10 +46,11 @@ rule combine_benchmarks:
         out_dir=config["out_dir"] + "/combined_out",
         benchmark=config["benchmark"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.benchmark} \
             -o {params.out_dir} \
@@ -64,6 +66,7 @@ rule pred_deepvirfinder:
     params:
         dvf=config["deepvirfinder"],
         env=config["dvf_env"],
+        activate=config["activate"],
         cores=config["deepvirfinder_cores"],
         out_dir=config["out_dir"] + "/{metagenome}/dvf",
     log:
@@ -73,7 +76,7 @@ rule pred_deepvirfinder:
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         ({params.dvf} \
             -i {input} \
@@ -91,10 +94,11 @@ rule reformat_dvf:
         out_dir=config["out_dir"] + "/{metagenome}/dvf",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}
@@ -113,6 +117,7 @@ rule pred_marvel:
         marvel=config["marvel"],
         marvel_dir=config["marvel_dir"],
         env=config["marvel_env"],
+        activate=config["activate"],
         threads=config["marvel_cores"],
     threads: config["marvel_cores"]
     log:
@@ -122,7 +127,7 @@ rule pred_marvel:
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         cd {params.marvel_dir}
 
@@ -154,10 +159,11 @@ rule reformat_marvel:
         out_dir=config["out_dir"] + "/{metagenome}/marvel",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome} \
@@ -175,6 +181,7 @@ rule pred_metaphinder:
     params:
         metaphinder=config["metaphinder"],
         env=config["metaphinder_env"],
+        activate=config["activate"],
         blast=config["metaphinder_blast"],
         db=config["metaphinder_db"],
         out_dir=config["out_dir"] + "/{metagenome}/metaphinder",
@@ -185,8 +192,7 @@ rule pred_metaphinder:
     shell:
         """
         set +eu
-        source activate {params.env}
-
+        source {params.activate} {params.env}
         rm -rf {params.out_dir}
         mkdir {params.out_dir}
 
@@ -208,10 +214,11 @@ rule reformat_metaphinder:
         out_dir=config["out_dir"] + "/{metagenome}/metaphinder/",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}
@@ -230,6 +237,7 @@ rule pred_seeker:
         seeker=config["seeker"],
         out_dir=config["out_dir"] + "/{metagenome}/seeker/",
         env=config["seeker_env"],
+        activate=config["activate"],
     log:
         config["out_dir"] + "/logs/seeker/{metagenome}.log",
     benchmark:
@@ -237,7 +245,7 @@ rule pred_seeker:
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         ({params.seeker} \
             {input} \
@@ -255,10 +263,11 @@ rule reformat_seeker:
         out_dir=config["out_dir"] + "/{metagenome}/seeker/",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}
@@ -277,15 +286,16 @@ rule pred_vibrant:
     params:
         out_dir=config["out_dir"] + "/{metagenome}/vibrant",
         env=config["vibrant_env"],
+        activate=config["activate"],
         vibrant=config["vibrant"],
     log:
         config["out_dir"] + "/logs/vibrant/{metagenome}.log",
     benchmark:
-        config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt",
+        config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt"
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         rm -rf {params.out_dir}
 
@@ -312,10 +322,11 @@ rule reformat_vibrant:
         out_dir=config["out_dir"] + "/{metagenome}/vibrant",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}
@@ -333,6 +344,7 @@ rule pred_viralverify:
     params:
         out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
         env=config["viralverify_env"],
+        activate=config["activate"],
         db=config["viralverify_db"],
         threads=config["viralverify_threads"],
     log:
@@ -342,7 +354,7 @@ rule pred_viralverify:
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         (viralverify \
             -f {input} \
@@ -362,10 +374,11 @@ rule reformat_viralverify:
         out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}
@@ -383,6 +396,7 @@ rule pred_virfinder:
     params:
         virfinder=config["virfinder"],
         env=config["virfinder_env"],
+        activate=config["activate"],
         out_dir=config["out_dir"] + "/{metagenome}/virfinder",
     log:
         config["out_dir"] + "logs/virfinder/{metagenome}.log",
@@ -391,7 +405,7 @@ rule pred_virfinder:
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         ({params.virfinder} \
             -o {params.out_dir} \
@@ -409,10 +423,11 @@ rule reformat_virfinder:
         out_dir=config["out_dir"] + "/{metagenome}/virfinder",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}
@@ -441,6 +456,7 @@ rule pred_virsorster:
     params:
         virsorter=config["virsorter"],
         env=config["virsorter_env"],
+        activate=config["activate"],
         out_dir=config["out_dir"] + "/{metagenome}/virsorter",
         cpu=config["virsorter_cpu"],
         db=config["virsorter_db"],
@@ -452,7 +468,7 @@ rule pred_virsorster:
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         rm -rf {params.out_dir}
 
@@ -500,10 +516,11 @@ rule wrangle_virsorter:
         wrangle=config["virsorter_wrangler"],
         out_dir=config["out_dir"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.wrangle} {params.out_dir}/Predicted_viral_sequences
         """
@@ -519,10 +536,11 @@ rule reformat_virsorter:
         out_dir=config["out_dir"],
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}
@@ -542,6 +560,7 @@ rule pred_virsorter2:
     params:
         virsorter2=config["virsorter2"],
         env=config["virsorter2_env"],
+        activate=config["activate"],
         out_dir=config["out_dir"] + "/{metagenome}/virsorter2",
     log:
         config["out_dir"] + "/logs/virsorter2/{metagenome}.log",
@@ -550,7 +569,7 @@ rule pred_virsorter2:
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
 
         ({params.virsorter2} \
@@ -570,10 +589,11 @@ rule reformat_virsorter2:
         out_dir=config["out_dir"] + "/{metagenome}/virsorter2",
         reformat=config["reformat"],
         env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
 
         {params.reformat} \
             -m {wildcards.metagenome}

@@ -11,6 +11,7 @@ get_organisms: "../post_proc/get_meta.sh"
 
 # General conda environments
 project_env: "../../env"
+activate: "/opt/ohpc/pub/apps/anaconda/2020.11/bin/activate"
 
 tools: ['dvf', 'marvel', 'metaphinder', 'seeker', 'vibrant', 'viralverify', 'virfinder', 'virsorter', 'virsorter2']
 
