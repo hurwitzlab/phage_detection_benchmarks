@@ -249,6 +249,7 @@ rule pred_seeker:
 
         ({params.seeker} \
             {input} \
+            | grep $'^.*\t.*\t.*$' \
             > {params.out_dir}/pred.txt \
         ) 2> {log}
         """
@@ -514,7 +515,7 @@ rule wrangle_virsorter:
         + "/{metagenome}/virsorter/Predicted_viral_sequences/combined_sequences.txt",
     params:
         wrangle=config["virsorter_wrangler"],
-        out_dir=config["out_dir"],
+        out_dir=config["out_dir"]  + "/{metagenome}/virsorter/",
         env=config["project_env"],
         activate=config["activate"],
     shell:
@@ -533,7 +534,7 @@ rule reformat_virsorter:
     output:
         config["out_dir"] + "/{metagenome}/virsorter/virsorter_pred_formatted.csv",
     params:
-        out_dir=config["out_dir"],
+        out_dir=config["out_dir"]  + "/{metagenome}/virsorter/",
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
