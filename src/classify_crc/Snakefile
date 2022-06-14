@@ -1,4 +1,4 @@
-(METAGENOMES,) = glob_wildcards(config["contigs_dir"] + "/{p}/final.contigs.fa")
+(METAGENOMES,) = glob_wildcards(config["assembly_dir"] + "/{p}.fasta")
 
 
 rule all:

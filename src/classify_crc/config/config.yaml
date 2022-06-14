@@ -1,5 +1,5 @@
 # Directories
-contigs_dir: "../../data/crc_data/assemblies"
+assembly_dir: "../../data/crc_data/assemblies"
 bins_dir: "../../data/crc_data/bins"
 out_dir: "../../data/classified_crc"
 
