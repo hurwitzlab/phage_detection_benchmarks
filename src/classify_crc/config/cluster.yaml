@@ -4,7 +4,7 @@ __default__:
         M: 'schackartk@email.arizona.edu'
         time: '4-00:00:00'
         nodes: '1'
-        ntasks: '5'
+        ntasks: '{threads}'
         mem-per-cpu: '5gb'
         o: 'out/{rule}.{wildcards}.out'
         e: 'err/{rule}.{wildcards}.err'
