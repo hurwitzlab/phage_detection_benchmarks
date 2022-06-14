@@ -22,7 +22,7 @@ breadsticks_cpu: 8
 
 deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
 dvf_env: "../../tool_envs/deepvirfinder/env"
-deepvirfinder_cores: 1
+deepvirfinder_cores: 5
 
 marvel_dir: "../../tool_envs/marvel/MARVEL"
 marvel: "python3 marvel_bins.py"
