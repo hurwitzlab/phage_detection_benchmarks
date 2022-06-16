@@ -57,9 +57,8 @@ def main() -> None:
                   'max_pss\tio_in\tio_out\tmean_load\tcpu_time\n')
 
     # Assumed benchmark file naming convention regex
-    # {tool}/{kingdom}_{length}_benchmark.txt
-    name_re = re.compile(
-        r'(?P<tool>\w+)/(?P<kingdom>\w+)_(?P<length>\d+)_benchmark.txt')
+    # {tool}/{metagenome}_benchmark.txt
+    name_re = re.compile(r'(?P<tool>\w+)/(?P<metagenome>[\w_]+)_benchmark.txt')
 
     # Rows of combined dataframe
     # Using list first instead of dataframe for speed
@@ -80,21 +79,21 @@ def main() -> None:
         if not name_match:
             sys.exit(f'File {file.name}: unexpected file name.\n'
                      'Consistency needed for inferring meta information.\n'
-                     'Expected {tool}/{kingdom}_{length}_benchmark.txt')
+                     'Expected {tool}/{metagenome}_benchmark.txt')
 
         # Add new row to merged df (list at this time)
         rows.extend(
             map(lambda l: str.split(l.rstrip(), sep='\t'), file.readlines()))
 
         # Add inferred information about rule
-        rows[-1].extend(list(name_match.group('tool', 'kingdom', 'length')))
+        rows[-1].extend(list(name_match.group('tool', 'metagenome')))
 
     # Move to dataframe
     combined_df = pd.DataFrame(rows)
 
     # Define new header with new rows
     # Remove previous newline first
-    new_header = old_header[:-1] + '\ttool\tkingdom\tlength\n'
+    new_header = old_header[:-1] + '\ttool\tmetagenome\n'
 
     # Add header
     combined_df.columns = new_header.rstrip().split('\t')
