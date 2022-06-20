@@ -131,7 +131,7 @@ rule metabat_binning:
         source activate {params.env}
         mkdir -p {params.out_dir}
         {params.metabat} \
-            -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin \
+            -o {params.out_dir}/{wildcards.metagenome}/bin \
             -i {input.in_file} \
             -a {input.depths}
         """
