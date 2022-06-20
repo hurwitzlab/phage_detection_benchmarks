@@ -115,8 +115,8 @@ rule reformat_dvf:
 # Bin contigs from simulated reads
 rule metabat_binning:
     input:
-        in_file=config["contigs_dir"] + "/{metagenome}.fasta",
-        depths=config["coverage_dir_dir"] + "/{metagenome}_cov.txt",
+        in_file=config["assembly_dir"] + "/{metagenome}.fasta",
+        depths=config["coverage_dir"] + "/{metagenome}_cov.txt",
     output:
         config["bins_dir"] + "/{metagenome}/bin.1.fa",
     params:
@@ -144,7 +144,7 @@ rule pred_marvel:
     output:
         config["out_dir"] + "/{metagenome}/marvel/results.txt",
     params:
-        bin_di:r=config["bins_dir"] + "/{metagenome}/",
+        bin_dir=config["bins_dir"] + "/{metagenome}/",
         marvel=config["marvel"],
         marvel_dir=config["marvel_dir"],
         env=config["marvel_env"],
