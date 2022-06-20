@@ -339,7 +339,7 @@ rule pred_vibrant:
             -folder {params.out_dir}
 
         if [ ! -f {output} ]; then
-            mkdir -p {params.out_dir}/VIBRANT_{wc.metagenome}/VIBRANT_phages_{wc.metagenome}
+            mkdir -p {params.out_dir}/VIBRANT_{wildcards.metagenome}/VIBRANT_phages_{wildcards.metagenome}
             touch {output}
             echo "No output created by VIBRANT, touching empty file: {output}."
         fi
