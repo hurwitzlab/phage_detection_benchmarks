@@ -431,7 +431,7 @@ rule pred_virfinder:
     input:
         config["assembly_dir"] + "/{metagenome}.fasta",
     output:
-        config["out_dir"] + "/{metagenome}/virfinder/final_vf_preds.csv",
+        config["out_dir"] + "/{metagenome}/virfinder/{metagenome}_vf_preds.csv",
     params:
         virfinder=config["virfinder"],
         env=config["virfinder_env"],
@@ -456,7 +456,7 @@ rule pred_virfinder:
 
 rule reformat_virfinder:
     input:
-        config["out_dir"] + "/{metagenome}/virfinder/final_vf_preds.csv",
+        config["out_dir"] + "/{metagenome}/virfinder/{metagenome}_vf_preds.csv",
     output:
         config["out_dir"] + "/{metagenome}/virfinder/virfinder_pred_formatted.csv",
     params:
