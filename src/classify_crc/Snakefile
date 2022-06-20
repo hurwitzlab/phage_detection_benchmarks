@@ -122,13 +122,14 @@ rule metabat_binning:
         metabat=config["metabat"],
         env=config["metabat_env"],
         out_dir=config["bins_dir"],
+        activate=config["activate"],
     threads: config["binning_ntasks"]
     benchmark:
         config["benchmarks_dir"] + "/metabat_binning/{metagenome}.txt"
     shell:
         """
         set +eu
-        source activate {params.env}
+        source {params.activate} {params.env}
         mkdir -p {params.out_dir}
         {params.metabat} \
             -o {params.out_dir}/{wildcards.metagenome}/bin \
