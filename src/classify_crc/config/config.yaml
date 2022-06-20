@@ -10,9 +10,9 @@ benchmark: "python3 ../classify_simulated/benchmark.py"
 get_organisms: "../post_proc/get_meta.sh"
 
 # Resources for house scripts
-combine_preds_threads: 1
-combine_benchmarks_threads: 1
-reformat_threads: 1
+combine_preds_threads: 8
+combine_benchmarks_threads: 8
+reformat_threads: 8
 
 # General conda environments
 project_env: "../../env"
@@ -22,47 +22,42 @@ tools: ['dvf', 'marvel', 'metaphinder', 'seeker', 'vibrant', 'viralverify', 'vir
 
 deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
 dvf_env: "../../tool_envs/deepvirfinder/env"
-deepvirfinder_cores: 1
+deepvirfinder_cores: 24
 
 marvel_dir: "../../tool_envs/marvel/MARVEL"
 marvel: "python3 marvel_bins.py"
 marvel_env: "../../tool_envs/marvel/env"
-marvel_cores: 4
+marvel_cores: 24
 
 metaphinder: "../../tool_envs/metaphinder/MetaPhinder/MetaPhinder.py"
 metaphinder_env: "../../tool_envs/metaphinder/env"
 metaphinder_blast: "../../tool_envs/metaphinder/env/bin"
 metaphinder_db: "../../tool_envs/metaphinder/MetaPhinder/database/ALL_140821_hr"
-metaphinder_threads: 4
-
-phamers: "python ../../tool_envs/phamers/PhaMers/scripts/phamer.py"
-
-phigaro: "phigaro"
-phigaro_threads: 4
+metaphinder_threads: 24
 
 seeker: "predict-metagenome"
 seeker_env: "../../tool_envs/seeker/env"
-seeker_threads: 4
+seeker_threads: 24
 
 vibrant: "python3 ../../tool_envs/vibrant/VIBRANT/VIBRANT_run.py"
 vibrant_env: "../../tool_envs/vibrant/env"
-vibrant_threads: 4
+vibrant_threads: 24
 
 viralverify_env: "../../tool_envs/viralverify/env"
 viralverify_db: "../../tool_envs/viralverify/nbc_hmms.hmm"
-viralverify_threads: 4
+viralverify_threads: 24
 
 virfinder: "../../tool_envs/virfinder/run_virfinder.R"
 virfinder_env: "../../tool_envs/virfinder/env"
-virfinder_threads: 4
+virfinder_threads: 24
 
 virsorter: "wrapper_phage_contigs_sorter_iPlant.pl"
 virsorter_env: "../../tool_envs/virsorter/env"
-virsorter_cpu: 4
+virsorter_cpu: 24
 virsorter_db: 1
 virsorter_data: "../../tool_envs/virsorter/virsorter-data"
 virsorter_wrangler: "../post_proc/wrangle_virsorter.sh"
 
 virsorter2: "virsorter run"
 virsorter2_env: "../../tool_envs/virsorter2/env"
-virsorter2_threads: 4
+virsorter2_threads: 24
