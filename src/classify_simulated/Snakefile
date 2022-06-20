@@ -14,10 +14,10 @@ rule all:
 
 rule combine_metagenome_preds:
     input:
-        config["out_dir"]
-        + "/{metagenome}/"
-        + expand(
-            "{tool}/{tool}_pred_formatted.csv",
+        lambda wildcards: expand(
+            "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
+            out_dir=config["out_dir"],
+            metagenome=wildcards.metagenome,
             tool=config["tools"],
         ),
     output:
