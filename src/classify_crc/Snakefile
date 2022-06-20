@@ -112,7 +112,6 @@ rule reformat_dvf:
         """
 
 
-# Bin contigs from simulated reads
 rule metabat_binning:
     input:
         in_file=config["assembly_dir"] + "/{metagenome}.fasta",
@@ -123,7 +122,6 @@ rule metabat_binning:
         metabat=config["metabat"],
         env=config["metabat_env"],
         out_dir=config["bins_dir"],
-        time=config["binning_time"],
     threads: config["binning_ntasks"]
     benchmark:
         config["benchmarks_dir"] + "/metabat_binning/{metagenome}.txt"
