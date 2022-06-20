@@ -1,6 +1,7 @@
 # Directories
 assembly_dir: "../../data/crc_data/assemblies"
 bins_dir: "../../data/crc_data/bins"
+coverage_dir: "../../data/crc_data/coverages"
 out_dir: "../../data/classified_crc"
 
 # House scripts
@@ -13,6 +14,7 @@ get_organisms: "../post_proc/get_meta.sh"
 combine_preds_threads: 8
 combine_benchmarks_threads: 8
 reformat_threads: 8
+binning_ntasks: 24
 
 # General conda environments
 project_env: "../../env"
