@@ -5,6 +5,37 @@ rule all:
     input:
         config["out_dir"] + "/combined_out/combined.csv",
         config["out_dir"] + "/combined_out/combined_benchmarks.csv",
+        expand(
+            "{out_dir}/{metagenome}/combined.csv",
+            out_dir=config["out_dir"],
+            metagenome=METAGENOMES,
+        ),
+
+
+rule combine_metagenome_preds:
+    input:
+        expand(
+            "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
+            out_dir=config["out_dir"],
+            metagenome=wildcards.metagenome,
+            tool=config["tools"],
+        ),
+    output:
+        config["out_dir"] + "/{metagenome}/combined.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}",
+        combine=config["combine"],
+        env=config["project_env"],
+        activate=config["activate"],
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {params.combine} \
+            -o {params.out_dir} \
+            {input}
+        """
 
 
 rule combine_preds:
@@ -515,7 +546,7 @@ rule wrangle_virsorter:
         + "/{metagenome}/virsorter/Predicted_viral_sequences/combined_sequences.txt",
     params:
         wrangle=config["virsorter_wrangler"],
-        out_dir=config["out_dir"]  + "/{metagenome}/virsorter/",
+        out_dir=config["out_dir"] + "/{metagenome}/virsorter/",
         env=config["project_env"],
         activate=config["activate"],
     shell:
@@ -534,7 +565,7 @@ rule reformat_virsorter:
     output:
         config["out_dir"] + "/{metagenome}/virsorter/virsorter_pred_formatted.csv",
     params:
-        out_dir=config["out_dir"]  + "/{metagenome}/virsorter/",
+        out_dir=config["out_dir"] + "/{metagenome}/virsorter/",
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
