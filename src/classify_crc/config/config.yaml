@@ -3,6 +3,7 @@ assembly_dir: "../../data/crc_data/assemblies"
 bins_dir: "../../data/crc_data/bins"
 coverage_dir: "../../data/crc_data/coverages"
 out_dir: "../../data/classified_crc"
+benchmarks_dir: "../../data/classified_crc/benchmarks"
 
 # House scripts
 reformat: "python3 ../classify_simulated/reformat.py"
