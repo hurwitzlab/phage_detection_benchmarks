@@ -22,7 +22,7 @@ rule combine_preds:
         combine=config["combine"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["combine_preds_threads"],
+    threads: config["combine_preds_threads"]
     shell:
         """
         set +eu
@@ -48,7 +48,7 @@ rule combine_benchmarks:
         benchmark=config["benchmark"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["combine_benchmarks_threads"],
+    threads: config["combine_benchmarks_threads"]
     shell:
         """
         set +eu
@@ -74,8 +74,8 @@ rule pred_deepvirfinder:
     log:
         config["out_dir"] + "/logs/dvf/{metagenome}.log",
     benchmark:
-        config["out_dir"] + "/benchmarks/dvf/{metagenome}_benchmark.txt",
-    threads: config["deepvirfinder_cores"],
+        config["out_dir"] + "/benchmarks/dvf/{metagenome}_benchmark.txt"
+    threads: config["deepvirfinder_cores"]
     shell:
         """
         set +eu
@@ -98,7 +98,7 @@ rule reformat_dvf:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -136,6 +136,7 @@ rule metabat_binning:
             -i {input.in_file} \
             -a {input.depths}
         """
+
 
 rule pred_marvel:
     input:
@@ -190,7 +191,7 @@ rule reformat_marvel:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -216,7 +217,7 @@ rule pred_metaphinder:
         blast=config["metaphinder_blast"],
         db=config["metaphinder_db"],
         out_dir=config["out_dir"] + "/{metagenome}/metaphinder",
-    threads: config["metaphinder_threads"],
+    threads: config["metaphinder_threads"]
     log:
         config["out_dir"] + "/logs/metaphinder/{metagenome}.log",
     benchmark:
@@ -247,7 +248,7 @@ rule reformat_metaphinder:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -261,9 +262,41 @@ rule reformat_metaphinder:
         """
 
 
+# Filter short contigs for seeker
+rule filter_contigs:
+    input:
+        expand(
+            "{dir}/{metagenomes}.fasta",
+            dir=config["assembly_dir"],
+            metagenomes=METAGENOMES,
+        ),
+    output:
+        expand(
+            "{dir}/{metagenomes}.fasta",
+            dir=config["filtered_contigs_dir"],
+            metagenomes=METAGENOMES,
+        ),
+    params:
+        filterer=config["filter"],
+        out_dir=config["filtered_contigs_dir"],
+        activate=config["activate"],
+        env=config["project_env"],
+    threads: config["filter_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {params.filterer} \
+            -m 200 \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
 rule pred_seeker:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["filtered_contigs_dir"] + "/{metagenome}.fasta",
     output:
         config["out_dir"] + "/{metagenome}/seeker/pred.txt",
     params:
@@ -298,7 +331,7 @@ rule reformat_seeker:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -323,11 +356,11 @@ rule pred_vibrant:
         env=config["vibrant_env"],
         activate=config["activate"],
         vibrant=config["vibrant"],
-    threads: config["vibrant_threads"],
+    threads: config["vibrant_threads"]
     log:
         config["out_dir"] + "/logs/vibrant/{metagenome}.log",
     benchmark:
-        config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt",
+        config["out_dir"] + "/benchmarks/vibrant/{metagenome}_benchmark.txt"
     shell:
         """
         set +eu
@@ -359,7 +392,7 @@ rule reformat_vibrant:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -384,7 +417,7 @@ rule pred_viralverify:
         activate=config["activate"],
         db=config["viralverify_db"],
         threads=config["viralverify_threads"],
-    threads: config["viralverify_threads"],
+    threads: config["viralverify_threads"]
     log:
         config["out_dir"] + "/logs/viralverify/{metagenome}.log",
     benchmark:
@@ -413,7 +446,7 @@ rule reformat_viralverify:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -437,7 +470,7 @@ rule pred_virfinder:
         env=config["virfinder_env"],
         activate=config["activate"],
         out_dir=config["out_dir"] + "/{metagenome}/virfinder",
-    threads: config["virfinder_threads"],
+    threads: config["virfinder_threads"]
     log:
         config["out_dir"] + "logs/virfinder/{metagenome}.log",
     benchmark:
@@ -464,7 +497,7 @@ rule reformat_virfinder:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -502,7 +535,7 @@ rule pred_virsorster:
         cpu=config["virsorter_cpu"],
         db=config["virsorter_db"],
         data=config["virsorter_data"],
-    threads: config["virsorter_cpu"],
+    threads: config["virsorter_cpu"]
     log:
         config["out_dir"] + "/logs/virsorter/{metagenome}.log",
     benchmark:
@@ -559,7 +592,7 @@ rule wrangle_virsorter:
         out_dir=config["out_dir"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -580,7 +613,7 @@ rule reformat_virsorter:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu
@@ -606,7 +639,7 @@ rule pred_virsorter2:
         env=config["virsorter2_env"],
         activate=config["activate"],
         out_dir=config["out_dir"] + "/{metagenome}/virsorter2",
-    threads: config["virsorter2_threads"],
+    threads: config["virsorter2_threads"]
     log:
         config["out_dir"] + "/logs/virsorter2/{metagenome}.log",
     benchmark:
@@ -635,7 +668,7 @@ rule reformat_virsorter2:
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["reformat_threads"],
+    threads: config["reformat_threads"]
     shell:
         """
         set +eu

@@ -1,5 +1,6 @@
 # Directories
 assembly_dir: "../../data/crc_data/assemblies"
+filtered_contigs_dir: "../../data/crc_data/filtered_assemblies"
 bins_dir: "../../data/crc_data/bins"
 coverage_dir: "../../data/crc_data/coverages"
 out_dir: "../../data/classified_crc"
@@ -10,11 +11,13 @@ reformat: "python3 ../classify_simulated/reformat.py"
 combine: "python3 ../classify_simulated/combine.py"
 benchmark: "python3 ../classify_simulated/benchmark.py"
 get_organisms: "../post_proc/get_meta.sh"
+filter: "python3 contig_filter.py"
 
 # Resources for house scripts
 combine_preds_threads: 8
 combine_benchmarks_threads: 8
 reformat_threads: 8
+filter_threads: 8
 
 
 # Binning
