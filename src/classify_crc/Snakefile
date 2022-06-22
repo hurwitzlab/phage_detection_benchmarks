@@ -135,6 +135,10 @@ rule metabat_binning:
             -o {params.out_dir}/{wildcards.metagenome}/bin \
             -i {input.in_file} \
             -a {input.depths}
+
+        mkdir -p {params.out_dir}/{wildcards.metagenome}
+
+        touch {output}
         """
 
 
