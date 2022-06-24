@@ -53,6 +53,8 @@ rule combine_summary_stats:
     params:
         out_dir=config["out_dir"] + "/combined_out/summary_stats",
         combine=config["combine"],
+        env=config["project_env"],
+        activate=config["activate"],
     shell:
         """
         set +eu
