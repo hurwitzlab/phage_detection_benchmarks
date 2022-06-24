@@ -52,8 +52,8 @@ def main() -> None:
     out_dir = args.out_dir
 
     # Assumed column names for combining dataframes
-    header = ('tool,record,metagenome,prediction,'
-              'lifecycle,value,stat,stat_name\n')
+    # header = ('tool,record,metagenome,prediction,'
+    #           'lifecycle,value,stat,stat_name\n')
 
     # Rows of combined dataframe
     rows: List = []
@@ -63,8 +63,8 @@ def main() -> None:
 
         file_header = file.readline()
 
-        if file_header != header:
-            sys.exit(f'File {file.name}: unexpected column names.')
+        # if file_header != header:
+        #     sys.exit(f'File {file.name}: unexpected column names.')
 
         rows.extend(
             map(lambda l: str.split(l.rstrip(), sep=','), file.readlines()))
@@ -73,7 +73,7 @@ def main() -> None:
     combined_df = pd.DataFrame(rows)
 
     # Add header
-    combined_df.columns = header.rstrip().split(',')
+    combined_df.columns = file_header.rstrip().split(',')
 
     # Dataframe write operattions
     if not os.path.isdir(out_dir):
