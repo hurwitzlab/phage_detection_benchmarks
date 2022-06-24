@@ -10,6 +10,58 @@ rule all:
             out_dir=config["out_dir"],
             metagenome=METAGENOMES,
         ),
+        config["out_dir"] + "/combined_out/combined_summary_stats.csv",
+
+
+rule calc_summary_stats:
+    input:
+        infile=config["out_dir"] + "/{metagenome}/combined.csv",
+        contig_tax=config["contig_tax_dir"] + "/{metagenome}_contig_taxonomy.csv",
+    output:
+        config["out_dir"] + "/{metagenome}/summary_stats.csv",
+    params:
+        summarize=config["get_summary_stats"],
+        out_dir=config["out_dir"] + "/{metagenome}",
+        bin_width=config["bin_width"],
+        bin_min=config["bin_min"],
+        bin_max=config["bin_max"],
+        env=config["project_env"],
+        activate=config["activate"],
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {params.summarize} \
+            -o {params.out_dir} \
+            -t {input.contig_tax} \
+            -w {params.bin_width} \
+            -s {params.bin_min} \
+            -l {params.bin_max} \
+            {input.infile}
+        """
+
+
+rule combine_summary_stats:
+    input:
+        expand(
+            config["out_dir"] + "/{metagenome}/summary_stats.csv",
+            metagenome=METAGENOMES,
+        ),
+    output:
+        config["out_dir"] + "/combined_out/summary_stats/combined.csv",
+    params:
+        out_dir=config["out_dir"] + "/combined_out/summary_stats",
+        combine=config["combine"],
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {params.combine} \
+            -o {params.out_dir} \
+            {input}
+        """
 
 
 rule combine_metagenome_preds:
