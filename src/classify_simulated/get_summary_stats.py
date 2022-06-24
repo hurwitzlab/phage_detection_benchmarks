@@ -267,7 +267,7 @@ def add_taxonomy(preds: pd.DataFrame, tax: pd.DataFrame) -> pd.DataFrame:
                       right_on='query_id')
 
     out_df = out_df[out_df['superkingdom'].notna()]
-    out_df = out_df[out_df['assembly'] == 'single']
+    out_df = out_df[out_df['origin'] == 'single']
 
     out_df = out_df[[
         'profile', 'model', 'tool', 'record', 'prediction', 'query_length',
