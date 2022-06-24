@@ -399,7 +399,7 @@ def main() -> None:
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
 
-    out_file = os.path.join(out_dir, 'summaries.csv')
+    out_file = os.path.join(out_dir, 'summary_stats.csv')
 
     contig_tax = pd.read_csv(args.taxonomy)
 
@@ -414,7 +414,9 @@ def main() -> None:
 
     metrics = get_tool_metrics(predictions)
 
-    print(metrics)
+    metrics.to_csv(out_file, index=False)
+    
+    print(f'Done. Wrote to file {out_file}.')
 
 
 # --------------------------------------------------
