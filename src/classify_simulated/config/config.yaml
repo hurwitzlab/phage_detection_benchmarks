@@ -1,6 +1,7 @@
 # Directories
 contigs_dir: "../../data/metagenome_simulation/assembled_reads"
 bins_dir: "../../data/metagenome_simulation/binned_contigs"
+contig_tax_dir: "../../data/metagenome_simulation/summary/contig_taxa"
 out_dir: "../../data/classified_simulated"
 
 # House scripts
@@ -8,6 +9,10 @@ reformat: "python3 ./reformat.py"
 combine: "python3 ./combine.py"
 benchmark: "python3 ./benchmark.py"
 get_organisms: "../post_proc/get_meta.sh"
+get_summary_stats: "python3 ./get_summary_stats.py"
+bin_width: 0.5
+bin_min: 2.5
+bin_max: 5.0
 
 # General conda environments
 project_env: "../../env"
