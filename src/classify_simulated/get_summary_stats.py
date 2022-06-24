@@ -272,22 +272,27 @@ def add_taxonomy(preds: pd.DataFrame, tax: pd.DataFrame) -> pd.DataFrame:
 
     out_df = out_df[[
         'metagenome', 'tool', 'record', 'prediction', 'query_length',
-        'superkingdom'
+        'superkingdom', 'species'
     ]]
 
     out_df = out_df.rename(columns={'query_length': 'length'})
 
     # Phages are viruses with phage in the species name
-    out_df['actual_class'] = np.where(
-        out_df['superkingdom'] == 'Viruses'
-        and out_df['species'].str.contains('phage', case=False), 'viral',
-        'non-viral')
+    # out_df['actual_class'] = np.where(
+    #     out_df['superkingdom'] == 'Viruses'
+    #     and out_df['species'].str.contains('phage', case=False), 'viral',
+    #     'non-viral')
 
-    # Remove non-phage viruses
+    # # Remove non-phage viruses
+    # out_df['actual_class'] = np.where(
+    #     out_df['superkingdom'] == 'Viruses'
+    #     and not out_df['species'].str.contains('phage', case=False), np.nan,
+    #     out_df['actual_class'])
+
     out_df['actual_class'] = np.where(
-        out_df['superkingdom'] == 'Viruses'
-        and not out_df['species'].str.contains('phage', case=False), np.nan,
-        out_df['actual_class'])
+        out_df['superkingdom'] == 'Viruses',
+        np.where(out_df['species'].str.contains('phage', case=False), 'viral',
+                 np.nan), 'non-viral')
 
     out_df = out_df.dropna('actual_class')
 
