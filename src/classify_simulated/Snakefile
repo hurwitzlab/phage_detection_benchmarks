@@ -10,7 +10,7 @@ rule all:
             out_dir=config["out_dir"],
             metagenome=METAGENOMES,
         ),
-        config["out_dir"] + "/combined_out/combined_summary_stats.csv",
+        config["out_dir"] + "/combined_out/summary_stats/combined.csv",
 
 
 rule calc_summary_stats:
