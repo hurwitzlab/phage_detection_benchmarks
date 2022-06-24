@@ -270,7 +270,7 @@ def add_taxonomy(preds: pd.DataFrame, tax: pd.DataFrame) -> pd.DataFrame:
     out_df = out_df[out_df['origin'] == 'single']
 
     out_df = out_df[[
-        'profile', 'model', 'tool', 'record', 'prediction', 'query_length',
+        'metagenome', 'tool', 'record', 'prediction', 'query_length',
         'superkingdom'
     ]]
 
@@ -373,16 +373,16 @@ def get_tool_metrics(df: pd.DataFrame) -> pd.DataFrame:
     """ Get metrics for each tool per length bin """
 
     out_df = pd.DataFrame(columns=[
-        'profile', 'model', 'tool', 'length_bin', 'tp', 'fp', 'tn', 'fn', 'f1',
+        'metagenome', 'tool', 'length_bin', 'tp', 'fp', 'tn', 'fn', 'f1',
         'sensitivity', 'specificity', 'precision'
     ])
-    for _, tool_df in df.groupby(['profile', 'model', 'tool']):
+    for _, tool_df in df.groupby(['metagenome', 'tool']):
         tool_metrics = get_lengthbin_metrics(tool_df)
 
         nrows = len(tool_metrics)
         tool_metrics['tool'] = [tool_df['tool'].unique()[0]] * nrows
-        tool_metrics['profile'] = [tool_df['profile'].unique()[0]] * nrows
-        tool_metrics['model'] = [tool_df['model'].unique()[0]] * nrows
+        tool_metrics['metagenome'] = [tool_df['metagenome'].unique()[0]
+                                      ] * nrows
 
         out_df = pd.concat([out_df, tool_metrics])
 
