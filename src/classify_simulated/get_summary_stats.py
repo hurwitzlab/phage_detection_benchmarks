@@ -294,7 +294,7 @@ def add_taxonomy(preds: pd.DataFrame, tax: pd.DataFrame) -> pd.DataFrame:
         np.where(out_df['species'].str.contains('phage', case=False), 'viral',
                  np.nan), 'non-viral')
 
-    out_df = out_df.dropna(axis='columns', subset=['actual_class'])
+    out_df = out_df.dropna(axis='rows', subset=['actual_class'])
 
     return out_df
 
