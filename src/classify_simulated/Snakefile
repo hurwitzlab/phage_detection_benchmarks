@@ -227,10 +227,10 @@ rule pred_marvel:
         mkdir -p ../{input}/results/phage_bins
 
         # Copy all contig IDs to the output file
-        grep ">" ../{input}/results/phage_bins >> ../{output}
+        grep -h ">" ../{input}/results/phage_bins/* >> ../{output}
 
         # Remove output from MARVEL
-        rm -rf ../{input}"results" \
+        rm -rf ../{input}/results \
         ) 2> ../{log}
         """
 
