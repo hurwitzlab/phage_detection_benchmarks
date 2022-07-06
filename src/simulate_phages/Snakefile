@@ -1,0 +1,458 @@
+(PROFILES,) = expand("phage_profile_{}", range(1, config['num_profiles'] + 1))
+
+
+rule all:
+    input:
+        expand(
+            "{b}/{p}_{m}/bin.1.fa",
+            b=config["bins_dir"],
+            p=PROFILES,
+            m=config["model"],
+        ),
+         expand(
+            config["summary_dir"] + "/{d}/combined_{s}.csv",
+            zip,
+            d=['contigs','parsed_blast', 'contig_taxa'],
+            s=['contig_summary', 'parsed_blast', 'contig_taxonomy'],
+        ),
+
+
+# Create profile for InSilicoSeq, and file globs to find necessary genomes
+rule make_profiles:
+    output:
+        config["profiles_dir"] + "/{id}_profile.txt",
+        config["profiles_dir"] + "/{id}_files.txt",
+    params:
+        profile_maker=config["phage_profiler"],
+        num_phages=config["num_phages"],
+        coverage=config["coverage"],
+        num_profiles=config["num_profiles"]
+        refseq=config["refseq_info"],
+        out_dir=config["profiles_dir"],
+        time=config["make_profiles_time"],
+    threads: config["make_profiles_ntasks"]
+    shell:
+        """
+        {params.profile_maker} \
+            -n {params.num_phages} \
+            -c {params.coverage} \
+            -p {params.num_profiles} \
+            -s \
+            -o {params.out_dir} \
+            {params.refseq}
+        """
+
+
+# Concatenate input genomes for InSilicoSeq
+rule cat_genomes:
+    input:
+        config["profiles_dir"] + "/{id}_files.txt",
+    output:
+        config["profiles_dir"] + "/{id}_genomes.fasta",
+    params:
+        cat_genomes=config["cat_genomes"],
+        out_dir=config["profiles_dir"],
+        parent=config["refseq_dir"],
+        time=config["cat_genomes_time"],
+    threads: config["cat_genomes_ntasks"]
+    shell:
+        """
+        {params.cat_genomes} \
+            -p {params.parent} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Run InSilicoSeq to create simulated reads
+rule simulate_reads:
+    input:
+        genomes=config["profiles_dir"] + "/{id}_genomes.fasta",
+        coverages=config["profiles_dir"] + "/{id}_profile.txt",
+    output:
+        config["simulated_dir"] + "/{id}_{model}_R1.fastq",
+        config["simulated_dir"] + "/{id}_{model}_R2.fastq",
+    params:
+        simulator=config["simulator"],
+        env=config["iss_env"],
+        out_dir=config["simulated_dir"],
+        time=config["simulate_reads_time"],
+    threads: config["simulate_reads_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.simulator} \
+            --cpus {threads} \
+            --model {wildcards.model} \
+            --coverage_file {input.coverages} \
+            --output {params.out_dir}/{wildcards.id}_{wildcards.model} \
+            --genomes {input.genomes}
+        """
+
+
+# Assemble simulated reads into contigs with MegaHit
+rule megahit_assembly:
+    input:
+        fwd=config["simulated_dir"] + "/{id}_{model}_R1.fastq",
+        rev=config["simulated_dir"] + "/{id}_{model}_R2.fastq",
+    output:
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    params:
+        megahit=config["megahit"],
+        min_contig=config["min_contig"],
+        env=config["megahit_env"],
+        out_dir=config["contigs_dir"],
+        time=config["assembly_time"],
+    threads: config["assembly_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        # Snakemake creates the out_dir, but megahit fails if it exists. So remove it.
+        rm -rf {params.out_dir}/{wildcards.id}_{wildcards.model}
+        {params.megahit} \
+            -1 {input.fwd} \
+            -2 {input.rev} \
+            --min-contig-len {params.min_contig} \
+            -o {params.out_dir}/{wildcards.id}_{wildcards.model}
+        """
+
+
+# Get lengths of assembled contigs
+rule summarize_raw_assembly:
+    input:
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    output:
+        config["summary_dir"] + "/contigs/{id}_{model}_contig_summary.csv",
+    params:
+        summarize_contigs=config["summarize_contigs"],
+        env=config["project_env"],
+        out_dir=config["summary_dir"] + "/contigs",
+        time=config["summarize_contigs_time"],
+    threads: config["summarize_contigs_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.summarize_contigs} \
+            -o {params.out_dir} \
+            -f {wildcards.id}_{wildcards.model}_contig_summary.csv \
+            {input}
+        """
+
+
+# Combine summarized raw contigs
+rule combine_raw_assembly_summaries:
+    input:
+        expand(
+            "{d}/contigs/{id}_{model}_contig_summary.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+            model=config["model"],
+        ),
+    output:
+        config["summary_dir"] + "/contigs/combined_contig_summary.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/contigs",
+        env=config["project_env"],
+        regex=config["contigs_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.regex}' \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Create Bowtie2 index of contigs, for mapping reads
+rule make_bowtie_index:
+    input:
+        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+    output:
+        directory(config["bowtie_index_dir"] + "/{id}_{model}"),
+    params:
+        build=config["bowtie_build"],
+        env=config["bowtie_env"],
+        out_dir=config["bowtie_index_dir"],
+        time=config["bowtie_indexing_time"],
+    threads: config["bowtie_indexing_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/make_bowtie_index/{id}_{model}.txt"
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        mkdir -p {params.out_dir}/{wildcards.id}_{wildcards.model}
+        {params.build} \
+            {input} \
+            {params.out_dir}/{wildcards.id}_{wildcards.model}/index
+        """
+
+
+# Map reads to contigs using Bowtie2
+rule bowtie_map_reads:
+    input:
+        fwd=config["simulated_dir"] + "/{id}_{model}_R1.fastq",
+        rev=config["simulated_dir"] + "/{id}_{model}_R2.fastq",
+        index=config["bowtie_index_dir"] + "/{id}_{model}/",
+    output:
+        config["bowtie_map_dir"] + "/{id}_{model}.sam",
+    params:
+        bowtie=config["bowtie"],
+        env=config["bowtie_env"],
+        out_dir=config["bowtie_map_dir"],
+        time=config["bowtie_mapping_time"],
+    threads: config["bowtie_mapping_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/bowtie_map_reads/{id}_{model}.txt"
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.bowtie} \
+            -x {input.index}/index \
+            -1 {input.fwd} \
+            -2 {input.rev} \
+            -p {threads} \
+            -S {output}
+        """
+
+
+# Convert bowtie SAM output to BAM and sort
+rule convert_sort_mappings:
+    input:
+        config["bowtie_map_dir"] + "/{id}_{model}.sam",
+    output:
+        config["bowtie_map_dir"] + "/{id}_{model}_sorted.bam",
+    params:
+        convert=config["sam_to_bam"],
+        sort=config["sort_bam"],
+        env=config["samtools_env"],
+        out_dir=config["bowtie_map_dir"],
+        time=config["samtools_time"],
+    threads: config["samtools_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/convert_sort_mappings/{id}_{model}.txt"
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.convert} \
+            {input} | \
+            {params.sort} \
+            -o {output}
+        """
+
+
+# Calculate contig depths
+rule calculate_depths:
+    input:
+        config["bowtie_map_dir"] + "/{id}_{model}_sorted.bam",
+    output:
+        config["bowtie_map_dir"] + "/{id}_{model}_depth.txt",
+    params:
+        summarize=config["summarize_depths"],
+        env=config["metabat_env"],
+        out_dir=config["bowtie_map_dir"],
+        time=config["calculate_depths_time"],
+    threads: config["calculate_depths_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/calculate_depths/{id}_{model}.txt"
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.summarize} \
+            {input} \
+            --outputDepth {output} \
+        """
+
+
+# Bin contigs from simulated reads
+rule metabat_binning:
+    input:
+        in_file=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+        depths=config["bowtie_map_dir"] + "/{id}_{model}_depth.txt",
+    output:
+        config["bins_dir"] + "/{id}_{model}/bin.1.fa",
+    params:
+        metabat=config["metabat"],
+        env=config["metabat_env"],
+        out_dir=config["bins_dir"],
+        time=config["binning_time"],
+    threads: config["binning_ntasks"]
+    benchmark:
+        config["benchmarks_dir"] + "/metabat_binning/{id}_{model}.txt"
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        mkdir -p {params.out_dir}
+        {params.metabat} \
+            -o {params.out_dir}/{wildcards.id}_{wildcards.model}/bin \
+            -i {input.in_file} \
+            -a {input.depths}
+        """
+
+
+# Make BLAST databases from input genomes
+rule make_blast_dbs:
+    input:
+        config["profiles_dir"] + "/{id}_genomes.fasta",
+    output:
+        directory(config["blast_dbs_dir"] + "/{id}/"),
+    params:
+        out_dir=config["blast_dbs_dir"],
+        env=config["blast_env"],
+        make_db=config["make_db"],
+        time=config["make_db_time"],
+    threads: config["make_db_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.make_db} \
+            -in {input} \
+            -dbtype nucl \
+            -out {params.out_dir}/{wildcards.id}/db \
+            -title {wildcards.id}
+        """
+
+
+# Run BLAST querying assembled simulated reads against input genomes
+rule run_blast:
+    input:
+        query=config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
+        db=directory(config["blast_dbs_dir"] + "/{id}/"),
+    output:
+        config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
+    params:
+        out_dir=config["blast_out_dir"],
+        env=config["blast_env"],
+        e_value=config["e_value"],
+        max_hits=config["max_hits"],
+        time=config["blast_time"],
+        blast=config["blast"],
+    threads: config["blast_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.blast} \
+            -query {input.query} \
+            -db {input.db}/db \
+            -out {output} \
+            -outfmt 5 \
+            -evalue {params.e_value} \
+            -max_hsps {params.max_hits} \
+            -num_threads {threads}
+        """
+
+
+# Parse information from BLAST output for analysis
+rule summarize_blast:
+    input:
+        config["blast_out_dir"] + "/{id}_{model}_blast_out.txt",
+    output:
+        config["summary_dir"] + "/parsed_blast/{id}_{model}_parsed_blast.csv",
+    params:
+        summarize=config["summarize_blast"],
+        out_dir=config["summary_dir"] + "/parsed_blast",
+        env=config["project_env"],
+        time=config["summarize_blast_time"],
+    threads: config["summarize_blast_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.summarize} \
+            -o {params.out_dir}\
+            {input}
+        """
+
+
+# Combine summarized filtered contigs
+rule combine_blast_summaries:
+    input:
+        expand(
+            "{d}/parsed_blast/{id}_{model}_parsed_blast.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+            model=config["model"],
+        ),
+    output:
+        config["summary_dir"] + "/parsed_blast/combined_parsed_blast.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/parsed_blast",
+        env=config["project_env"],
+        regex=config["blast_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.regex}' \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Assign taxonomy to contigs based on BLAST results
+rule asssign_contig_taxonomy:
+    input:
+        config["summary_dir"] + "/parsed_blast/{id}_{model}_parsed_blast.csv",
+    output:
+        config["summary_dir"] + "/contig_taxa/{id}_{model}_contig_taxonomy.csv",
+    params:
+        assign=config["contig_assignment"],
+        refseq=config["refseq_info"],
+        out_dir=config["summary_dir"] + "/contig_taxa",
+        env=config["project_env"],
+        time=config["assign_time"],
+    threads: config["assign_ntasks"],
+    shell:
+        """
+        source activate {params.env}
+        {params.assign} \
+            -t {params.refseq} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+# Combine contig taxonomic assignments
+rule combine_contig_taxnomy:
+    input:
+        expand(
+            "{d}/contig_taxa/{id}_{model}_contig_taxonomy.csv",
+            d=config["summary_dir"],
+            id=PROFILES,
+            model=config["model"],
+        ),
+    output:
+        config["summary_dir"] + "/contig_taxa/combined_contig_taxonomy.csv",
+    params:
+        combine=config["combine"],
+        out_dir=config["summary_dir"] + "/contig_taxa",
+        env=config["project_env"],
+        regex=config["assignmed_re"],
+        time=config["combine_time"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        source activate {params.env}
+        {params.combine} \
+            -r '{params.regex}' \
+            -o {params.out_dir} \
+            {input}
+        """
