@@ -1,4 +1,4 @@
-(PROFILES,) = expand("phage_profile_{p}", p=config["profile_nums"])
+PROFILES = expand("phage_profile_{p}", p=config["profile_nums"])
 
 
 rule all:
@@ -445,7 +445,7 @@ rule combine_contig_taxnomy:
         combine=config["combine"],
         out_dir=config["summary_dir"] + "/contig_taxa",
         env=config["project_env"],
-        regex=config["assignmed_re"],
+        regex=config["assigned_re"],
         time=config["combine_time"],
     threads: config["combine_ntasks"]
     shell:
