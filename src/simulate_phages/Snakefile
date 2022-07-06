@@ -1,4 +1,4 @@
-(PROFILES,) = expand("phage_profile_{}", range(1, config['num_profiles'] + 1))
+(PROFILES,) = expand("phage_profile_{}", range(1, config["num_profiles"] + 1))
 
 
 rule all:
@@ -9,11 +9,11 @@ rule all:
             p=PROFILES,
             m=config["model"],
         ),
-         expand(
+        expand(
             config["summary_dir"] + "/{d}/combined_{s}.csv",
             zip,
-            d=['contigs','parsed_blast', 'contig_taxa'],
-            s=['contig_summary', 'parsed_blast', 'contig_taxonomy'],
+            d=["contigs", "parsed_blast", "contig_taxa"],
+            s=["contig_summary", "parsed_blast", "contig_taxonomy"],
         ),
 
 
@@ -26,7 +26,7 @@ rule make_profiles:
         profile_maker=config["phage_profiler"],
         num_phages=config["num_phages"],
         coverage=config["coverage"],
-        num_profiles=config["num_profiles"]
+        num_profiles=config["num_profiles"],
         refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
         time=config["make_profiles_time"],
@@ -419,7 +419,7 @@ rule asssign_contig_taxonomy:
         out_dir=config["summary_dir"] + "/contig_taxa",
         env=config["project_env"],
         time=config["assign_time"],
-    threads: config["assign_ntasks"],
+    threads: config["assign_ntasks"]
     shell:
         """
         source activate {params.env}
