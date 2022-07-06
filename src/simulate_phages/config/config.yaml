@@ -83,6 +83,7 @@ summary_dir:
 num_phages: 500
 coverage: 30
 num_profiles: 3
+profile_nums: [1, 2, 3]
 
 ## simulate_reads
 model:

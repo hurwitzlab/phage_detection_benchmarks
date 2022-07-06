@@ -1,4 +1,4 @@
-(PROFILES,) = expand("phage_profile_{}", range(1, config["num_profiles"] + 1))
+(PROFILES,) = expand("phage_profile_{p}", p=config["profile_nums"])
 
 
 rule all:
