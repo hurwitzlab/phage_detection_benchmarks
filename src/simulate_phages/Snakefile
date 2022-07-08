@@ -422,6 +422,7 @@ rule asssign_contig_taxonomy:
     threads: config["assign_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.assign} \
             -t {params.refseq} \
@@ -450,6 +451,7 @@ rule combine_contig_taxnomy:
     threads: config["combine_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.combine} \
             -r '{params.regex}' \
