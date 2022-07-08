@@ -413,7 +413,7 @@ rule pred_virfinder:
         out_dir=config["out_dir"] + "/{metagenome}/virfinder",
     threads: config["virfinder_threads"]
     log:
-        config["out_dir"] + "logs/virfinder/{metagenome}.log",
+        config["out_dir"] + "/logs/virfinder/{metagenome}.log",
     benchmark:
         config["out_dir"] + "/benchmarks/virfinder/{metagenome}_benchmark.txt"
     shell:
