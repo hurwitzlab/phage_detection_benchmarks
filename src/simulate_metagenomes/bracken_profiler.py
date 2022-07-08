@@ -89,7 +89,7 @@ def main() -> None:
     out_dir = args.outdir
 
     if not os.path.isdir(out_dir):
-        os.mkdir(out_dir)
+        os.makedirs(out_dir)
 
     taxonomy_df = clean_taxonomy(pd.read_csv(args.taxonomy))
 
