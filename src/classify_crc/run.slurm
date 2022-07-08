@@ -33,7 +33,7 @@ source ~/.bashrc
 source activate ../../env
 
 # Make sure it is being run from the correct directory
-cd /xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/src/classify_simulated 
+cd /xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/src/classify_crc 
 
 
 # Run snakemake cluster
