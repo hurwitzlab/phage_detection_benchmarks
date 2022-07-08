@@ -1,3 +1,4 @@
 err/
 out/
 .snakemake/
+__pycache__/
