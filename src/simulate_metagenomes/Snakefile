@@ -18,8 +18,13 @@ rule all:
         expand(
             config["summary_dir"] + "/{d}/combined_{s}.csv",
             zip,
-            d=['contigs','profile_comparisons', 'parsed_blast', 'contig_taxa'],
-            s=['contig_summary', 'profile_comparison', 'parsed_blast', 'contig_taxonomy'],
+            d=["contigs", "profile_comparisons", "parsed_blast", "contig_taxa"],
+            s=[
+                "contig_summary",
+                "profile_comparison",
+                "parsed_blast",
+                "contig_taxonomy",
+            ],
         ),
 
 
@@ -36,10 +41,13 @@ rule make_profiles:
         num_phage=config["min_num_phage"],
         refseq=config["refseq_info"],
         out_dir=config["profiles_dir"],
+        env=config["project_env"],
         time=config["make_profiles_time"],
     threads: config["make_profiles_ntasks"]
     shell:
         """
+        set +eu
+        source activate {params.env}
         {params.bracken_profiler} \
             -t {params.refseq} \
             -p {params.min_phage} \
@@ -480,9 +488,10 @@ rule asssign_contig_taxonomy:
         out_dir=config["summary_dir"] + "/contig_taxa",
         env=config["project_env"],
         time=config["assign_time"],
-    threads: config["assign_ntasks"],
+    threads: config["assign_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.assign} \
             -t {params.refseq} \
@@ -506,11 +515,12 @@ rule combine_contig_taxnomy:
         combine=config["combine"],
         out_dir=config["summary_dir"] + "/contig_taxa",
         env=config["project_env"],
-        regex=config["assignmed_re"],
+        regex=config["assigned_re"],
         time=config["combine_time"],
     threads: config["combine_ntasks"]
     shell:
         """
+        set +eu
         source activate {params.env}
         {params.combine} \
             -r '{params.regex}' \
