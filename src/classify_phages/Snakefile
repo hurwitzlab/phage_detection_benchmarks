@@ -112,36 +112,6 @@ rule reformat_dvf:
         """
 
 
-rule metabat_binning:
-    input:
-        in_file=config["assembly_dir"] + "/{metagenome}.fasta",
-        depths=config["coverage_dir"] + "/{metagenome}_cov.txt",
-    output:
-        config["bins_dir"] + "/{metagenome}/bin.1.fa",
-    params:
-        metabat=config["metabat"],
-        env=config["metabat_env"],
-        out_dir=config["bins_dir"],
-        activate=config["activate"],
-    threads: config["binning_ntasks"]
-    benchmark:
-        config["benchmarks_dir"] + "/metabat_binning/{metagenome}.txt"
-    shell:
-        """
-        set +eu
-        source {params.activate} {params.env}
-        mkdir -p {params.out_dir}
-        {params.metabat} \
-            -o {params.out_dir}/{wildcards.metagenome}/bin \
-            -i {input.in_file} \
-            -a {input.depths}
-
-        mkdir -p {params.out_dir}/{wildcards.metagenome}
-
-        touch {output}
-        """
-
-
 rule pred_marvel:
     input:
         config["bins_dir"] + "/{metagenome}/bin.1.fa",
