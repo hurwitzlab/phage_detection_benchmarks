@@ -27,7 +27,7 @@
 ### SBATCH --mail-user=schackartk@email.arizona.edu
 
 # Activate a conda environment
-source activate snakemake_env
+source activate ../../env
 
 # Run snakemake cluster
 snakemake \
