@@ -122,10 +122,10 @@ cat_genomes_ntasks: 4
 
 ## simulate_reads
 simulate_reads_time: '2-00:00:00'
-simulate_reads_ntasks: 36
+simulate_reads_ntasks: 48
 
 # megahit_assembly
-assembly_time: '4:00:00'
+assembly_time: '1-00:00:00'
 assembly_ntasks: 47
 
 # filter_contigs
@@ -173,5 +173,5 @@ combine_time: '04:00:00'
 combine_ntasks: 12
 
 # assign_contig_taxonomy
-assign_time: '00:30:00'
-assign_ntasks: 4
+assign_time: '08:00:00'
+assign_ntasks: 24
