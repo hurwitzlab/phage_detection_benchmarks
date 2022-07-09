@@ -320,6 +320,7 @@ rule pred_seeker:
 
         ({params.seeker} \
             {input} \
+            | grep $'^.*\t.*\t.*$' \
             > {params.out_dir}/pred.txt \
         ) 2> {log}
         """
