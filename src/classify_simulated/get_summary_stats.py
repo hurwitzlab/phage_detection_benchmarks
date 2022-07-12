@@ -363,8 +363,8 @@ def get_lengthbin_metrics(df: pd.DataFrame) -> pd.DataFrame:
         'specificity', 'precision'
     ])
     for _, lengthbin_df in df.groupby('length_bin'):
-        metrics = calc_metrics(np.array(lengthbin_df['prediction']),
-                               np.array(lengthbin_df['actual_class']))
+        metrics = calc_metrics(np.array(lengthbin_df['actual_class']),
+                               np.array(lengthbin_df['prediction']))
 
         length_bin = lengthbin_df['length_bin'].unique()
 
