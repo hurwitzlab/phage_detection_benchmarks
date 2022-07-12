@@ -145,7 +145,8 @@ rule pred_deepvirfinder:
     input:
         config["assembly_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"] + "/{metagenome}/dvf/{metagenome}/final.contigs.fa_gt1bp_dvfpred.txt",
+        config["out_dir"]
+        + "/{metagenome}/dvf/{metagenome}/final.contigs.fa_gt1bp_dvfpred.txt",
     params:
         dvf=config["deepvirfinder"],
         env=config["dvf_env"],
@@ -171,7 +172,8 @@ rule pred_deepvirfinder:
 
 rule reformat_dvf:
     input:
-        config["out_dir"] + "/{metagenome}/dvf/{metagenome}/final.contigs.fa_gt1bp_dvfpred.txt",
+        config["out_dir"]
+        + "/{metagenome}/dvf/{metagenome}/final.contigs.fa_gt1bp_dvfpred.txt",
     output:
         config["out_dir"] + "/{metagenome}/dvf/dvf_pred_formatted.csv",
     params:
@@ -316,6 +318,7 @@ rule reformat_metaphinder:
             {input}
         """
 
+
 rule pred_seeker:
     input:
         config["assembly_dir"] + "/{metagenome}/final.contigs.fa",
@@ -338,6 +341,7 @@ rule pred_seeker:
 
         ({params.seeker} \
             {input} \
+            | grep $'^.*\t.*\t.*$' \
             > {params.out_dir}/pred.txt \
         ) 2> {log}
         """
@@ -432,7 +436,7 @@ rule pred_viralverify:
     input:
         config["assembly_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"] + "/{metagenome}/viralverify/{metagenome}_result_table.csv",
+        config["out_dir"] + "/{metagenome}/viralverify/final.contigs_result_table.csv",
     params:
         out_dir=config["out_dir"] + "/{metagenome}/viralverify/",
         env=config["viralverify_env"],
@@ -460,7 +464,7 @@ rule pred_viralverify:
 
 rule reformat_viralverify:
     input:
-        config["out_dir"] + "/{metagenome}/viralverify/{metagenome}_result_table.csv",
+        config["out_dir"] + "/{metagenome}/viralverify/final.contigs_result_table.csv",
     output:
         config["out_dir"] + "/{metagenome}/viralverify/viralverify_pred_formatted.csv",
     params:
@@ -486,7 +490,7 @@ rule pred_virfinder:
     input:
         config["assembly_dir"] + "/{metagenome}/final.contigs.fa",
     output:
-        config["out_dir"] + "/{metagenome}/virfinder/{metagenome}_vf_preds.csv",
+        config["out_dir"] + "/{metagenome}/virfinder/final_vf_preds.csv",
     params:
         virfinder=config["virfinder"],
         env=config["virfinder_env"],
@@ -511,7 +515,7 @@ rule pred_virfinder:
 
 rule reformat_virfinder:
     input:
-        config["out_dir"] + "/{metagenome}/virfinder/{metagenome}_vf_preds.csv",
+        config["out_dir"] + "/{metagenome}/virfinder/final_vf_preds.csv",
     output:
         config["out_dir"] + "/{metagenome}/virfinder/virfinder_pred_formatted.csv",
     params:
@@ -631,7 +635,7 @@ rule reformat_virsorter:
     output:
         config["out_dir"] + "/{metagenome}/virsorter/virsorter_pred_formatted.csv",
     params:
-        out_dir=config["out_dir"] + "/{metagenome}/virsorter"",
+        out_dir=config["out_dir"] + "/{metagenome}/virsorter",
         reformat=config["reformat"],
         env=config["project_env"],
         activate=config["activate"],
