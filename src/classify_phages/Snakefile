@@ -543,7 +543,7 @@ rule wrangle_virsorter:
         set +eu
         source {params.activate} {params.env}
 
-        {params.wrangle} {params.out_dir}/Predicted_viral_sequences
+        {params.wrangle} {params.out_dir}/
         """
 
 
