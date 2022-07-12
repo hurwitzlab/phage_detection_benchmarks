@@ -3,6 +3,7 @@ assembly_dir: "../../data/phage_simulation/assembled_reads"
 bins_dir: "../../data/phage_simulation/binned_contigs"
 out_dir: "../../data/classified_phages"
 benchmarks_dir: "../../data/classified_phages/benchmarks"
+contig_tax_dir: "../../data/phage_simulation/summary/contig_taxa"
 
 # House scripts
 reformat: "python3 ../classify_simulated/reformat.py"
