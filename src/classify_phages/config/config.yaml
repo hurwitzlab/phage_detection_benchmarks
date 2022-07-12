@@ -14,6 +14,11 @@ benchmark: "python3 ../classify_simulated/benchmark.py"
 combine_preds_threads: 8
 combine_benchmarks_threads: 8
 reformat_threads: 8
+get_summary_stats: "python3 ../classify_simulated/get_summary_stats.py"
+bin_width: 0.5
+bin_min: 2.5
+bin_max: 5.0
+
 
 # General conda environments
 project_env: "../../env"
