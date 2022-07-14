@@ -1,0 +1,542 @@
+---
+title: "Simulated_metagenomes"
+output: html_notebook
+---
+
+# {.tabset}
+
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(hurwitzLab)
+library(magrittr)
+library(readr)
+library(RColorBrewer)
+library(stringr)
+library(tidyr)
+library(vegan)
+
+# Set ggplot2 theme for whole R session
+theme_set(theme_light() +
+            theme(plot.title = element_text(hjust = 0.5),
+                  plot.subtitle = element_text(hjust = 0.5)))
+```
+
+
+## Overview
+
+This notebook will take a look at the results of metagenome simulation using Bracken output profiles and InSilicoSeq.
+
+### Metagenome Simulation
+
+---
+
+#### Profiles
+
+---
+
+Bracken output was used to create profiles. Those profiles were processed to include those genomes that I have downloaded from RefSeq. Since it was possible that not all genomes could be found, the profiles were rescaled so the total abundance still added to 1.
+
+Additionally, a minimum phage content was impsed on all profiles. In this analysis a minimum of 5% phage should be present. If the original profile had less than that minimum, additional phages were added and/or the total phage content was rescaled to the minimum.
+
+#### Read Simulation
+
+---
+
+The processed profiles were used by InSilicoSeq to create 20M simulated paired-end reads (10M fwd + 10M rev) using three error models:
+
+model | read_length
+:-:  | :-: 
+MiSeq | 300 bp
+HiSeq | 125 bp
+NovaSeq | 150 bp
+
+#### Assembly
+
+---
+
+MegaHit was used to assemble the reads into contigs.
+
+
+#### Binning
+
+---
+
+Binning was performed using Bowtie2 and MetaBat.
+
+An index was created using the contigs, and the reads were mapped to this index using Bowtie2. MetaBat2 was used to determine coverage depthsbased on this mapping. Using the depths, the contigs were binned.
+
+These binned contigs will be the input to MARVEL.
+
+### Simulated Metagenome Analysis
+
+---
+
+#### BLAST
+
+---
+
+The most important thing to know is the origin of each contig. This is done per-profile. The genomes used in a profile for simulation were turned into a BLAST database. The contigs were then aligned to the BLAST database using an e-value of $10^-20$.
+
+#### BLAST parsing
+
+---
+
+Since the BLAST output files are fairly large, I parsed out the relevant information into the file following the convention {profile}_{errormodel}_parsed_blast.csv with the following columns
+
+query_id | hit_id | e_val | query_length | alignment_length | start | end
+:-:  | :-: | :-:  | :-: | :-:  | :-: | :-:
+contig ID | genome accession | e-value | contig length | length aligned | alignment start position | alignment end position
+
+
+#### Contig assignment
+
+---
+
+The BLAST results were ambiguous in defining the genomic origin of the contigs for several reasons. For many contigs, they had strong (e-val=0) hits to several genomes. For other contigs, misassembly occured (as hoped). So an additional step uses the BLAST output to assign either a single genomic origin, or several genomic origins in the case of chimeric contigs.
+
+
+#### Profile Comparison
+
+---
+
+Since the profiles had to be rescaled to account for the genomes present in my download of RefSeq, I want to check that the profiles are still similar in composition.
+
+For each profile, a file was created comparing the original Bracken output, and my generated profile. The files follow {profile}_profile_comparison.txt with the following columns
+
+taxonomy_id | accession | fraction_total_reads_bracken | fraction_total_reads
+:-:  | :-: | :-:  | :-:
+tax ID | accession (if in my db) | original profile | my profile
+
+#### Assembly Assessment
+
+---
+
+To assess the assemblies, a list of the contigs and their lengths were reported. 
+
+## Profile Comparison
+
+Here, I will compare the profiles from Bracken and my generated profiles.
+
+```{r, echo=FALSE}
+relabel_profiles <- function(df) {
+  df %>%
+    mutate(origin = case_when(
+      grepl("SRR", profile) ~ "Ocean",
+      grepl("Adult", profile) ~ "Human Gut",
+      grepl("Baby", profile) ~ "Human Gut",
+      grepl("DRR", profile) ~ "Soil",
+      grepl("SRS", profile) ~ "Human Skin"
+    )) %>%
+    mutate(profile = case_when(
+      profile == "Adult1" ~ "adult1",
+      profile == "Adult2" ~ "adult2",
+      profile == "Baby1" ~ "infant1",
+      profile == "Baby2" ~ "infant2",
+      profile == "SRR4831655" ~ "ocean1",
+      profile == "SRR4831664" ~ "ocean2",
+      profile == "SRR5720259" ~ "ocean3",
+      profile == "SRR5720320" ~ "ocean4",
+      profile == "SRR6507280" ~ "ocean5",
+      profile == "SRS015381" ~ "skin1",
+      profile == "SRS017851" ~ "skin2",
+      profile == "SRS045606" ~ "skin3",
+      profile == "SRS058221" ~ "skin4",
+      profile == "SRS065187" ~ "skin5",
+      profile == "DRR001970" ~ "soil1",
+      profile == "DRR001973" ~ "soil2",
+      profile == "DRR001974" ~ "soil3"
+    )) %>%
+    group_by(origin, profile)
+}
+```
+
+
+
+```{r, echo=FALSE}
+profiles <- read_csv("../../data/metagenome_simulation/summary/profile_comparisons/combined_profile_comparison.csv", show_col_types = FALSE)
+
+taxonomy <- read_csv("../../data/refseq_info/taxonomy.csv", show_col_types = FALSE)
+
+profiles <- profiles %>%
+  relabel_profiles() %>%
+  filter(!grepl("soil", profile)) %>% 
+  left_join(
+    taxonomy,
+    by = c("accession" = "accession"),
+    suffix = c("", "profile")
+  ) %>% 
+  mutate(fraction_total_reads = as.numeric(fraction_total_reads),
+         fraction_total_reads_bracken = as.numeric(fraction_total_reads_bracken))
+```
+
+### Dissimilarity of Profiles
+
+---
+
+Firstly let's compute the distance between the Bracken output and my generated profiles using Bray-Curtis index.
+
+```{r, echo=FALSE}
+calc_distance = function(df) {
+  df %>%
+    distinct(taxonomy_id, .keep_all = TRUE) %>%
+    pivot_longer(
+      c(fraction_total_reads, fraction_total_reads_bracken),
+      names_to = "profile_version",
+      values_to = "proportion"
+    ) %>%
+    pivot_wider(
+      id_cols = c(profile, profile_version, origin),
+      names_from = taxonomy_id,
+      values_from = proportion
+    ) %>%
+    ungroup() %>%
+    select(-profile, -profile_version, -origin) %>%
+    vegdist(na.rm = TRUE)
+}
+```
+
+```{r}
+bray_df = tibble(profile = character(), distance = numeric())
+for(this_profile in unique(profiles$profile)) {
+  distance <- profiles %>%
+    filter(profile == this_profile) %>% 
+    calc_distance()
+  new_row = tibble(profile = this_profile, distance = distance[1])
+  bray_df = bind_rows(bray_df, new_row)
+}
+
+bray_df <- bray_df %>%
+  mutate(
+    origin = case_when(
+      grepl("ocean", profile) ~ "Ocean",
+      grepl("adult", profile) ~ "Human Gut",
+      grepl("infant", profile) ~ "Human Gut",
+      grepl("soil", profile) ~ "Soil",
+      grepl("skin", profile) ~ "Human Skin"
+    )
+  )
+
+```
+
+```{r, echo=FALSE}
+bray_df %>% 
+  ggplot(aes(x = distance, y = profile)) +
+  facet_wrap(~ origin, scales = "free_y") +
+  geom_col(alpha = 0.8) +
+  labs(x = "Bray-Curtis Dissimilarity",
+       y = "")
+
+ggsave("figures/bray_curtis.svg",
+       width = 6, height = 3)
+ggsave("figures/bray_curtis.png",
+       width = 6, height = 3)
+  
+```
+
+```{r}
+bray_df %>%
+  group_by(origin) %>% 
+  summarize(mean = mean(distance))
+```
+
+
+```{r, echo=FALSE}
+diversities <- profiles %>%
+  summarise(
+    'Bracken' = diversity(fraction_total_reads_bracken),
+    'My Profile' = diversity(fraction_total_reads)
+  ) %>%
+  pivot_longer(
+    cols = c('Bracken', 'My Profile'),
+    names_to = 'version',
+    values_to = 'diversity'
+  )
+
+diversities %>%
+  ggplot(aes(
+    x = diversity,
+    y = profile,
+    color = version,
+    fill = version
+  )) +
+  facet_wrap(~ origin, scales = "free") +
+  geom_col(position = 'dodge', alpha = 0.8) + 
+  scale_color_hurwitz(palette = "classic") +
+  scale_fill_hurwitz(palette = "classic") +
+  theme(legend.position = 'top') +
+  labs(title = 'Shannon Diversity of Profiles',
+       x = 'Shannon Diversity',
+       y = '',
+       color = '',
+       fill = '')
+```
+
+### Composition comparison
+
+---
+
+These are the fractions of total reads for each kingdom in *the profile* used by InSilicoSeq.
+
+```{r, echo=FALSE, fig.height=6, message=FALSE}
+profiles %>%
+  filter(!is.na(fraction_total_reads)) %>%
+  distinct(profile, taxid, .keep_all = TRUE) %>%
+  group_by(origin, profile, superkingdom) %>%
+  summarize(prop = sum(fraction_total_reads)) %>%
+  ggplot(aes(
+    x = prop,
+    y = profile,
+    color = origin,
+    fill = origin
+  )) +
+  facet_wrap( ~ superkingdom, scales = "free_x", nrow = 3) +
+  geom_col() +
+  labs(x = "Proportion of total reads",
+       y = "",
+       title = "Proportion of reads in profile by kingdom",
+       color = "Origin",
+       fill = "Origin")
+```
+
+### Phages
+
+---
+
+Here are the proportions of reads in the profiles that contain the string "phage" in the species name.
+
+```{r, message=FALSE, echo = FALSE}
+phages <- profiles %>% 
+  filter(superkingdom == "Viruses") %>% 
+  filter(str_detect(species, regex("phage", ignore_case = T)))
+
+phages %>% 
+  filter(!is.na(fraction_total_reads)) %>% 
+  distinct(profile, taxid, .keep_all = TRUE) %>%
+  group_by(origin, profile) %>%
+  summarize(percent = 100 * sum(fraction_total_reads))
+```
+```{r}
+rm(bray_df, profiles, new_row, taxonomy)
+```
+
+
+## Contigs
+
+Here I will look at the contigs assembled from the simulated reads.
+
+### Length Distributions
+
+Below shows the histogram of $\log_{10} length$ for both the raw contigs, and those that have been filtered by length to remove single reads.
+
+```{r, echo=FALSE}
+contigs <-
+  read_csv(
+    "../../data/metagenome_simulation/summary/contigs/combined_contig_summary.csv",
+    show_col_types = FALSE
+  )
+
+contigs <- contigs %>%
+  relabel_profiles() %>%
+  group_by(origin, model) %>% 
+  mutate(model = case_when(
+    model == "hiseq" ~ "HiSeq",
+    model == "miseq" ~ "MiSeq",
+    model == "novaseq" ~ "NovaSeq"
+  ))
+
+```
+
+```{r, echo=FALSE}
+contigs %>% 
+  mutate(log_length = log(length, 10)) %>% 
+  ggplot(aes(x = model, y = log_length, color = model, fill = model)) +
+  facet_wrap(~ origin) +
+  geom_violin(alpha=0.2) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position="none") +
+  ylim(c(NA, 6)) +
+  labs(y = "Log 10 of contig length",
+       x = "")
+
+ggsave("figures/model_contig_length_violin.svg",
+       width = 4, height = 4)
+ggsave("figures/model_contig_length_violin.png",
+       width = 4, height = 4)
+  
+```
+
+Here are the shortest and longest contigs per model
+
+```{r, echo=FALSE}
+contigs %>% group_by(model) %>%
+  summarise(low = range(length)[1],
+            high = range(length)[2])
+  
+    
+```
+```{r}
+rm(contigs)
+```
+
+
+
+## Contig Taxonomic Origins
+
+This will look at the assigned genomic origin of the contigs.
+
+```{r, echo=FALSE}
+contig_tax <-
+  read_csv(
+    '../../data/metagenome_simulation/summary/contig_taxa/combined_contig_taxonomy.csv',
+    show_col_types = FALSE
+  ) %>% 
+  rename('assembly' = 'origin') %>% 
+  relabel_profiles() %>% 
+  mutate(model = case_when(
+    model == "hiseq" ~ "HiSeq",
+    model == "miseq" ~ "MiSeq",
+    model == "novaseq" ~ "NovaSeq"
+  ))
+
+write_csv(contig_tax, file="processed_data/contig_taxonomy.csv")
+```
+
+### Multiple vs Single Origin
+
+Contigs that were deemed to come from a single genome.
+```{r, echo=FALSE}
+contig_tax %>%
+  filter(assembly == 'single') %>%
+  group_by(origin, profile, model) %>%
+  count() %>%
+  ggplot(aes(
+    y = n,
+    x = model,
+    color = origin,
+    fill = origin
+  )) +
+  facet_wrap( ~ profile) +
+  geom_col() +
+  scale_fill_hurwitz('main') +
+  scale_color_hurwitz('main') +
+  labs(
+    title = 'Single Origin Contigs',
+    x = 'InSilicoSeq Error Model',
+    y = 'Number of Single Origin Contigs',
+    color = 'Origin',
+    fill = 'Origin'
+  )
+```
+
+
+Next is contigs that were deemed to come from multiple genomes (misassembly/chimera).
+```{r, echo=FALSE}
+contig_tax %>%
+  filter(assembly == 'chimera') %>%
+  group_by(origin, profile, model) %>%
+  count() %>%
+  ggplot(aes(
+    y = n,
+    x = model,
+    color = origin,
+    fill = origin
+  )) +
+  facet_wrap( ~ profile) +
+  geom_col() +
+  scale_fill_hurwitz('main') +
+  scale_color_hurwitz('main') +
+  labs(
+    title = 'Chimeric Contigs',
+    x = 'InSilicoSeq Error Model',
+    y = 'Number of Chimeric Contigs',
+    color = 'Origin',
+    fill = 'Origin'
+  )
+```
+
+Now, to see if there were any chimera containing phage reads. Firstly, filtering for viral origin in a chimeric contig.
+
+```{r, echo = FALSE}
+chimera <- contig_tax %>% 
+  filter(assembly == 'chimera')
+
+chimera %>% group_by(query_id) %>% filter(kingdom == 'viral')
+```
+
+It looks like there were only a few viral portions of chimera, and none of them were phage.
+
+### Phage Contigs
+
+```{r, echo = FALSE, message = FALSE}
+contig_tax_summary <- contig_tax %>% 
+  filter(assembly == 'single') %>% 
+  group_by(origin, profile, model) %>% 
+  filter(superkingdom == "Viruses") %>% 
+  filter(str_detect(species, regex("phage", ignore_case = T))) %>% 
+  count() %>% 
+  rename('phage' = 'n')
+
+contig_tax_summary <- contig_tax %>% 
+  filter(assembly == 'single') %>% 
+  group_by(origin, profile, model) %>%
+  count() %>% 
+  rename('all' = 'n') %>% 
+  right_join(contig_tax_summary) %>% 
+  mutate("non-phage" = all - phage,
+         "prop_phage" = phage / all)
+  
+```
+```{r, echo=FALSE}
+contig_tax_summary %>% 
+  ggplot(aes(x = model, y = prop_phage, color = origin, fill = origin)) +
+  facet_wrap(~ profile) +
+  geom_col() +
+  scale_fill_hurwitz('main') +
+  scale_color_hurwitz('main') +
+  labs(x = "InSilicoSeq Error Model",
+       y = "Phage Proportion of Contigs",
+       color = "Origin",
+       fill = "Origin",
+       title = "Phage Presence in Assemblies")
+```
+
+Here is the range of the percentage of phage in the assemblies:
+
+```{r, echo=FALSE}
+range(contig_tax_summary$prop_phage) * 100
+```
+
+## Phage Contig Characteristics
+
+```{r, echo=FALSE}
+contig_tax %>%
+  mutate(phage_contig = case_when(
+    superkingdom == "Viruses" &
+      str_detect(species, regex("phage", ignore_case = T)) ~ 'phage',
+    TRUE ~ 'non_phage'
+  )) %>%
+  filter(phage_contig == 'phage') %>%
+  mutate(log_length = log(query_length, 10)) %>% 
+  ggplot(aes(x = model, y = log_length, color = model, fill = model)) +
+  facet_wrap(~ origin) +
+  geom_violin(alpha=0.2) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position="none") +
+  ylim(c(NA, 6)) +
+  labs(y = "Log 10 of phage contig length",
+       x = "")
+
+ggsave("figures/model_phage_contig_length_violin.svg",
+       width = 4, height = 4)
+ggsave("figures/model_phage_contig_length_violin.png",
+       width = 4, height = 4)
+
+```
+
+```{r, echo=False}
+rm(contig_tax, contig_tax_summary)
+```
+
