@@ -197,11 +197,10 @@ rule reformat_dvf:
 
 rule pred_marvel:
     input:
-        config["bins_dir"] + "/{metagenome}/bin.1.fa",
+        config["bins_dir"] + "/{metagenome}/",
     output:
         config["out_dir"] + "/{metagenome}/marvel/results.txt",
     params:
-        bin_dir=config["bins_dir"] + "/{metagenome}/",
         marvel=config["marvel"],
         marvel_dir=config["marvel_dir"],
         env=config["marvel_env"],
@@ -220,7 +219,7 @@ rule pred_marvel:
         cd {params.marvel_dir}
 
         ({params.marvel} \
-            -i ../{params.bin_dir} \
+            -i ../{input} \
             -t {params.threads}
 
         # Create output file
