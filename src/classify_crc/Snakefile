@@ -3,35 +3,8 @@
 
 rule all:
     input:
-        config["out_dir"] + "/combined_out/combined.csv",
         config["out_dir"] + "/combined_out/combined_benchmarks.csv",
-
-
-rule combine_preds:
-    input:
-        expand(
-            "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
-            out_dir=config["out_dir"],
-            metagenome=METAGENOMES,
-            tool=config["tools"],
-        ),
-    output:
         config["out_dir"] + "/combined_out/combined.csv",
-    params:
-        out_dir=config["out_dir"],
-        combine=config["combine"],
-        env=config["project_env"],
-        activate=config["activate"],
-    threads: config["combine_preds_threads"]
-    shell:
-        """
-        set +eu
-        source {params.activate} {params.env}
-
-        {params.combine} \
-            -o {params.out_dir}/combined_out \
-            {input}
-        """
 
 
 rule combine_benchmarks:
@@ -60,11 +33,37 @@ rule combine_benchmarks:
         """
 
 
+rule combine_preds:
+    input:
+        expand(
+            "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
+            out_dir=config["out_dir"],
+            metagenome=METAGENOMES,
+            tool=config["tools"],
+        ),
+    output:
+        config["out_dir"] + "/combined_out/combined.csv",
+    params:
+        out_dir=config["out_dir"],
+        combine=config["combine"],
+        env=config["project_env"],
+        activate=config["activate"],
+    threads: config["combine_preds_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+        {params.combine} \
+            -o {params.out_dir}/combined_out \
+            {input}
+        """
+
+
 rule pred_deepvirfinder:
     input:
         config["assembly_dir"] + "/{metagenome}.fasta",
     output:
-        config["out_dir"] + "/{metagenome}/dvf/{metagenome}.fasta_gt1bp_dvfpred.txt",
+        config["out_dir"] + "/{metagenome}/dvf/final.contigs.fasta_gt1bp_dvfpred.txt",
     params:
         dvf=config["deepvirfinder"],
         env=config["dvf_env"],
@@ -90,7 +89,7 @@ rule pred_deepvirfinder:
 
 rule reformat_dvf:
     input:
-        config["out_dir"] + "/{metagenome}/dvf/{metagenome}.fasta_gt1bp_dvfpred.txt",
+        config["out_dir"] + "/{metagenome}/dvf/final.contigs.fasta_gt1bp_dvfpred.txt",
     output:
         config["out_dir"] + "/{metagenome}/dvf/dvf_pred_formatted.csv",
     params:
@@ -144,11 +143,10 @@ rule metabat_binning:
 
 rule pred_marvel:
     input:
-        config["bins_dir"] + "/{metagenome}/bin.1.fa",
+        config["bins_dir"] + "/{metagenome}/",
     output:
         config["out_dir"] + "/{metagenome}/marvel/results.txt",
     params:
-        bin_dir=config["bins_dir"] + "/{metagenome}/",
         marvel=config["marvel"],
         marvel_dir=config["marvel_dir"],
         env=config["marvel_env"],
@@ -167,7 +165,7 @@ rule pred_marvel:
         cd {params.marvel_dir}
 
         ({params.marvel} \
-            -i ../{params.bin_dir} \
+            -i ../{input} \
             -t {params.threads}
 
         # Create output file
