@@ -1,6 +1,8 @@
 ---
 title: "Chopped Genome Classifications"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 # {.tabset}
@@ -43,7 +45,7 @@ Kingdom  | 500 nt | 1000 nt | 3000 nt | 5000 nt
 archaea  | 10k    | 10k     | 10k     | 10k
 bacteria | 10k    | 10k     | 10k     | 10k
 fungi    | 10k    | 10k     | 10k     | 10k
-virus    | 10k    | 10k     | 10k     | 10k
+viruses    | 10k    | 10k     | 10k     | 10k
 
 Fragment selection was done using the Snakemake pipeline in `src/data_selection/`. Currently, it was performed with replacement. The selected fragments were written to `data/selected_frags/`. Other folders may be added, such as `data/selected_frags_1/`, `data/selected_frags_2/`, *etc.* for replicates.
 
@@ -108,7 +110,7 @@ The final file containing taxonomy of all genomes that were chopped is `data/ref
 All analysis included here is conducted on the combined files:
 
 * `data/classified_chopped/combined_out/cleaned_combined.csv`
-* `data/classified_chopped/combined_out/combined_benchmarks.csv`
+* `data/classified_chopped/combined_out/cleaned_benchmarks.csv`
 
 ```{r imports, echo = FALSE}
 library(caret)
@@ -118,10 +120,17 @@ library(gganimate)
 library(ggplot2)
 library(ggrepel)     # Line plot text labels
 library(gifski)      # Render animations
+library(gt)
 library(hurwitzLab)  # Colors and palettes
+library(PRROC)
+library(RColorBrewer)
 library(stringr)     # str_glue()
+library(svglite)
 library(taxonomizr)
+library(tibble)
 library(tidyr)
+library(viridis)
+library(webshot)
 
 # Set ggplot2 theme for whole R session
 theme_set(theme_light() +
@@ -130,44 +139,48 @@ theme_set(theme_light() +
 
 # Read in all classifications
 class_df <-
-  read.csv('../../data/classified_chopped/combined_out/cleaned_combined.csv')
+  read.csv('../../data/classified_chopped/combined_out/cleaned_combined.csv') %>%
+  mutate(across(
+    c(length, tool, actual_class, predict_class, order),
+    as.factor
+  ))
 
 # Read in Snakemake benchmarks
-raw_bench_df <-
-  read.csv('../../data/classified_chopped/combined_out/combined_benchmarks.csv')
-```
+bench_df <-
+  read.csv('../../data/classified_chopped/combined_out/cleaned_benchmarks.csv') %>% 
+  mutate() %>% 
+  mutate(across(
+    c(length, tool, kingdom),
+    as.factor
+  ), runtime = runtime / 60,
+  cup_time = cpu_time / 60) %>% 
+  filter(!(tool == "VIBRANT" & length == 500),
+         !(tool == "VirSorter" & length == 500))
 
-
-
-## Data Cleaning
-
-
-### Clean Resource Usage
-
----
-
-
-```{r fix_bench_names, echo = FALSE}
-bench_df <- raw_bench_df %>%
-  rename(runtime = s) %>%
-  mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
-
-bench_df %>% colnames()
-
-bench_df <- bench_df %>%
-  mutate(
-    tool = case_when(
-      tool == "breadsticks" ~ "Unlimited Breadsticks",
-      tool == "dvf" ~ "DeepVirFinder",
-      tool == "metaphinder" ~ "MetaPhinder",
-      tool == "seeker" ~ "Seeker",
-      tool == "vibrant" ~ "VIBRANT",
-      tool == "viralverify" ~ "viralVerify",
-      tool == "virfinder" ~ "VirFinder",
-      tool == "virsorter" ~ "VirSorter",
-      tool == "virsorter2" ~ "VirSorter2",
-    )
+bench_summary <- bench_df %>%
+  group_by(tool, length) %>%
+  summarize(
+    n = n(),
+    mean_runtime = mean(runtime),
+    runtime_sd = sd(runtime),
+    runtime_se = runtime_sd / sqrt(n),
+    runtime_ci = runtime_se * qt((0.95) / 2 + 0.5, n - 1),
+    mean_cputime = mean(cpu_time),
+    cputime_sd = sd(cpu_time),
+    cputime_se = cputime_sd / sqrt(n),
+    cputime_ci = cputime_se * qt((0.95) / 2 + 0.5, n - 1),
+    mean_read = mean(io_in),
+    read_sd = sd(io_in),
+    read_se = read_sd / sqrt(n),
+    read_ci = read_se * qt((0.95) / 2 + 0.5, n - 1),
+    mean_write = mean(io_out),
+    write_sd = sd(io_out),
+    write_se = write_sd / sqrt(n),
+    write_ci = write_se * qt((0.95) / 2 + 0.5, n - 1)
   )
+
+# bench_df[bench_df$tool == "VIBRANT" && bench_df$length == 500] = NA
+# bench_df[bench_df$tool == "VirSorter" && bench_df$length == 500] = NA
 ```
 
 
@@ -198,34 +211,217 @@ cpu_time    | sec  | CPU time summed for user and system
 
 ---
 
-```{r time_tool_length, echo=FALSE}
-bench_df %>%
-  ggplot(aes(x = runtime / 60, y = tool, color = length)) +
+```{r time_tool_length, echo=FALSE, message=FALSE}
+runtime_tool_length_dotplot <- bench_df %>%
+  ggplot(aes(x = runtime, y = tool, color = length)) +
   geom_jitter(alpha = 0.5, height = 0.3) +
   scale_color_hurwitz("distinguish") +
   scale_y_discrete(limits = rev) +
   labs(
     y = "",
     x = "Run time (min)",
-    title = "Run times for classifying 10k fragments",
     color = "Length"
   )
+
+ggsave(
+  "figures/runtime_tool_length_dotplot.svg",
+  runtime_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/runtime_tool_length_dotplot.png",
+  runtime_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+runtime_tool_length_dotplot
+
+rm(runtime_tool_length_dotplot)
 ```
+
 ```{r meantime_tool_length, echo=FALSE, message=FALSE}
-bench_df %>%
-  group_by(tool, length) %>%
-  summarize(mean_runtime = mean(runtime)) %>%
-  ggplot(aes(x = mean_runtime / 60, y = tool, fill = length)) +
+avgruntime_tool_length_col <- bench_summary %>%
+  ggplot(aes(x = mean_runtime, y = tool, fill = length)) +
   geom_col(position = "dodge",
            alpha = 0.75,
            width = 0.75) +
+  geom_errorbar(
+    aes(
+      xmin = mean_runtime - runtime_ci,
+      xmax = mean_runtime + runtime_ci,
+      color = length,
+      y = tool
+    ),
+    position = "dodge",
+    width = 0.75,
+    show.legend = FALSE
+  ) +
   scale_fill_hurwitz("distinguish") +
+  scale_color_hurwitz("distinguish") +
   scale_y_discrete(limits = rev) +
   labs(y = "",
        x = "Run time (min)",
-       title = "Average run time for classifying 10k fragments",
        fill = "Length")
+
+avgruntime_tool_length_col
+
+ggsave(
+  "figures/avgruntime_tool_length_col.svg",
+  avgruntime_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/avgruntime_tool_length_col.png",
+  avgruntime_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+
+
+rm(avgruntime_tool_length_col)
 ```
+
+```{r, echo=FALSE, message=FALSE}
+runtime_table <- bench_summary %>%
+  group_by(tool, length) %>%
+  select(tool, length, mean_runtime, runtime_sd) %>% 
+  rename("mean" = mean_runtime, "sd" = runtime_sd) %>%
+  mutate(mean = signif(mean, 3), sd = signif(sd, 3)) %>% 
+  ungroup() %>%
+  pivot_wider(names_from = length, values_from = c(mean, sd)) %>%
+  mutate(across(everything(), as.character)) %>%
+  gt() %>%
+  cols_merge(c(mean_500, sd_500), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_1000, sd_1000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_3000, sd_3000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_5000, sd_5000), pattern = "{1} ({2})") %>%
+  cols_label(mean_500 = "500") %>%
+  cols_label(mean_1000 = "1000") %>%
+  cols_label(mean_3000 = "3000") %>%
+  cols_label(mean_5000 = "5000")
+
+runtime_table
+
+gtsave(runtime_table, "tables/runtime_table.rtf")
+
+rm(runtime_table)
+
+```
+
+
+<hr style="border:1px solid gray"> </hr>
+
+### CPU Times
+
+---
+
+```{r, echo=FALSE, message=FALSE}
+cputime_tool_length_dotplot <- bench_df %>%
+  ggplot(aes(x = cpu_time, y = tool, color = length)) +
+  geom_jitter(alpha = 0.5, height = 0.3) +
+  scale_color_hurwitz("distinguish") +
+  scale_y_discrete(limits = rev) +
+  labs(
+    y = "",
+    x = "CPU time (min)",
+    color = "Length"
+  )
+
+cputime_tool_length_dotplot
+
+ggsave(
+  "figures/cputime_tool_length_dotplot.svg",
+  cputime_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/cputime_tool_length_dotplot.png",
+  cputime_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+rm(cputime_tool_length_dotplot)
+```
+
+```{r, echo=FALSE, message=FALSE}
+avgcputime_tool_length_col <- bench_summary %>%
+  ggplot(aes(x = mean_cputime, y = tool, fill = length)) +
+  geom_col(position = "dodge",
+           alpha = 0.75,
+           width = 0.75) +
+  geom_errorbar(
+    aes(
+      xmin = mean_cputime - cputime_ci,
+      xmax = mean_cputime + cputime_ci,
+      color = length,
+      y = tool
+    ),
+    position = "dodge",
+    width = 0.75,
+    show.legend = FALSE
+  ) +
+  scale_fill_hurwitz("distinguish") +
+  scale_color_hurwitz("distinguish") +
+  scale_y_discrete(limits = rev) +
+  labs(y = "",
+       x = "CPU time (min)",
+       fill = "Length")
+
+avgcputime_tool_length_col
+
+ggsave(
+  "figures/avgcputime_tool_length_col.svg",
+  avgcputime_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/avgcputime_tool_length_col.png",
+  avgcputime_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+rm(avgcputime_tool_length_col)
+```
+
+```{r, echo=FALSE, message=FALSE}
+cputime_table <- bench_summary %>%
+  group_by(tool, length) %>%
+  select(tool, length, mean_cputime, cputime_sd) %>% 
+  rename("mean" = mean_cputime, "sd" = cputime_sd) %>%
+  mutate(mean = signif(mean, 3), sd = signif(sd, 3)) %>% 
+  ungroup() %>%
+  pivot_wider(names_from = length, values_from = c(mean, sd)) %>%
+  mutate(across(everything(), as.character)) %>%
+  gt() %>%
+  cols_merge(c(mean_500, sd_500), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_1000, sd_1000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_3000, sd_3000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_5000, sd_5000), pattern = "{1} ({2})") %>%
+  cols_label(mean_500 = "500") %>%
+  cols_label(mean_1000 = "1000") %>%
+  cols_label(mean_3000 = "3000") %>%
+  cols_label(mean_5000 = "5000")
+
+cputime_table
+
+gtsave(cputime_table, "tables/cputime_table.rtf")
+
+rm(cputime_table)
+
+```
+
 
 <hr style="border:1px solid gray"> </hr>
 
@@ -233,12 +429,90 @@ bench_df %>%
 
 ---
 
+```{r}
+readwrite_tool_length_dotplot <- bench_df %>%
+  rename("Read" = io_in, "Write" = io_out) %>%
+  pivot_longer(c(Read, Write), names_to = "operation", values_to = "mem") %>%
+  ggplot(aes(x = mem, y = tool, color = length)) +
+  facet_wrap(~operation, scales = "free_x") +
+  geom_jitter(alpha = 0.5, height = 0.3) +
+  scale_color_hurwitz("distinguish") +
+  scale_y_discrete(limits = rev) +
+  labs(
+    y = "",
+    x = "IO (MB)",
+    color = "Length"
+  )
+
+readwrite_tool_length_dotplot
+
+ggsave(
+  "figures/readwrite_tool_length_dotplot.svg",
+  readwrite_tool_length_dotplot,
+  width = 8,
+  height = 4
+)
+
+ggsave(
+  "figures/readwrite_tool_length_dotplot.png",
+  readwrite_tool_length_dotplot,
+  width = 8,
+  height = 4
+)
+
+rm(readwrite_tool_length_dotplot)
+
+```
+
+```{r, echo=FALSE, message=FALSE}
+io_summary <- bench_summary %>%
+  group_by(tool, length) %>%
+  select(tool, length, mean_read, read_sd, mean_write, write_sd) %>%
+  mutate(
+    mean_read = signif(mean_read, 3),
+    read_sd = signif(read_sd, 3),
+    mean_write = signif(mean_write, 3),
+    write_sd = signif(write_sd, 3)
+  ) %>%
+  ungroup() %>%
+  pivot_wider(
+    names_from = length,
+    values_from = c(mean_read, read_sd, mean_write, write_sd)
+  ) %>% 
+  mutate(across(everything(), as.character))
+
+io_table_cols = head(io_summary, 1) %>% # Take the first row of a column
+  mutate_all(as.character) %>% # prevents errors in pivot_longer
+  pivot_longer(everything(), names_to = "column", values_to = "value") %>%
+  select(-value) %>%
+  mutate(label = str_replace(column, ".*_(\\d+)", "\\1")) %>%
+  deframe()
+
+io_table = io_summary %>% 
+  gt() %>%
+  cols_merge(c(mean_read_500, read_sd_500), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_read_1000, read_sd_1000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_read_3000, read_sd_3000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_read_5000, read_sd_5000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_write_500, write_sd_500), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_write_1000, write_sd_1000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_write_3000, write_sd_3000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_write_5000, write_sd_5000), pattern = "{1} ({2})") %>%
+  tab_spanner(label = "Read", columns = matches("read")) %>% 
+  tab_spanner(label = "Write", columns = matches("write")) %>% 
+  cols_label(.list = io_table_cols)
+
+io_table
+gtsave(io_table, "tables/io_table.rtf")
+rm(io_table, io_table_cols, io_summary)
+```
+
 #### Read Operations
 
 ---
 
 ```{r read, echo=FALSE}
-bench_df %>%
+readoperations_tool_length_dotplot <- bench_df %>%
   ggplot(aes(x = io_in, y = tool, color = length)) +
   geom_jitter(alpha = 0.5, height = 0.3) +
   scale_color_hurwitz("distinguish") +
@@ -246,25 +520,94 @@ bench_df %>%
   labs(
     y = "",
     x = "Read Operations (MB)",
-    title = "Read operations for classifying 10k fragments",
     color = "Length"
   )
+
+ggsave(
+  "figures/readoperations_tool_length_dotplot.svg",
+  readoperations_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/readoperations_tool_length_dotplot.png",
+  readoperations_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+readoperations_tool_length_dotplot
+rm(readoperations_tool_length_dotplot)
+
 ```
 
 ```{r mean_read, echo=FALSE, message=FALSE}
-bench_df %>%
-  group_by(tool, length) %>%
-  summarize(mean_read = mean(io_in)) %>%
+avgreadoperations_tool_length_col <- bench_summary %>%
   ggplot(aes(x = mean_read, y = tool, fill = length)) +
   geom_col(position = "dodge",
            alpha = 0.75,
            width = 0.75) +
+  geom_errorbar(
+    aes(
+      xmin = mean_read - read_sd,
+      xmax = mean_read + read_sd,
+      color = length,
+      y = tool
+    ),
+    position = "dodge",
+    width = 0.75,
+    show.legend = FALSE
+  ) +
   scale_fill_hurwitz("distinguish") +
+  scale_color_hurwitz("distinguish") +
   scale_y_discrete(limits = rev) +
   labs(y = "",
        x = "Mean Read Operations (MB)",
-       title = "Average read operations for classifying 10k fragments",
        fill = "Length")
+
+avgreadoperations_tool_length_col
+
+ggsave(
+  "figures/avgreadoperations_tool_length_col.svg",
+  avgreadoperations_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/avgreadoperations_tool_length_col.png",
+  avgreadoperations_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+
+rm(avgreadoperations_tool_length_col)
+```
+
+```{r, echo=FALSE, message=FALSE}
+read_table <- bench_summary %>%
+  group_by(tool, length) %>%
+  select(tool, length, mean_read, read_sd) %>% 
+  rename("mean" = mean_read, "sd" = read_sd) %>%
+  mutate(mean = signif(mean, 3), sd = signif(sd, 3)) %>%
+  ungroup() %>%
+  pivot_wider(names_from = length, values_from = c(mean, sd)) %>%
+  mutate(across(everything(), as.character)) %>%
+  gt() %>%
+  cols_merge(c(mean_500, sd_500), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_1000, sd_1000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_3000, sd_3000), pattern = "{1} ({2})") %>%
+  cols_merge(c(mean_5000, sd_5000), pattern = "{1} ({2})") %>%
+  cols_label(mean_500 = "500") %>%
+  cols_label(mean_1000 = "1000") %>%
+  cols_label(mean_3000 = "3000") %>%
+  cols_label(mean_5000 = "5000")
+
+read_table
+gtsave(read_table, "tables/read_table.rtf")
+rm(read_table)
 ```
 
 #### Write Operations
@@ -272,7 +615,7 @@ bench_df %>%
 ---
 
 ```{r write, echo=FALSE}
-bench_df %>%
+writeoperations_tool_length_dotplot <- bench_df %>%
   ggplot(aes(x = io_out, y = tool, color = length)) +
   geom_jitter(alpha = 0.5, height = 0.3) +
   scale_color_hurwitz("distinguish") +
@@ -280,13 +623,30 @@ bench_df %>%
   labs(
     y = "",
     x = "Write Operations (MB)",
-    title = "Write operations for classifying 10k fragments",
     color = "Length"
   )
+
+ggsave(
+  "figures/writeoperations_tool_length_dotplot.svg",
+  writeoperations_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/writeoperations_tool_length_dotplot.png",
+  writeoperations_tool_length_dotplot,
+  width = 6,
+  height = 4
+)
+
+
+writeoperations_tool_length_dotplot
+rm(writeoperations_tool_length_dotplot)
 ```
 
 ```{r mean_write, echo=FALSE, message=FALSE}
-bench_df %>%
+avgwriteoperations_tool_length_col <- bench_df %>%
   group_by(tool, length) %>%
   summarize(mean_write = mean(io_out)) %>%
   ggplot(aes(x = mean_write, y = tool, fill = length)) +
@@ -297,8 +657,68 @@ bench_df %>%
   scale_y_discrete(limits = rev) +
   labs(y = "",
        x = "Mean Write Operations (MB)",
-       title = "Average write operations for classifying 10k fragments",
        fill = "Length")
+
+ggsave(
+  "figures/avgwriteoperations_tool_length_col.svg",
+  avgwriteoperations_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+ggsave(
+  "figures/avgwriteoperations_tool_length_col.png",
+  avgwriteoperations_tool_length_col,
+  width = 6,
+  height = 4
+)
+
+avgwriteoperations_tool_length_col
+rm(avgwriteoperations_tool_length_col)
+```
+#### Combined figure
+
+```{r, echo=FALSE}
+readwritecpu_tool_length_dotplot <- bench_df %>%
+  mutate(cpu_time = cpu_time / 60) %>%
+  rename(
+    "A. Read (MB)" = io_in,
+    "B. Write (MB)" = io_out,
+    "C. CPU Time (hr)" = cpu_time
+  ) %>%
+  pivot_longer(c("A. Read (MB)", "B. Write (MB)", "C. CPU Time (hr)"),
+               names_to = "operation",
+               values_to = "val") %>%
+  ggplot(aes(x = val, y = tool, color = length)) +
+  facet_wrap( ~ operation,
+              scales = "free_x",
+              nrow = 2) +
+  geom_jitter(alpha = 0.5, height = 0.3) +
+  scale_color_hurwitz("distinguish") +
+  scale_y_discrete(limits = rev) +
+  theme(legend.position = "bottom") +
+  labs(y = "",
+       x = "",
+       color = "Length")
+
+readwritecpu_tool_length_dotplot
+
+ggsave(
+  "figures/readwritecpu_tool_length_dotplot.svg",
+  readwritecpu_tool_length_dotplot,
+  width = 8,
+  height = 6, standalone=FALSE
+)
+
+ggsave(
+  "figures/readwritecpu_tool_length_dotplot.png",
+  readwritecpu_tool_length_dotplot,
+  width = 8,
+  height = 4
+)
+
+rm(readwritecpu_tool_length_dotplot)
+
 ```
 
 ## General Classification Perfomance
@@ -320,7 +740,8 @@ get_metrics <- function(df) {
     sensitivity = numeric(),
     specificity = numeric(),
     precision = numeric(),
-    recall = numeric()
+    recall = numeric(),
+    original_precision = numeric()
   )
 
   for (tool_i in levels(df$tool)) {
@@ -351,32 +772,29 @@ get_metrics <- function(df) {
           fp = cm$table[2],
           tn = cm$table[1],
           fn = cm$table[3],
-          F1 = cm$byClass["F1"],
-          specificity = cm$byClass["Specificity"],
-          sensitivity = cm$byClass["Sensitivity"],
-          precision = cm$byClass["Precision"],
-          recall = cm$byClass["Recall"]
+          original_precision = cm$byClass["Precision"],
         )
     }
   }
-  
+  metrics <- metrics %>% 
+    mutate(precision = tp / (tp + fp),
+           sensitivity = tp / (tp + fn),
+           specificity = tn / (tn + fp),
+           recall = sensitivity,
+           F1 = 2 * precision * sensitivity / (precision + sensitivity))
   metrics
 }
 ```
 
 
 ```{r, echo = FALSE}
-factor_columns <- c("length","tool", "actual_class", "predict_class", "order")
-
-class_df <- class_df %>% 
-  mutate_each(funs(factor(.)), factor_columns)
-
 metrics <- class_df %>% 
   get_metrics() %>% 
   mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
 
 metrics
 ```
+
 
 <hr style="border:1px solid gray"> </hr>
 
@@ -457,24 +875,24 @@ metrics %>%
 The animation below shows how the precision and recall of each tool shifts based on length.
 
 ```{r, echo = FALSE, results = FALSE}
-anim <- metrics %>%
-  ggplot(aes(y = precision, x = recall, color = tool)) +
-  geom_point(size = 3) +
-  scale_color_brewer(palette = "Dark2") +
-  lims(x = c(0, 1), y = c(0, 1)) +
-  labs(y = "Precision",
-       x = "Recall (Sensitivity)",
-       color = "Tool") +
-  transition_states(length) +
-  ggtitle("Precision vs. Recall",
-          subtitle = "Length = {closest_state}")
-
-anim_save(
-  "figures/animated_precision_recall.gif",
-  anim,
-  width = 600,
-  height = 500
-)
+# anim <- metrics %>%
+#   ggplot(aes(y = precision, x = recall, color = tool)) +
+#   geom_point(size = 3) +
+#   scale_color_brewer(palette = "Dark2") +
+#   lims(x = c(0, 1), y = c(0, 1)) +
+#   labs(y = "Precision",
+#        x = "Recall (Sensitivity)",
+#        color = "Tool") +
+#   transition_states(length) +
+#   ggtitle("Precision vs. Recall",
+#           subtitle = "Length = {closest_state}")
+# 
+# anim_save(
+#   "figures/animated_precision_recall.gif",
+#   anim,
+#   width = 600,
+#   height = 500
+# )
 ```
 
 ![](figures/animated_precision_recall.gif)
@@ -529,24 +947,24 @@ metrics %>%
 Here is a similar plot, but animated along length.
 
 ```{r, echo = FALSE, results = FALSE}
-anim <- metrics %>%
-  ggplot(aes(x = sensitivity, y = specificity, color = tool)) +
-  geom_point(size = 3) +
-  scale_color_brewer(palette = "Dark2") +
-  lims(x = c(0, 1), y = c(0, 1)) +
-  labs(y = "Specificity",
-       x = "Sensitivity",
-       color = "Tool") +
-  transition_states(length) +
-  ggtitle("Specificity vs. Sensitivity",
-          subtitle = "Length = {closest_state}")
-
-anim_save(
-  "figures/animated_specificity_sensitivity.gif",
-  anim,
-  width = 600,
-  height = 500
-)
+# anim <- metrics %>%
+#   ggplot(aes(x = sensitivity, y = specificity, color = tool)) +
+#   geom_point(size = 3) +
+#   scale_color_brewer(palette = "Dark2") +
+#   lims(x = c(0, 1), y = c(0, 1)) +
+#   labs(y = "Specificity",
+#        x = "Sensitivity",
+#        color = "Tool") +
+#   transition_states(length) +
+#   ggtitle("Specificity vs. Sensitivity",
+#           subtitle = "Length = {closest_state}")
+# 
+# anim_save(
+#   "figures/animated_specificity_sensitivity.gif",
+#   anim,
+#   width = 600,
+#   height = 500
+# )
 ```
 
 ![](figures/animated_specificity_sensitivity.gif)
@@ -561,7 +979,7 @@ This is not a true Receiver Operating Characteristic curve since I am only plott
 
 The axes shown here are the components that constitute precision. Tools with high precision will have points in the top left corner of the TP vs FP plot.
 
-```{r, echo=FALSe}
+```{r, echo=FALSE}
 metrics %>%
   ggplot(aes(x = fp, y = tp, color = length)) +
   facet_wrap( ~ tool) +
@@ -574,22 +992,22 @@ metrics %>%
 ```
 
 ```{r, echo = FALSE, results = FALSE}
-anim <- metrics %>%
-  ggplot(aes(x = fp, y = tp, color = tool)) +
-  geom_point(size = 3) +
-  scale_color_brewer(palette = "Dark2") +
-  lims(x = c(0, 1), y = c(0, 1)) +
-  labs(x = "False Positive Rate",
-       y = "True Positive Rate",
-       color = "Tool") +
-  transition_states(length) +
-  ggtitle("TPR vs. FPR",
-          subtitle = "Length = {closest_state}")
-
-anim_save("figures/animated_tpr_fpr.gif",
-          anim,
-          width = 600,
-          height = 500)
+# anim <- metrics %>%
+#   ggplot(aes(x = fp, y = tp, color = tool)) +
+#   geom_point(size = 3) +
+#   scale_color_brewer(palette = "Dark2") +
+#   lims(x = c(0, 1), y = c(0, 1)) +
+#   labs(x = "False Positive Rate",
+#        y = "True Positive Rate",
+#        color = "Tool") +
+#   transition_states(length) +
+#   ggtitle("TPR vs. FPR",
+#           subtitle = "Length = {closest_state}")
+# 
+# anim_save("figures/animated_tpr_fpr.gif",
+#           anim,
+#           width = 600,
+#           height = 500)
 ```
 
 ![](figures/animated_tpr_fpr.gif)
@@ -621,37 +1039,53 @@ viral %>%
 
 ---
 
+```{r distribution_function, echo = FALSE}
+plot_order_dist <- function(df) {
+  df %>%
+    mutate(order = if_else(is.na(order), "Unknown", as.character(order))) %>%
+    group_by(order, length) %>%
+    count() %>%
+    mutate(num_frags = n / length(levels(viral$tool))) %>%
+    mutate(
+      order_grouping = case_when(
+        order == "Caudovirales" ~ "Caudovirales",
+        order == "Unknown" ~ "Unknown",
+        TRUE ~ "All others"
+      )
+    ) %>%
+    ggplot(aes(
+      y = fct_reorder(order, num_frags),
+      x = num_frags,
+      color = fct_reorder(order_grouping, -num_frags),
+      fill = fct_reorder(order_grouping, -num_frags)
+    )) +
+    scale_color_hurwitz("main") +
+    scale_fill_hurwitz("main") +
+    geom_col() +
+    facet_wrap(~ length) +
+    theme(
+      axis.text.y = element_blank(),
+      panel.grid.major.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      plot.caption = element_text(hjust = 0.5)
+    ) +
+    labs(
+      y = "Viral order",
+      x = "Number of fragments",
+      color = "Order",
+      fill = "Order",
+      title = "Fragment distribution by length and viral order"
+    )
+}
+
+```
+
+
 ```{r order_histo, echo=FALSE}
 viral %>%
-  mutate(order = if_else(is.na(order), "unknown", as.character(order))) %>%
-  group_by(order) %>%
-  count() %>%
-  mutate(num_frags = n / length(levels(viral$tool))) %>%
-  select(-n) %>%
-  mutate(is_na = (order == "unknown")) %>%
-  ggplot(aes(
-    x = fct_reorder(order,-num_frags),
-    y = num_frags / 40000,
-    color = is_na,
-    fill = is_na
-  )) +
-  scale_color_hurwitz("contrast") +
-  scale_fill_hurwitz("contrast") +
-  geom_col() +
-  theme(
-    axis.text.x = element_blank(),
-    panel.grid.major.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    legend.position = "none",
-    plot.caption = element_text(hjust = 0.5)
-  ) +
-  labs(
-    title = "Distribution of viral orders",
-    subtitle = "Red: Unretrieved taxonomy",
-    x = "Viral order",
-    y = "Proportion of fragments",
-    caption = "Caudovirales makes up >50% of fragments"
-  )
+  plot_order_dist() +
+  labs(subtitle = "All viral fragments included")
+  
 ```
 
 
@@ -661,42 +1095,123 @@ viral %>%
 
 ---
 
-Were the true positive (TP) and false negative (FN) rates different for caudovirales and other orders?
+Was sensitivity different for caudovirales and other orders?
 
-This is only looking at fragments that were truly viral, so *F1*-score, etc are not relevant.
+This is only looking at fragments that were truly viral, so *F1*-score, etc are not relevant. All "viral" sequences are included here.
 
 ```{r, echo = FALSE}
-caudo_metrics <- viral %>% 
-  filter(order == "Caudovirales") %>% 
-  get_metrics() %>% 
-  mutate(caudo = "Caudovirales")
+metrics_by_phage_order <- function(df, other_label) {
+  caudo_metrics <- df %>%
+    filter(order == "Caudovirales") %>%
+    get_metrics() %>%
+    mutate(caudo = "Caudovirales")
+  
+  noncaudo_metrics <- df %>%
+    filter(order != "Caudovirales") %>%
+    get_metrics() %>%
+    mutate(caudo = other_label)
+  
+  metrics <- bind_rows(caudo_metrics, noncaudo_metrics)
+  
+  metrics
+}
 
-noncaudo_metrics <- viral %>% 
-  filter(order != "Caudovirales") %>% 
-  get_metrics() %>% 
-  mutate(caudo = "other")
-
-viral_metrics <- bind_rows(caudo_metrics, noncaudo_metrics)
-
-viral_metrics %>%
-  ggplot(aes(x = as.integer(length)/1000, y= sensitivity, color = caudo)) +
-  facet_wrap(~ tool) +
-  geom_point() +
-  labs(x = "Fragment length (1000 nt)",
-       y = "Sensitivity",
-       color = "")
+plot_order_performance <- function(df) {
+  
+  
+  df %>%
+    ggplot(aes(
+      x = as.integer(length) / 1000,
+      y = sensitivity,
+      color = fct_rev(caudo)
+    )) +
+    facet_wrap(~ tool) +
+    geom_point() +
+    scale_color_hurwitz("distinguish") +
+    labs(
+      x = "Fragment length (1000 nt)",
+      y = "Sensitivity",
+      color = "Order"
+    )
+}
 ```
 
+```{r, echo = FALSE}
+viral %>% 
+  metrics_by_phage_order("Other viruses") %>% 
+  plot_order_performance() +
+  labs(subtitle = "All viral fragments included")
+```
+
+
+## Phages only
+
+### Phage selection
+
+---
+
+Previous results include all viral sequences, of which many are eukaryotic viruses. To filter only for bacteriophage, I am using a string match on the species, searching for "phage" (case insensitive).
+
+The distribution is even more skewed when only including phages. I would like to verify that my method of finding phages is sound.
+
+```{r, echo = FALSE}
+phages <- viral %>% 
+  filter(str_detect(species, regex("phage", ignore_case = T)))
+
+phages %>%
+  plot_order_dist() +
+  labs(subtitle = "Only phage fragments included") +
+  theme(axis.text.y = element_text())
+```
+
+<hr style="border:1px solid gray"> </hr>
+
+### Performance Differences
+
+---
+
+```{r, echo = FALSE}
+caudo_v_non <- phages %>% 
+  metrics_by_phage_order("Other phages")
+
+caudo_v_non %>% 
+  plot_order_performance()
+
+ggsave(
+  "figures/length_sensitivity_viral_order.svg",
+  width = 4,
+  height = 3, standalone=FALSE
+)
+
+ggsave(
+  "figures/length_sensitivity_viral_orde.png",
+  width = 4,
+  height = 3
+)
+```
 
 
 ## Binary Classification
 
-This analysis only includes phage and bacteria.
+This analysis only includes phage (as determined previously) and bacteria. Because I am only including phage and not all viral fragments, the classes are imbalanced.
 
 ```{r, echo=FALSE}
-two_class <- class_df %>% 
-  filter(actual %in% c('bacteria', 'viral'))
+bacteria <- class_df %>%
+  filter(actual == "bacteria")
 
+two_class <- bind_rows(bacteria, phages) %>%
+  mutate(actual = if_else(actual == "viral", "phage", actual))
+
+two_class %>%
+  group_by(actual, length) %>%
+  count() %>%
+  mutate(num_frags = n / length(levels(two_class$tool))) %>%
+  select(-n) %>%
+  pivot_wider(names_from = length, values_from = num_frags) %>%
+  rename("class" = "actual")
+
+```
+```{r, echo = FALSE}
 binary_metrics <- get_metrics(two_class) %>%
   mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
 
@@ -716,7 +1231,7 @@ binary_metrics %>%
   geom_col(position = "dodge",
            alpha = 0.75,
            width = 0.75) +
-  scale_fill_hurwitz("distinguish") +
+  scale_fill_brewer("Dark2") +
   scale_y_discrete(limits = rev) +
   labs(x = "F1 Score",
        y = "",
@@ -729,23 +1244,38 @@ binary_metrics %>%
   ggplot(aes(x = length, y = F1, color = tool)) +
   geom_line(alpha = 0.5) +
   geom_point(size = 2) +
-  geom_label_repel(
-    data = binary_metrics %>%
-      mutate(length = as.numeric(as.character(length))) %>%
-      filter(length == max(length)),
-    aes(label = tool),
-    xlim = 5500,
-    ylim = c(0, 1),
-    label.size = NA,
-    label.padding = 0
-  ) +
-  scale_color_hurwitz("distinguish") +
+  # geom_label_repel(
+  #   data = binary_metrics %>%
+  #     mutate(length = as.numeric(as.character(length))) %>%
+  #     filter(!is.na(precision)) %>% 
+  #     group_by(tool) %>% 
+  #     mutate(min_length = min(length)) %>% 
+  #     filter(length == min_length),
+  #   aes(label = tool),
+  #   xlim = -50,
+  #   ylim = c(0, 1),
+  #   label.size = NA,
+  #   label.padding = 0
+  # ) +
+  scale_color_brewer(palette = "Dark2") +
   theme(legend.position = "none") +
-  xlim(c(NA, 6500)) +
+  xlim(c(-50, NA)) +
   ylim(c(NA, 1)) +
   labs(x = "Fragment length (nt)",
-       y = "F1-score",
+       y = "F1 score",
        color = "Tool")
+
+ggsave(
+  "figures/length_f1_tool.svg",
+  width = 8,
+  height = 8, standalone=FALSE
+)
+
+ggsave(
+  "figures/length_f1_tool.png",
+  width = 8,
+  height = 8
+)
 ```
 
 <hr style="border:1px solid gray"> </hr>
@@ -765,30 +1295,20 @@ binary_metrics %>%
   labs(y = "Precision",
        x = "Recall (Sensitivity)",
        color = "Length")
-```
 
-```{r, echo = FALSE, results = FALSE}
-anim <- binary_metrics %>%
-  ggplot(aes(y = precision, x = recall, color = tool)) +
-  geom_point(size = 3) +
-  scale_color_brewer(palette = "Dark2") +
-  lims(x = c(0, 1), y = c(0, 1)) +
-  labs(y = "Precision",
-       x = "Recall (Sensitivity)",
-       color = "Tool") +
-  transition_states(length) +
-  ggtitle("Precision vs. Recall",
-          subtitle = "Length = {closest_state}")
+ggsave(
+  "figures/recall_precision_length_tool.svg",
+  width = 8,
+  height = 8, standalone=FALSE
+)
 
-anim_save(
-  "figures/animated_binary_precision_recall.gif",
-  anim,
-  width = 600,
-  height = 500
+ggsave(
+  "figures/recall_precision_length_tool.png",
+  width = 8,
+  height = 4
 )
 ```
 
-![](figures/animated_binary_precision_recall.gif)
 
 <hr style="border:1px solid gray"> </hr>
 
@@ -808,36 +1328,13 @@ binary_metrics %>%
        color = "Length")
 ```
 
-```{r, echo = FALSE, results = FALSE}
-anim <- binary_metrics %>%
-  ggplot(aes(x = sensitivity, y = specificity, color = tool)) +
-  geom_point(size = 3) +
-  scale_color_brewer(palette = "Dark2") +
-  lims(x = c(0, 1), y = c(0, 1)) +
-  labs(y = "Specificity",
-       x = "Sensitivity",
-       color = "Tool") +
-  transition_states(length) +
-  ggtitle("Specificity vs. Sensitivity",
-          subtitle = "Length = {closest_state}")
-
-anim_save(
-  "figures/animated_binary_specificity_sensitivity.gif",
-  anim,
-  width = 600,
-  height = 500
-)
-```
-
-![](figures/animated_binary_specificity_sensitivity.gif)
-
 <hr style="border:1px solid gray"> </hr>
 
-### ROC Snapshot
+### FPR vs TPR
 
 ---
 
-```{r, echo=FALSe}
+```{r, echo=FALSE}
 binary_metrics %>%
   ggplot(aes(x = fp, y = tp, color = length)) +
   facet_wrap( ~ tool) +
@@ -849,24 +1346,487 @@ binary_metrics %>%
        color = "Length")
 ```
 
-```{r, echo = FALSE, results = FALSE}
-anim <- binary_metrics %>%
-  ggplot(aes(x = fp, y = tp, color = tool)) +
-  geom_point(size = 3) +
-  scale_color_brewer(palette = "Dark2") +
-  lims(x = c(0, 1), y = c(0, 1)) +
-  labs(x = "False Positive Rate",
-       y = "True Positive Rate",
-       color = "Tool") +
-  transition_states(length) +
-  ggtitle("TPR vs. FPR",
-          subtitle = "Length = {closest_state}")
+### Precision-Recall Curves
 
-anim_save("figures/animated_binary_tpr_fpr.gif",
-          anim,
-          width = 600,
-          height = 500)
+---
+
+```{r, echo = FALSE}
+calc_precision_recall <- function(df) {
+  out_df <- tibble(
+    tool = character(),
+    length = character(),
+    recall = numeric(),
+    precision = numeric(),
+    prob = numeric(),
+    auc = numeric()
+  )
+  
+  for (tool_i in unique(df$tool)) {
+    tool_df <- df %>%
+      filter(tool == tool_i)
+    
+    for (length_i in unique(tool_df$length)) {
+      length_df <- tool_df %>%
+        filter(length == length_i)
+      
+      viral_probs <-
+        length_df$prob[length_df$actual_class == "viral"]
+      nonviral_probs <-
+        length_df$prob[length_df$actual_class == "non-viral"]
+      
+      pr <-
+        pr.curve(
+          scores.class0 = viral_probs,
+          scores.class1 = nonviral_probs,
+          curve = T
+        )
+      
+      pr_curve <- as_tibble(pr$curve) %>%
+        rename("recall" = V1,
+               "precision" = V2,
+               "prob" = V3)
+      pr_curve$tool = tool_i
+      pr_curve$length = length_i
+      pr_curve$auc = pr$auc.integral
+      
+      out_df <- out_df %>%
+        rbind(pr_curve)
+    }
+  }
+  
+  out_df
+}
 ```
 
-![](figures/animated_binary_tpr_fpr.gif)
+
+```{r, echo = FALSE}
+auprc <- two_class %>%
+  filter(!is.na(value), value != "-", tool != "VirSorter", tool != "VirSorter2") %>%
+  group_by(tool) %>%
+  mutate(
+    value = as.numeric(value),
+    min_val = min(value),
+    max_val = max(value),
+    prob = (value - min_val) / (max_val - min_val)
+  ) %>%
+  calc_precision_recall() %>%
+  mutate(length = factor(length, levels = c("500", "1000", "3000", "5000")))
+```
+
+```{r, echo = FALSE}
+precision_recall_curve <- auprc %>% 
+  ggplot(aes(x = recall, y = precision, color = length)) +
+  facet_wrap(~ tool) +
+  geom_line() +
+  scale_color_hurwitz("distinguish") +
+  labs(x = "Recall",
+       y = "Precision",
+       color = "Length (nt)")
+
+precision_recall_curve
+
+ggsave(
+  "figures/precision_recall_curve.svg",
+  width = 6,
+  height = 3.3, standalone=FALSE
+)
+
+ggsave(
+  "figures/precision_recall_curve.png",
+  width = 6,
+  height = 3.3
+)
+```
+```{r, echo = FALSE}
+auprc %>%
+  select(tool, length, auc) %>%
+  distinct() %>%
+  mutate(length = as.numeric(as.character(length)) / 1000) %>%
+  ggplot(aes(x = length, y = auc)) +
+  facet_wrap( ~ tool) +
+  geom_line(linetype = "dotdash",
+            alpha = 0.7,
+            color = "darkgrey") +
+  geom_point() +
+  labs(x = "Fragment Length (1000 nt)",
+       y = "AUPRC")
+
+ggsave(
+  "figures/auprc.svg",
+  width = 6,
+  height = 4, standalone=FALSE
+)
+
+ggsave(
+  "figures/auprc.png",
+  width = 6,
+  height = 4
+)
+```
+
+
+## Caudovirales
+
+Here, I will dig deeper into the caudoviral sequences taxonomies.Again, these are only including seqeunces determined to be phage (not just viral)
+
+### Top families
+
+```{r, echo = FALSE}
+caudo <- phages %>% 
+  filter(order == "Caudovirales") %>% 
+  group_by(family)
+
+caudo %>%
+  count() %>%
+  mutate(num_frags = n / length(levels(viral$tool))) %>%
+  select(-n) %>%
+  arrange(desc(num_frags))
+```
+
+<hr style="border:1px solid gray"> </hr>
+
+### Sensitivity by family
+
+---
+
+This plot becomes a bit complicated because there are lots of variables, and I cannot aggregate any of them, so here is how they are mapped:
+
+
+* length - $x$
+* sensitivity - $y$ 
+* caudovirus family - $facet\_wrap$
+* tool - $color$
+
+To make it a little easier on the eyes, I also scaled the $alpha$ by log of number of fragments in each family.
+
+```{r, echo = FALSE}
+caudo_metrics <- caudo %>% 
+  get_metrics() %>% 
+  mutate(family = "combined")
+
+for(family_i in levels(as.factor(caudo$family))) {
+  family_df <- caudo %>%
+    filter(family == family_i)
+  
+  family_metrics <- family_df %>% 
+    get_metrics() %>% 
+    mutate(family = family_i)
+  
+  caudo_metrics <- bind_rows(caudo_metrics, family_metrics)
+}
+```
+
+<hr style="border:1px solid gray"> </hr>
+
+### Top families
+
+---
+
+
+Alternatively, we can just look at the top (3) families
+
+```{r}
+top_caudo <- caudo %>%
+  count() %>%
+  mutate(num_frags = n / length(levels(viral$tool))) %>%
+  ungroup() %>%
+  top_n(n = 3)
+
+top_caudo_metrics <- caudo_metrics %>%
+  filter(family %in% top_caudo$family) %>%
+  left_join(caudo %>%
+              count() %>%
+              mutate(num_frags = n / length(levels(viral$tool))) %>%
+              select(-n))
+
+top_caudo_metrics %>%
+  ggplot(aes(
+    x = as.integer(length) / 1000,
+    y = sensitivity,
+    color = family,
+    alpha = num_frags
+  )) +
+  facet_wrap(~ tool) +
+  geom_point(aes()) +
+  scale_color_brewer(palette="Dark2") +
+  scale_alpha(range = c(0.5, 1),
+              trans = "log",
+              guide = "none") +
+  labs(
+    x = "Fragment length (1000 nt)",
+    y = "Sensitivity",
+    color = "Family"
+  )
+
+ggsave(
+  "figures/length_sensitivity_caudo_family.svg",
+  width = 8,
+  height = 6, standalone=FALSE
+)
+
+ggsave(
+  "figures/length_sensitivity_caudo_family.png",
+  width = 8,
+  height = 6
+)
+```
+
+## Eukaryotes
+
+Plot fungal fragments representing eukaryotes
+
+```{r, echo = FALSE}
+fungi <-class_df %>% 
+  filter(superkingdom == "Eukaryota")
+
+fungi_metrics <- fungi %>% 
+  get_metrics() %>% 
+  mutate(length = as.numeric(length))
+```
+
+```{r, echo = FALSE}
+fungi_metrics %>% 
+  ggplot(aes(x = length / 1000, y = specificity)) +
+  facet_wrap(~ tool) +
+  geom_point() +
+  labs(x = "Fragment length (1000 nt)",
+       y = "Specificity")
+
+ggsave(
+  "figures/fungi_specificity.svg",
+  width = 6,
+  height = 6, standalone=FALSE
+)
+
+ggsave(
+  "figures/fungi_specificity.png",
+  width = 6,
+  height = 6
+)
+```
+
+## Rare events
+
+This will demonstrate given the FPR and TPR, what will precision look like on communities with little phage representation.
+
+```{r, echo = FALSE}
+fake_community <- binary_metrics %>%
+  select(tool, length, tp, fp) %>%
+  rename("tpr" = tp, "fpr" = fp) %>%
+  mutate(
+    nn = 100,
+    even_np = 100,
+    mid_np = 10,
+    uneven_np = 1,
+    even_precision = tpr * even_np / (tpr * even_np + fpr * nn),
+    mid_precision = tpr * mid_np / (tpr * mid_np + fpr * nn),
+    uneven_precision = tpr * uneven_np / (tpr * uneven_np + fpr * nn)
+  ) %>%
+  drop_na() %>%
+  select(-nn, -even_np, -mid_np, -uneven_np) %>%
+  rename("1:1" = even_precision,
+         "1:10" = mid_precision,
+         "1:100" = uneven_precision) %>%
+  pivot_longer(c("1:1",
+                 "1:10",
+                 "1:100"),
+               values_to = "precision",
+               names_to = "community")
+  
+
+fake_community %>% 
+  ggplot(aes(x = length, y = precision, color = community)) +
+  facet_wrap(~ tool) +
+  geom_point()
+```
+
+```{r, echo = FALSE}
+
+precision_curve <- binary_metrics %>% 
+  select(tool, length, tp, fp, tn, fn) %>%
+  rename("tpr" = tp, "fpr" = fp, "fnr" = fn, "tnr" = tn) %>% 
+  merge(tibble(n_pos = c(seq(1, 1.9, by = 0.1), seq(2, 100)),
+               n_neg = 100)) %>% 
+  mutate(prop_pos = n_pos / n_neg,
+         precision = tpr * n_pos / (tpr * n_pos + fpr * n_neg),
+         npv = tnr * n_neg / (tnr * n_neg + fnr * n_pos)) %>% 
+  drop_na()
+
+
+precision_curve %>% 
+  ggplot(aes(x = n_neg / n_pos, y = precision, color = length)) +
+  facet_wrap(~ tool) +
+  geom_line(lwd = 1, alpha = 0.75) +
+   scale_color_hurwitz("distinguish") +
+  labs(x = "Negative:Positive ratio",
+       y = "Precision",
+       color = "Length (nt)")
+```
+
+```{r, echo = FALSE}
+nonviral_precision <- precision_curve %>%
+  ggplot(aes(
+    x = 1 - prop_pos,
+    y = precision,
+    color = length
+  )) +
+  facet_wrap( ~ tool) +
+  geom_line(lwd = 1, alpha = 0.75) +
+  scale_color_hurwitz("distinguish") +
+  scale_x_continuous(labels = scales::percent) +
+  labs(x = "Non-Viral Percentage of Contigs",
+       y = "Precision",
+       color = "Length (nt)")
+
+nonviral_precision
+
+ggsave(
+  "figures/nonviral_precision.svg",
+  width = 6,
+  height = 5, standalone=FALSE
+)
+
+ggsave(
+  "figures/nonviral_precision.png",
+  width = 6,
+  height = 5
+)
+```
+
+NPV indicates how well a tool is at excluding non-viral contigs. In this case, it is only considering bacterial contigs.
+
+```{r, echo = FALSE}
+precision_curve %>%
+  ggplot(aes(
+    x = 1 - prop_pos,
+    y = npv,
+    color = length
+  )) +
+  facet_wrap( ~ tool) +
+  geom_line(lwd = 1, alpha = 0.75) +
+  scale_color_hurwitz("distinguish") +
+  labs(x = "Non-viral Portion",
+       y = "Negative Predictive Value (NPV)",
+       color = "Length (nt)")
+```
+
+## Big Picture
+
+* mean_cpu: Average CPU time across lengths and organisms (hr)
+* speed: Fragments classified per minute CPU time
+* speed_quartile: Quartile of classification speed
+
+```{r, echo = FALSE}
+big_pic <- bench_df %>%
+  filter(tool != "Unlimited Breadsticks") %>%
+  group_by(tool) %>%
+  summarize(mean_cpu = mean(cpu_time / 60)) %>%
+  mutate(
+    speed = signif(10000 / (mean_cpu * 60), 3) ,
+    speed_quartile = cut(
+      speed,
+      quantile(speed),
+      include.lowest = TRUE,
+      labels = FALSE
+    )
+  )
+
+big_pic <-binary_metrics %>%
+  filter(tool != "Unlimited Breadsticks") %>%
+  group_by(tool) %>%
+  summarize(
+    mean_sensitivity = signif(mean(sensitivity), 3),
+    mean_precision = signif(mean(precision, na.rm = TRUE), 3)
+  ) %>%
+  mutate(sensitivity_quartile = cut(
+    mean_sensitivity,
+    quantile(mean_sensitivity),
+    include.lowest = TRUE,
+    labels = FALSE
+  ),
+  precision_quartile = cut(
+    mean_precision,
+    quantile(mean_precision),
+    include.lowest = TRUE,
+    labels = FALSE
+  )) %>% 
+  left_join(big_pic, by = "tool")
+
+big_pic <- fungi_metrics %>% 
+  group_by(tool) %>%
+  summarize(mean_specificity = signif(mean(specificity), 3)) %>% 
+  right_join(big_pic, by = "tool")
+
+big_pic <- caudo_v_non %>% 
+  select(tool, length, caudo, sensitivity) %>% 
+  pivot_wider(names_from = "caudo", values_from = "sensitivity") %>% 
+  rename(other = "Other phages") %>% 
+  mutate(retained_sensitivity = other / Caudovirales,
+         retained_sensitivity = replace_na(retained_sensitivity, 0),
+         retained_sensitivity = case_when(
+           retained_sensitivity > 1 ~ 1,
+           TRUE ~ retained_sensitivity
+         )) %>% 
+  group_by(tool) %>% 
+  summarize(diverse_phage = signif(mean(retained_sensitivity), 3)) %>% 
+  left_join(big_pic, by = "tool")
+```
+
+```{r, echo = FALSE}
+color_scale = c("grey", "green")
+
+big_pic_heatmap <- big_pic %>%
+  ungroup() %>%
+  # select(tool, contains("quartile")) %>%
+  select(tool,
+         speed,
+         mean_sensitivity,
+         mean_precision,
+         diverse_phage,
+         mean_specificity) %>%
+  gt() %>%
+  cols_label(
+    tool = "Tool",
+    speed = "Speed",
+    mean_precision = "Precision",
+    mean_sensitivity = "Sensitivity",
+    diverse_phage = "Phage Diversity",
+    mean_specificity = "Eukaryote Specificity"
+  ) %>%
+  data_color(columns = "speed",
+             colors = scales::col_numeric(
+               palette = color_scale,
+               domain = c(min(speed), max(speed))
+             )) %>%
+  data_color(columns = "mean_sensitivity",
+             colors = scales::col_numeric(
+               palette = color_scale,
+               domain = c(min(mean_sensitivity), max(mean_sensitivity))
+             )) %>%
+  data_color(columns = "mean_precision",
+             colors = scales::col_numeric(
+               palette = color_scale,
+               domain = c(min(mean_precision), max(mean_precision))
+             )) %>%
+  data_color(columns = "diverse_phage",
+             colors = scales::col_numeric(
+               palette = color_scale,
+               domain = c(min(diverse_phage), max(diverse_phage))
+             )) %>%
+  data_color(columns = "mean_specificity",
+             colors = scales::col_numeric(
+               palette = color_scale,
+               domain = c(min(mean_specificity), max(mean_specificity))
+             )) %>%
+  cols_align(align = "center") %>% 
+  cols_width(tool ~ px(110), 
+             everything() ~ px(80))
+
+
+big_pic_heatmap
+
+gtsave(big_pic_heatmap, "figures/bigpic_heatmap.png")
+
+rm(color_scale)
+```
 

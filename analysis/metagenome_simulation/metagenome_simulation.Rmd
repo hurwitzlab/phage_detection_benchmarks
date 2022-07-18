@@ -121,33 +121,14 @@ Here, I will compare the profiles from Bracken and my generated profiles.
 ```{r, echo=FALSE}
 relabel_profiles <- function(df) {
   df %>%
-    mutate(origin = case_when(
-      grepl("SRR", profile) ~ "Ocean",
-      grepl("Adult", profile) ~ "Human Gut",
-      grepl("Baby", profile) ~ "Human Gut",
-      grepl("DRR", profile) ~ "Soil",
-      grepl("SRS", profile) ~ "Human Skin"
-    )) %>%
     mutate(profile = case_when(
-      profile == "Adult1" ~ "adult1",
-      profile == "Adult2" ~ "adult2",
-      profile == "Baby1" ~ "infant1",
-      profile == "Baby2" ~ "infant2",
-      profile == "SRR4831655" ~ "ocean1",
-      profile == "SRR4831664" ~ "ocean2",
-      profile == "SRR5720259" ~ "ocean3",
-      profile == "SRR5720320" ~ "ocean4",
-      profile == "SRR6507280" ~ "ocean5",
-      profile == "SRS015381" ~ "skin1",
-      profile == "SRS017851" ~ "skin2",
-      profile == "SRS045606" ~ "skin3",
-      profile == "SRS058221" ~ "skin4",
-      profile == "SRS065187" ~ "skin5",
-      profile == "DRR001970" ~ "soil1",
-      profile == "DRR001973" ~ "soil2",
-      profile == "DRR001974" ~ "soil3"
+      profile == "SRR4831655" ~ "Profile 1",
+      profile == "SRR4831664" ~ "Profile 2",
+      profile == "SRR5720259" ~ "Profile 3",
+      profile == "SRR5720320" ~ "Profile 4",
+      profile == "SRR6507280" ~ "Profile 5"
     )) %>%
-    group_by(origin, profile)
+    group_by(profile)
 }
 ```
 
@@ -159,8 +140,8 @@ profiles <- read_csv("../../data/metagenome_simulation/summary/profile_compariso
 taxonomy <- read_csv("../../data/refseq_info/taxonomy.csv", show_col_types = FALSE)
 
 profiles <- profiles %>%
-  relabel_profiles() %>%
-  filter(!grepl("soil", profile)) %>% 
+  filter(grepl("SRR", profile)) %>% 
+  relabel_profiles() %>% 
   left_join(
     taxonomy,
     by = c("accession" = "accession"),
@@ -186,12 +167,12 @@ calc_distance = function(df) {
       values_to = "proportion"
     ) %>%
     pivot_wider(
-      id_cols = c(profile, profile_version, origin),
+      id_cols = c(profile, profile_version),
       names_from = taxonomy_id,
       values_from = proportion
     ) %>%
     ungroup() %>%
-    select(-profile, -profile_version, -origin) %>%
+    select(-profile, -profile_version) %>%
     vegdist(na.rm = TRUE)
 }
 ```
@@ -205,44 +186,31 @@ for(this_profile in unique(profiles$profile)) {
   new_row = tibble(profile = this_profile, distance = distance[1])
   bray_df = bind_rows(bray_df, new_row)
 }
-
-bray_df <- bray_df %>%
-  mutate(
-    origin = case_when(
-      grepl("ocean", profile) ~ "Ocean",
-      grepl("adult", profile) ~ "Human Gut",
-      grepl("infant", profile) ~ "Human Gut",
-      grepl("soil", profile) ~ "Soil",
-      grepl("skin", profile) ~ "Human Skin"
-    )
-  )
-
-```
-
-```{r, echo=FALSE}
-bray_df %>% 
-  ggplot(aes(x = distance, y = profile)) +
-  facet_wrap(~ origin, scales = "free_y") +
-  geom_col(alpha = 0.8) +
-  labs(x = "Bray-Curtis Dissimilarity",
-       y = "")
-
-ggsave("figures/bray_curtis.svg",
-       width = 6, height = 3)
-ggsave("figures/bray_curtis.png",
-       width = 6, height = 3)
-  
 ```
 
 ```{r}
-bray_df %>%
-  group_by(origin) %>% 
-  summarize(mean = mean(distance))
+bray_df
+```
+
+
+```{r, echo=FALSE}
+bray_df %>% 
+  ggplot(aes(y = distance, x = profile)) +
+  geom_col(alpha = 0.8) +
+  labs(x = "",
+       y = "Bray-Curtis Dissimilarity")
+
+ggsave("figures/bray_curtis.svg",
+       width = 3, height = 4)
+ggsave("figures/bray_curtis.png",
+       width = 3, height = 4)
+  
 ```
 
 
 ```{r, echo=FALSE}
 diversities <- profiles %>%
+  filter(!is.na(fraction_total_reads)) %>% 
   summarise(
     'Bracken' = diversity(fraction_total_reads_bracken),
     'My Profile' = diversity(fraction_total_reads)
@@ -255,12 +223,11 @@ diversities <- profiles %>%
 
 diversities %>%
   ggplot(aes(
-    x = diversity,
-    y = profile,
+    y = diversity,
+    x = profile,
     color = version,
     fill = version
   )) +
-  facet_wrap(~ origin, scales = "free") +
   geom_col(position = 'dodge', alpha = 0.8) + 
   scale_color_hurwitz(palette = "classic") +
   scale_fill_hurwitz(palette = "classic") +
@@ -282,21 +249,17 @@ These are the fractions of total reads for each kingdom in *the profile* used by
 profiles %>%
   filter(!is.na(fraction_total_reads)) %>%
   distinct(profile, taxid, .keep_all = TRUE) %>%
-  group_by(origin, profile, superkingdom) %>%
+  group_by(profile, superkingdom) %>%
   summarize(prop = sum(fraction_total_reads)) %>%
   ggplot(aes(
     x = prop,
-    y = profile,
-    color = origin,
-    fill = origin
+    y = profile
   )) +
   facet_wrap( ~ superkingdom, scales = "free_x", nrow = 3) +
   geom_col() +
   labs(x = "Proportion of total reads",
        y = "",
-       title = "Proportion of reads in profile by kingdom",
-       color = "Origin",
-       fill = "Origin")
+       title = "Proportion of reads in profile by kingdom")
 ```
 
 ### Phages
@@ -313,7 +276,7 @@ phages <- profiles %>%
 phages %>% 
   filter(!is.na(fraction_total_reads)) %>% 
   distinct(profile, taxid, .keep_all = TRUE) %>%
-  group_by(origin, profile) %>%
+  group_by(profile) %>%
   summarize(percent = 100 * sum(fraction_total_reads))
 ```
 ```{r}
@@ -337,13 +300,15 @@ contigs <-
   )
 
 contigs <- contigs %>%
+  filter(grepl("SRR", profile)) %>% 
   relabel_profiles() %>%
-  group_by(origin, model) %>% 
+  group_by(model) %>% 
   mutate(model = case_when(
     model == "hiseq" ~ "HiSeq",
     model == "miseq" ~ "MiSeq",
     model == "novaseq" ~ "NovaSeq"
   ))
+  
 
 ```
 
@@ -351,8 +316,8 @@ contigs <- contigs %>%
 contigs %>% 
   mutate(log_length = log(length, 10)) %>% 
   ggplot(aes(x = model, y = log_length, color = model, fill = model)) +
-  facet_wrap(~ origin) +
-  geom_violin(alpha=0.2) +
+  facet_wrap(~ profile, nrow = 1) +
+  geom_violin(alpha=0.2, draw_quantiles = 0.5) +
   scale_color_brewer(palette = "Dark2") +
   scale_fill_brewer(palette = "Dark2") +
   theme(legend.position="none") +
@@ -361,9 +326,9 @@ contigs %>%
        x = "")
 
 ggsave("figures/model_contig_length_violin.svg",
-       width = 4, height = 4)
+       width = 8, height = 2)
 ggsave("figures/model_contig_length_violin.png",
-       width = 4, height = 4)
+       width = 8, height = 2)
   
 ```
 
@@ -392,7 +357,8 @@ contig_tax <-
     '../../data/metagenome_simulation/summary/contig_taxa/combined_contig_taxonomy.csv',
     show_col_types = FALSE
   ) %>% 
-  rename('assembly' = 'origin') %>% 
+  rename('assembly' = 'origin') %>%
+  filter(grepl("SRR", profile)) %>% 
   relabel_profiles() %>% 
   mutate(model = case_when(
     model == "hiseq" ~ "HiSeq",
@@ -409,24 +375,22 @@ Contigs that were deemed to come from a single genome.
 ```{r, echo=FALSE}
 contig_tax %>%
   filter(assembly == 'single') %>%
-  group_by(origin, profile, model) %>%
+  group_by(profile, model) %>%
   count() %>%
   ggplot(aes(
     y = n,
     x = model,
-    color = origin,
-    fill = origin
+    color = model,
+    fill = model
   )) +
   facet_wrap( ~ profile) +
   geom_col() +
-  scale_fill_hurwitz('main') +
-  scale_color_hurwitz('main') +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
   labs(
     title = 'Single Origin Contigs',
     x = 'InSilicoSeq Error Model',
-    y = 'Number of Single Origin Contigs',
-    color = 'Origin',
-    fill = 'Origin'
+    y = 'Number of Single Origin Contigs'
   )
 ```
 
@@ -435,13 +399,11 @@ Next is contigs that were deemed to come from multiple genomes (misassembly/chim
 ```{r, echo=FALSE}
 contig_tax %>%
   filter(assembly == 'chimera') %>%
-  group_by(origin, profile, model) %>%
+  group_by(profile, model) %>%
   count() %>%
   ggplot(aes(
     y = n,
-    x = model,
-    color = origin,
-    fill = origin
+    x = model
   )) +
   facet_wrap( ~ profile) +
   geom_col() +
@@ -450,9 +412,7 @@ contig_tax %>%
   labs(
     title = 'Chimeric Contigs',
     x = 'InSilicoSeq Error Model',
-    y = 'Number of Chimeric Contigs',
-    color = 'Origin',
-    fill = 'Origin'
+    y = 'Number of Chimeric Contigs'
   )
 ```
 
@@ -472,7 +432,7 @@ It looks like there were only a few viral portions of chimera, and none of them 
 ```{r, echo = FALSE, message = FALSE}
 contig_tax_summary <- contig_tax %>% 
   filter(assembly == 'single') %>% 
-  group_by(origin, profile, model) %>% 
+  group_by(profile, model) %>% 
   filter(superkingdom == "Viruses") %>% 
   filter(str_detect(species, regex("phage", ignore_case = T))) %>% 
   count() %>% 
@@ -480,7 +440,7 @@ contig_tax_summary <- contig_tax %>%
 
 contig_tax_summary <- contig_tax %>% 
   filter(assembly == 'single') %>% 
-  group_by(origin, profile, model) %>%
+  group_by(profile, model) %>%
   count() %>% 
   rename('all' = 'n') %>% 
   right_join(contig_tax_summary) %>% 
@@ -489,17 +449,27 @@ contig_tax_summary <- contig_tax %>%
   
 ```
 ```{r, echo=FALSE}
-contig_tax_summary %>% 
-  ggplot(aes(x = model, y = prop_phage, color = origin, fill = origin)) +
-  facet_wrap(~ profile) +
-  geom_col() +
-  scale_fill_hurwitz('main') +
-  scale_color_hurwitz('main') +
-  labs(x = "InSilicoSeq Error Model",
-       y = "Phage Proportion of Contigs",
-       color = "Origin",
-       fill = "Origin",
-       title = "Phage Presence in Assemblies")
+contig_tax_summary %>%
+  ggplot(aes(
+    x = model,
+    y = prop_phage,
+    color = model,
+    fill = model
+  )) +
+  facet_wrap( ~ profile, nrow = 1) +
+  geom_col(alpha = 0.2, width = 0.65) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+  theme(legend.position = "none") +
+  labs(x = "",
+       y = "Phage Proportion of Contigs")
+
+
+ggsave("figures/model_phage_portion.svg",
+       width = 8, height = 2)
+ggsave("figures/model_phage_portion.png",
+       width = 8, height = 2)
 ```
 
 Here is the range of the percentage of phage in the assemblies:
@@ -520,8 +490,8 @@ contig_tax %>%
   filter(phage_contig == 'phage') %>%
   mutate(log_length = log(query_length, 10)) %>% 
   ggplot(aes(x = model, y = log_length, color = model, fill = model)) +
-  facet_wrap(~ origin) +
-  geom_violin(alpha=0.2) +
+  facet_wrap(~ profile, nrow = 1) +
+  geom_violin(alpha=0.2, draw_quantiles = 0.5) +
   scale_color_brewer(palette = "Dark2") +
   scale_fill_brewer(palette = "Dark2") +
   theme(legend.position="none") +
@@ -530,9 +500,9 @@ contig_tax %>%
        x = "")
 
 ggsave("figures/model_phage_contig_length_violin.svg",
-       width = 4, height = 4)
+       width = 8, height = 2)
 ggsave("figures/model_phage_contig_length_violin.png",
-       width = 4, height = 4)
+       width = 8, height = 2)
 
 ```
 
