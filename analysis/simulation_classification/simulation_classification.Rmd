@@ -1,0 +1,165 @@
+---
+title: "Simulated Metagenomes Classification"
+output: html_notebook
+---
+
+# {.tabset}
+
+```{r, include=FALSE}
+library(caret)
+library(dplyr)
+library(ggplot2)
+library(hurwitzLab)
+library(magrittr)
+library(readr)
+library(RColorBrewer)
+library(stringr)
+library(tidyr)
+
+# Set ggplot2 theme for whole R session
+theme_set(theme_light() +
+            theme(plot.title = element_text(hjust = 0.5),
+                  plot.subtitle = element_text(hjust = 0.5)))
+```
+
+```{r, echo=FALSE}
+relabel_profiles <- function(df) {
+  df %>%
+    mutate(origin = case_when(
+      grepl("SRR", profile) ~ "Ocean",
+      grepl("Adult", profile) ~ "Human Gut",
+      grepl("Baby", profile) ~ "Human Gut",
+      grepl("DRR", profile) ~ "Soil",
+      grepl("SRS", profile) ~ "Human Skin"
+    )) %>%
+    mutate(profile = case_when(
+      profile == "Adult1" ~ "adult1",
+      profile == "Adult2" ~ "adult2",
+      profile == "Baby1" ~ "infant1",
+      profile == "Baby2" ~ "infant2",
+      profile == "SRR4831655" ~ "ocean1",
+      profile == "SRR4831664" ~ "ocean2",
+      profile == "SRR5720259" ~ "ocean3",
+      profile == "SRR5720320" ~ "ocean4",
+      profile == "SRR6507280" ~ "ocean5",
+      profile == "SRS015381" ~ "skin1",
+      profile == "SRS017851" ~ "skin2",
+      profile == "SRS045606" ~ "skin3",
+      profile == "SRS058221" ~ "skin4",
+      profile == "SRS065187" ~ "skin5",
+      profile == "DRR001970" ~ "soil1",
+      profile == "DRR001973" ~ "soil2",
+      profile == "DRR001974" ~ "soil3"
+    )) %>%
+    group_by(origin, profile) %>% 
+    mutate(profile = as.factor(profile),
+           model = as.factor(model),
+           tool = as.factor(tool),
+           origin = as.factor(origin))
+}
+
+relabel_tools <- function(df){
+  df %>% 
+    mutate(tool = case_when(
+      tool == "dvf" ~ "DeepVirFinder",
+      tool == "marvel" ~ "MARVEL",
+      tool == "metaphinder" ~ "MetaPhinder",
+      tool == "seeker" ~ "Seeker",
+      tool == "vibrant" ~ "VIBRANT",
+      tool == "viralverify" ~ "viralVerify",
+      tool == "virfinder" ~ "VirFinder",
+      tool == "virsorter" ~ "VirSorter",
+      tool == "virsorter2" ~ "VirSorter2"
+    ))
+  
+}
+
+relabel_models <- function(df){
+  df %>% 
+    mutate(model = case_when(
+      model == "hiseq" ~ "HiSeq",
+      model == "miseq" ~ "MiSeq",
+      model == "novaseq" ~ "NovaSeq"
+    ))
+  
+}
+```
+
+
+```{r, echo=FALSE}
+summary_stats <- read_csv("../../data/classified_simulated/combined_out/summary_stats/combined.csv", show_col_types = FALSE)
+
+summary_stats <- summary_stats %>% 
+  separate(metagenome, into = c("profile", "model"), sep = "_") %>% 
+  relabel_profiles() %>% 
+  relabel_tools() %>% 
+  relabel_models() %>% 
+  filter(!is.na(profile))
+
+summary_stats <- summary_stats %>% 
+  complete(profile, model, tool) %>% 
+  mutate_all(~replace(., is.na(.), 0)) %>% 
+  filter(length_bin != 0)
+```
+
+## Specificity
+
+```{r, echo=FALSE}
+plot_environment_metric <-
+  function(df, environment, metric, y_label) {
+    df %>%
+      filter(origin == environment) %>%
+      group_by(model, length_bin, tool) %>%
+      ggplot(aes(
+        x = as.factor(length_bin),
+        y = !!sym(metric),
+        color = model
+      )) +
+      facet_wrap(~ tool) +
+      geom_boxplot(alpha = 0.5) +
+      scale_color_brewer(palette = "Dark2") +
+      theme(legend.position = "bottom") +
+      labs(x = "log of contig length",
+           y = y_label,
+           title = environment,
+           color = "Error Model")
+  }
+```
+
+
+```{r, echo=FALSE}
+for(env in c("Human Gut", "Human Skin", "Ocean")) {
+  print(
+    plot_environment_metric(summary_stats, env, "specificity", "Specificity")
+  )
+}
+```
+
+## F1
+
+```{r, echo=FALSE}
+for(env in c("Human Gut", "Human Skin", "Ocean")) {
+  print(
+    plot_environment_metric(summary_stats, env, "f1", "F1")
+  )
+}
+```
+## Sensitivity
+
+```{r, echo=FALSE}
+for(env in c("Human Gut", "Human Skin", "Ocean")) {
+  print(
+    plot_environment_metric(summary_stats, env, "sensitivity", "Sensitivity")
+  )
+}
+```
+
+## Precision
+
+```{r, echo=FALSE}
+for(env in c("Human Gut", "Human Skin", "Ocean")) {
+  print(
+    plot_environment_metric(summary_stats, env, "precision", "Precision")
+  )
+}
+```
