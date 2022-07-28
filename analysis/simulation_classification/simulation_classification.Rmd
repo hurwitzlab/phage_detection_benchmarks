@@ -1,9 +1,9 @@
 ---
-title: "Simulated Metagenomes Classification"
+title: "Classification of Simulated Metagenome"
 output: html_notebook
 ---
 
-# {.tabset}
+# Sensitivity (Recall)
 
 ```{r, include=FALSE}
 library(caret)
@@ -25,37 +25,17 @@ theme_set(theme_light() +
 ```{r, echo=FALSE}
 relabel_profiles <- function(df) {
   df %>%
-    mutate(origin = case_when(
-      grepl("SRR", profile) ~ "Ocean",
-      grepl("Adult", profile) ~ "Human Gut",
-      grepl("Baby", profile) ~ "Human Gut",
-      grepl("DRR", profile) ~ "Soil",
-      grepl("SRS", profile) ~ "Human Skin"
-    )) %>%
     mutate(profile = case_when(
-      profile == "Adult1" ~ "adult1",
-      profile == "Adult2" ~ "adult2",
-      profile == "Baby1" ~ "infant1",
-      profile == "Baby2" ~ "infant2",
-      profile == "SRR4831655" ~ "ocean1",
-      profile == "SRR4831664" ~ "ocean2",
-      profile == "SRR5720259" ~ "ocean3",
-      profile == "SRR5720320" ~ "ocean4",
-      profile == "SRR6507280" ~ "ocean5",
-      profile == "SRS015381" ~ "skin1",
-      profile == "SRS017851" ~ "skin2",
-      profile == "SRS045606" ~ "skin3",
-      profile == "SRS058221" ~ "skin4",
-      profile == "SRS065187" ~ "skin5",
-      profile == "DRR001970" ~ "soil1",
-      profile == "DRR001973" ~ "soil2",
-      profile == "DRR001974" ~ "soil3"
+      profile == "SRR4831655" ~ "Profile 1",
+      profile == "SRR4831664" ~ "Profile 2",
+      profile == "SRR5720259" ~ "Profile 3",
+      profile == "SRR5720320" ~ "Profile 4",
+      profile == "SRR6507280" ~ "Profile 5"
     )) %>%
-    group_by(origin, profile) %>% 
+    group_by(profile) %>% 
     mutate(profile = as.factor(profile),
            model = as.factor(model),
-           tool = as.factor(tool),
-           origin = as.factor(origin))
+           tool = as.factor(tool))
 }
 
 relabel_tools <- function(df){
@@ -91,6 +71,7 @@ summary_stats <- read_csv("../../data/classified_simulated/combined_out/summary_
 
 summary_stats <- summary_stats %>% 
   separate(metagenome, into = c("profile", "model"), sep = "_") %>% 
+  filter(grepl("SRR", profile)) %>% 
   relabel_profiles() %>% 
   relabel_tools() %>% 
   relabel_models() %>% 
@@ -102,64 +83,84 @@ summary_stats <- summary_stats %>%
   filter(length_bin != 0)
 ```
 
-## Specificity
+# Specificity
 
 ```{r, echo=FALSE}
 plot_environment_metric <-
   function(df, environment, metric, y_label) {
-    df %>%
-      filter(origin == environment) %>%
-      group_by(model, length_bin, tool) %>%
-      ggplot(aes(
-        x = as.factor(length_bin),
-        y = !!sym(metric),
-        color = model
-      )) +
-      facet_wrap(~ tool) +
-      geom_boxplot(alpha = 0.5) +
-      scale_color_brewer(palette = "Dark2") +
-      theme(legend.position = "bottom") +
-      labs(x = "log of contig length",
-           y = y_label,
-           title = environment,
-           color = "Error Model")
+    df 
   }
 ```
 
 
 ```{r, echo=FALSE}
-for(env in c("Human Gut", "Human Skin", "Ocean")) {
-  print(
-    plot_environment_metric(summary_stats, env, "specificity", "Specificity")
-  )
+plot_metric <- function(df, metric) {
+  plot <- df %>%
+    mutate(
+      length_bin = case_when(
+        model == "HiSeq" ~ length_bin - 0.075,
+        model == "NovaSeq" ~ length_bin + 0.075,
+        TRUE ~ length_bin
+      )
+    ) %>%
+    group_by(profile, model, tool, length_bin) %>%
+    ggplot(aes(
+      x = length_bin,
+      y = !!sym(metric),
+      color = model
+    )) +
+    facet_wrap(~ tool) +
+    geom_point(alpha = 0.75, size = 0.8) +
+    scale_color_brewer(palette = "Dark2") +
+    scale_x_continuous(breaks = c(2.5, 3, 3.5, 4, 4.5, 5)) +
+    theme(legend.position = "bottom",
+          panel.grid.minor.x = element_blank()) +
+    labs(x = "log of Contig Length",
+         y = str_to_title(metric),
+         color = "Error Model")
+  
+  png_name <-
+    paste0("figures/simulated_metagenome_", metric, ".png")
+  svg_name <-
+    paste0("figures/simulated_metagenome_", metric, ".svg")
+  ggsave(png_name,
+         plot,
+         width = 6,
+         height = 6)
+  ggsave(svg_name,
+         plot,
+         width = 6,
+         height = 6)
+  
+  plot
 }
 ```
 
-## F1
+# Sensitivity
 
-```{r, echo=FALSE}
-for(env in c("Human Gut", "Human Skin", "Ocean")) {
-  print(
-    plot_environment_metric(summary_stats, env, "f1", "F1")
-  )
-}
-```
-## Sensitivity
-
-```{r, echo=FALSE}
-for(env in c("Human Gut", "Human Skin", "Ocean")) {
-  print(
-    plot_environment_metric(summary_stats, env, "sensitivity", "Sensitivity")
-  )
-}
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric('sensitivity')
 ```
 
-## Precision
+# Precision
 
-```{r, echo=FALSE}
-for(env in c("Human Gut", "Human Skin", "Ocean")) {
-  print(
-    plot_environment_metric(summary_stats, env, "precision", "Precision")
-  )
-}
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric("precision")
+```
+
+# F1
+
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric("f1")
+```
+
+
+# Specificity
+
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric("specificity")
 ```
