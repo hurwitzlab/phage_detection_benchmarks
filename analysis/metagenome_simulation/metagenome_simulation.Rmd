@@ -130,6 +130,17 @@ relabel_profiles <- function(df) {
     )) %>%
     group_by(profile)
 }
+
+relabel_models <- function(df){
+  df %>% 
+    mutate(model = case_when(
+      model == "hiseq" ~ "HiSeq",
+      model == "miseq" ~ "MiSeq",
+      model == "novaseq" ~ "NovaSeq"
+    ),
+    model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq")))
+  
+}
 ```
 
 
@@ -303,11 +314,7 @@ contigs <- contigs %>%
   filter(grepl("SRR", profile)) %>% 
   relabel_profiles() %>%
   group_by(model) %>% 
-  mutate(model = case_when(
-    model == "hiseq" ~ "HiSeq",
-    model == "miseq" ~ "MiSeq",
-    model == "novaseq" ~ "NovaSeq"
-  ))
+  relabel_models()
   
 
 ```
@@ -360,11 +367,7 @@ contig_tax <-
   rename('assembly' = 'origin') %>%
   filter(grepl("SRR", profile)) %>% 
   relabel_profiles() %>% 
-  mutate(model = case_when(
-    model == "hiseq" ~ "HiSeq",
-    model == "miseq" ~ "MiSeq",
-    model == "novaseq" ~ "NovaSeq"
-  ))
+  relabel_models()
 
 write_csv(contig_tax, file="processed_data/contig_taxonomy.csv")
 ```

@@ -54,13 +54,16 @@ relabel_tools <- function(df){
   
 }
 
-relabel_models <- function(df){
-  df %>% 
-    mutate(model = case_when(
-      model == "hiseq" ~ "HiSeq",
-      model == "miseq" ~ "MiSeq",
-      model == "novaseq" ~ "NovaSeq"
-    ))
+relabel_models <- function(df) {
+  df %>%
+    mutate(
+      model = case_when(
+        model == "hiseq" ~ "HiSeq",
+        model == "miseq" ~ "MiSeq",
+        model == "novaseq" ~ "NovaSeq"
+      ),
+      model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq"))
+    )
   
 }
 ```
@@ -86,20 +89,12 @@ summary_stats <- summary_stats %>%
 # Specificity
 
 ```{r, echo=FALSE}
-plot_environment_metric <-
-  function(df, environment, metric, y_label) {
-    df 
-  }
-```
-
-
-```{r, echo=FALSE}
 plot_metric <- function(df, metric) {
   plot <- df %>%
     mutate(
       length_bin = case_when(
         model == "HiSeq" ~ length_bin - 0.075,
-        model == "NovaSeq" ~ length_bin + 0.075,
+        model == "MiSeq" ~ length_bin + 0.075,
         TRUE ~ length_bin
       )
     ) %>%
