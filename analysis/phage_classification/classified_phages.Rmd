@@ -60,7 +60,8 @@ relabel_models <- function(df){
       model == "hiseq" ~ "HiSeq",
       model == "miseq" ~ "MiSeq",
       model == "novaseq" ~ "NovaSeq"
-    ))
+    ),
+    model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq")))
   
 }
 ```
@@ -99,7 +100,7 @@ summary_stats %>%
 summary_stats %>%
   mutate(length_bin = case_when(
     model == "HiSeq" ~ length_bin - 0.075,
-    model == "NovaSeq" ~ length_bin + 0.075,
+    model == "MiSeq" ~ length_bin + 0.075,
     TRUE ~ length_bin
   )) %>% 
   group_by(profile, model, tool, length_bin) %>%
