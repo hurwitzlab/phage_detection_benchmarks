@@ -10,8 +10,7 @@ benchmarks_dir: "../../data/classified_crc/benchmarks"
 reformat: "python3 ../classify_simulated/reformat.py"
 combine: "python3 ../classify_simulated/combine.py"
 benchmark: "python3 ../classify_simulated/benchmark.py"
-get_organisms: "../post_proc/get_meta.sh"
-filter: "python3 contig_filter.py"
+pivot: "python3 pivot_wider.py"
 
 # Resources for house scripts
 combine_preds_threads: 8
