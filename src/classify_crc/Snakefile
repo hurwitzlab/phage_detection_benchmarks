@@ -33,32 +33,6 @@ rule combine_benchmarks:
         """
 
 
-rule combine_preds:
-    input:
-        expand(
-            "{out_dir}/{metagenome}/pivoted_predictions.csv",
-            out_dir=config["out_dir"],
-            metagenome=METAGENOMES,
-            tool=config["tools"],
-        ),
-    output:
-        config["out_dir"] + "/combined_out/combined.csv",
-    params:
-        out_dir=config["out_dir"],
-        combine=config["combine"],
-        env=config["project_env"],
-        activate=config["activate"],
-    shell:
-        """
-        set +eu
-        source {params.activate} {params.env}
-
-        {params.combine} \
-            -o {params.out_dir}/combined_out \
-            {input}
-        """
-
-
 rule pivot_sample_preds:
     input:
         config["out_dir"] + "/{metagenome}/combined.csv",
