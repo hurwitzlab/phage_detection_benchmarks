@@ -36,7 +36,7 @@ rule combine_benchmarks:
 rule combine_preds:
     input:
         expand(
-            "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
+            "{out_dir}/{metagenome}/pivoted_predictions.csv",
             out_dir=config["out_dir"],
             metagenome=METAGENOMES,
             tool=config["tools"],
@@ -48,13 +48,60 @@ rule combine_preds:
         combine=config["combine"],
         env=config["project_env"],
         activate=config["activate"],
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {params.combine} \
+            -o {params.out_dir}/combined_out \
+            {input}
+        """
+
+
+rule pivot_sample_preds:
+    input:
+        config["out_dir"] + "/{metagenome}/combined.csv",
+    output:
+        config["out_dir"] + "/{metagenome}/pivoted_predictions.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}",
+        pivot=config["pivot"],
+        env=config["project_env"],
+        activate=config["activate"],
+    threads: config["combine_preds_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+        {params.pivot} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule combine_sample_preds:
+    input:
+        lambda wildcards: expand(
+            "{out_dir}/{metagenome}/{tool}/{tool}_pred_formatted.csv",
+            out_dir=config["out_dir"],
+            metagenome=wildcards.metagenome,
+            tool=config["tools"],
+        ),
+    output:
+        config["out_dir"] + "/{metagenome}/combined.csv",
+    params:
+        out_dir=config["out_dir"] + "/{metagenome}",
+        combine=config["combine"],
+        env=config["project_env"],
+        activate=config["activate"],
     threads: config["combine_preds_threads"]
     shell:
         """
         set +eu
         source {params.activate} {params.env}
         {params.combine} \
-            -o {params.out_dir}/combined_out \
+            -o {params.out_dir} \
             {input}
         """
 
