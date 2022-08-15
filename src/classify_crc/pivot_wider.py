@@ -42,7 +42,7 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.files, args.out_dir)
+    return Args(args.file, args.out_dir)
 
 
 # --------------------------------------------------
@@ -263,7 +263,7 @@ def main() -> None:
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
 
-    df = clean_predictions(pd.read_csv(args.file))
+    df = clean_predictions(pd.read_csv(args.files))
     df = pivot_wider(df)
 
     out_file = os.path.join(args.out_dir, 'pivoted_predictions.csv')
