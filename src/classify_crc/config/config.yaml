@@ -8,7 +8,7 @@ benchmarks_dir: "../../data/classified_crc/benchmarks"
 
 # House scripts
 reformat: "python3 ../classify_simulated/reformat.py"
-combine: "python3 ../classify_simulated/combine.py"
+combine: "python3 ./combine.py"
 benchmark: "python3 ../classify_simulated/benchmark.py"
 pivot: "python3 pivot_wider.py"
 
