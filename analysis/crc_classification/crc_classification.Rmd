@@ -1,0 +1,114 @@
+---
+title: "CRC Classification"
+output: html_notebook
+---
+
+# {.tabset}
+
+## Overview
+
+This notebook is for processing the classification of the data in the CRC set.
+
+
+```{r, include = FALSE}
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(readr)
+library(UpSetR)
+
+# Set ggplot2 theme for whole R session
+theme_set(theme_light() +
+            theme(plot.title = element_text(hjust = 0.5),
+                  plot.subtitle = element_text(hjust = 0.5)))
+```
+
+```{r, echo=FALSE}
+reference_free <- c("DeepVirFinder", "MARVEL", "Seeker", "VirFinder")
+reference_based <- c("MetaPhinder", "VIBRANT", "viralVerify", "VirSorter", "VirSorter2")
+
+crc_df <- read_csv("../../data/classified_crc/combined_out/combined.csv", show_col_types = FALSE)
+
+crc_matrix <- crc_df %>% 
+  rename("DeepVirFinder" = "dvf",
+      "MARVEL" = "marvel",
+      "MetaPhinder" = "metaphinder",
+      "Seeker" = "seeker",
+      "VIBRANT" = "vibrant",
+      "viralVerify" = "viralverify",
+      "VirFinder" = "virfinder",
+      "VirSorter" = "virsorter",
+      "VirSorter2" = "virsorter2") %>% 
+  mutate_all(~replace(., is.na(.), "non-viral")) %>% 
+  rename(sample = metagenome, contig = record) %>% 
+  mutate(sample_contig = paste(sample, contig, sep = "_")) %>% 
+  select(-sample, -contig) %>% 
+  mutate_all(~replace(., .  == "viral", 1)) %>% 
+  mutate_all(~replace(., .  == "non-viral", 0)) %>%
+  select(-sample_contig) %>% 
+  mutate_if(is.character, as.numeric)
+
+crc_matrix_df <- as.data.frame(crc_matrix)
+
+rm(crc_df, crc_matrix)
+```
+
+## Upset Plots
+
+### All Tools
+
+First, plotting for all tools.
+
+The total number of possible intersections for 9 tools is 511, so not all intersections are shown.
+
+Here, the number of intersections is set to 51 (The top 10% of largest intersections).
+
+```{r, echo = FALSE}
+upset(
+  crc_matrix_df,
+  order.by = "freq",
+  empty.intersections = TRUE,
+  sets = colnames(crc_matrix_df),
+  show.numbers = FALSE,
+  nintersects = 51
+)
+```
+
+### Reference-free Tools
+
+Since the reference-free tools identify so many more phages, I decided to create separate plots for reference-based and reference-free tools.
+
+
+```{r, echo = FALSE}
+upset(
+  crc_matrix_df %>%  select(all_of(reference_free)),
+  order.by = "freq",
+  empty.intersections = TRUE,
+  show.numbers = FALSE
+)
+```
+
+### Reference-based Tools
+
+```{r, echo = FALSE}
+upset(
+  crc_matrix_df %>%  select(all_of(reference_based)),
+  order.by = "freq",
+  empty.intersections = TRUE,
+  show.numbers = FALSE,
+  nintersects = 25
+)
+```
+
+Here is the same plot, but excluding MetaPhinder since it identifies the most phages.
+
+```{r, echo = FALSE}
+upset(
+  crc_matrix_df %>%  select(all_of(reference_based), -MetaPhinder),
+  order.by = "freq",
+  empty.intersections = TRUE,
+  show.numbers = FALSE,
+  nintersects = 25
+)
+
+```
