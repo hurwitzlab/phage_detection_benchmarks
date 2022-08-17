@@ -11,9 +11,10 @@ reformat: "python3 ../classify_simulated/reformat.py"
 combine: "python3 ../classify_simulated/combine.py"
 benchmark: "python3 ../classify_simulated/benchmark.py"
 pivot: "python3 pivot_wider.py"
+filter: "python3 ./filter.py"
 
 # Resources for house scripts
-combine_preds_threads: 8
+combine_preds_threads: 24
 combine_benchmarks_threads: 8
 reformat_threads: 8
 filter_threads: 8
