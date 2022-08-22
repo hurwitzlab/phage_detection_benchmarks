@@ -5,6 +5,7 @@ rule all:
     input:
         config["out_dir"] + "/combined_out/combined_benchmarks.csv",
         config["out_dir"] + "/combined_out/combined.csv",
+        config["bin_summary_dir"] + "/combined/combined.csv",
 
 
 rule combine_benchmarks:
@@ -188,6 +189,51 @@ rule metabat_binning:
         touch {output}
         """
 
+
+rule summarize_bins:
+    input:
+        config["bins_dir"] + "/{metagenome}/",
+    output:
+        config["bin_summary_dir"] + "/{metagenome}/bin_summary.csv",
+    params:
+        summarize=config["summarize_bins"],
+        env=config["project_env"],
+        activate=config["activate"],
+        out_dir=config["bin_summary_dir"] + "/{metagenome}"
+    threads: config["reformat_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {parames.summarize} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+rule combine_bin_summaries:
+    input:
+        expand(
+                config["bin_summary_dir"] + "/{metagenome}/bin_summary.csv",
+                metagenome=METAGENOMES,
+            ),
+    output:
+        config["bin_summary_dir"] + "/combined/combined.csv",
+    params:
+        out_dir=config["bin_summary_dir"] + "/combined",
+        combine=config["combine"],
+        env=config["project_env"],
+        activate=config["activate"],
+    threads: config["combine_preds_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+        {params.combine} \
+            -o {params.out_dir} \
+            {input}
+        """
+        
 
 rule pred_marvel:
     input:

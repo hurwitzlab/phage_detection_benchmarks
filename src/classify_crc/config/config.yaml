@@ -2,6 +2,7 @@
 assembly_dir: "../../data/crc_data/assemblies"
 filtered_contigs_dir: "../../data/crc_data/filtered_assemblies"
 bins_dir: "../../data/crc_data/bins"
+bin_summary_dir: "../../data/crc_data/bin_summaries"
 coverage_dir: "../../data/crc_data/coverages"
 out_dir: "../../data/classified_crc"
 benchmarks_dir: "../../data/classified_crc/benchmarks"
@@ -11,6 +12,7 @@ reformat: "python3 ../classify_simulated/reformat.py"
 combine: "python3 ./combine.py"
 benchmark: "python3 ../classify_simulated/benchmark.py"
 pivot: "python3 pivot_wider.py"
+summarize_bins: "python3 summarize_bins.py"
 
 # Resources for house scripts
 combine_preds_threads: 8
