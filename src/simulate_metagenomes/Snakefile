@@ -387,7 +387,7 @@ rule summarize_bins:
         set +eu
         source activate {params.env}
 
-        {parames.summarize} \
+        {params.summarize} \
             -o {params.out_dir} \
             {input}
         """
