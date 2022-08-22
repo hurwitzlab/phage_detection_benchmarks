@@ -397,7 +397,8 @@ rule combine_bin_summaries:
     input:
         expand(
                 config["bin_summary_dir"] + "/{id}_{model}/bin_summary.csv",
-                metagenome=METAGENOMES,
+                id=PROFILES,
+                model=config["model"],
             ),
     output:
         config["bin_summary_dir"] + "/combined/combined.csv",
