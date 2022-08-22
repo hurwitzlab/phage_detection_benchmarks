@@ -371,6 +371,52 @@ rule metabat_binning:
         """
 
 
+rule summarize_bins:
+    input:
+        config["bins_dir"] + "/{id}_{model}/",
+    output:
+        config["bin_summary_dir"] + "/{id}_{model}/bin_summary.csv",
+    params:
+        summarize=config["summarize_bins"],
+        env=config["project_env"],
+        activate=config["activate"],
+        out_dir=config["bin_summary_dir"] + "/{id}_{model}"
+    threads: config["reformat_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {parames.summarize} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
+rule combine_bin_summaries:
+    input:
+        expand(
+                config["bin_summary_dir"] + "/{id}_{model}/bin_summary.csv",
+                metagenome=METAGENOMES,
+            ),
+    output:
+        config["bin_summary_dir"] + "/combined/combined.csv",
+    params:
+        out_dir=config["bin_summary_dir"] + "/combined",
+        combine=config["combine_bin_summaries"],
+        env=config["project_env"],
+        activate=config["activate"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+        {params.combine} \
+            -o {params.out_dir} \
+            {input}
+        """
+
+
 # Make BLAST databases from input genomes
 rule make_blast_dbs:
     input:
