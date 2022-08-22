@@ -26,6 +26,7 @@ rule all:
                 "contig_taxonomy",
             ],
         ),
+        config["bin_summary_dir"] + "/combined/combined.csv",
 
 
 # Create profile for InSilicoSeq, and file globs to find necessary genomes
@@ -379,13 +380,12 @@ rule summarize_bins:
     params:
         summarize=config["summarize_bins"],
         env=config["project_env"],
-        activate=config["activate"],
         out_dir=config["bin_summary_dir"] + "/{id}_{model}"
     threads: config["reformat_threads"]
     shell:
         """
         set +eu
-        source {params.activate} {params.env}
+        source activate {params.env}
 
         {parames.summarize} \
             -o {params.out_dir} \
@@ -405,12 +405,11 @@ rule combine_bin_summaries:
         out_dir=config["bin_summary_dir"] + "/combined",
         combine=config["combine_bin_summaries"],
         env=config["project_env"],
-        activate=config["activate"],
     threads: config["combine_ntasks"]
     shell:
         """
         set +eu
-        source {params.activate} {params.env}
+        source activate {params.env}
         {params.combine} \
             -o {params.out_dir} \
             {input}
