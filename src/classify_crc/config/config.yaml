@@ -12,7 +12,7 @@ reformat: "python3 ../classify_simulated/reformat.py"
 combine: "python3 ./combine.py"
 benchmark: "python3 ../classify_simulated/benchmark.py"
 pivot: "python3 pivot_wider.py"
-summarize_bins: "python3 summarize_bins.py"
+summarize_bins: "python3 ../classify_simulated/summarize_bins.py"
 
 # Resources for house scripts
 combine_preds_threads: 8
