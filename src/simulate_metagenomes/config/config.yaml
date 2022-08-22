@@ -35,6 +35,10 @@ combine:
         ./combine_summary.py
 contig_assignment:
         ./sort_blast.py
+summarize_bins:
+        ./summarize_bins.py
+combine_bin_summaries:
+        ../classify_crc/combine.py
 
 # Environments
 project_env:
@@ -73,6 +77,8 @@ bowtie_map_dir:
         ../../data/metagenome_simulation/bowtie_mappings
 bins_dir:
         ../../data/metagenome_simulation/binned_contigs
+bin_summary_dir:
+        ../../data/metagenome_simulation/bin_summaries
 blast_dbs_dir:
         ../../data/metagenome_simulation/blast_dbs
 blast_out_dir:
