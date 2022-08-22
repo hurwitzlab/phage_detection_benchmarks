@@ -148,10 +148,39 @@ class_df <-
 # Read in Snakemake benchmarks
 bench_df <-
   read.csv('../../data/classified_chopped/combined_out/cleaned_benchmarks.csv') %>% 
+  mutate() %>% 
   mutate(across(
     c(length, tool, kingdom),
     as.factor
-  ))
+  ), runtime = runtime / 60,
+  cup_time = cpu_time / 60) %>% 
+  filter(!(tool == "VIBRANT" & length == 500),
+         !(tool == "VirSorter" & length == 500))
+
+bench_summary <- bench_df %>%
+  group_by(tool, length) %>%
+  summarize(
+    n = n(),
+    mean_runtime = mean(runtime),
+    runtime_sd = sd(runtime),
+    runtime_se = runtime_sd / sqrt(n),
+    runtime_ci = runtime_se * qt((0.95) / 2 + 0.5, n - 1),
+    mean_cputime = mean(cpu_time),
+    cputime_sd = sd(cpu_time),
+    cputime_se = cputime_sd / sqrt(n),
+    cputime_ci = cputime_se * qt((0.95) / 2 + 0.5, n - 1),
+    mean_read = mean(io_in),
+    read_sd = sd(io_in),
+    read_se = read_sd / sqrt(n),
+    read_ci = read_se * qt((0.95) / 2 + 0.5, n - 1),
+    mean_write = mean(io_out),
+    write_sd = sd(io_out),
+    write_se = write_sd / sqrt(n),
+    write_ci = write_se * qt((0.95) / 2 + 0.5, n - 1)
+  )
+
+# bench_df[bench_df$tool == "VIBRANT" && bench_df$length == 500] = NA
+# bench_df[bench_df$tool == "VirSorter" && bench_df$length == 500] = NA
 ```
 
 
@@ -1071,7 +1100,7 @@ Was sensitivity different for caudovirales and other orders?
 This is only looking at fragments that were truly viral, so *F1*-score, etc are not relevant. All "viral" sequences are included here.
 
 ```{r, echo = FALSE}
-plot_order_performance <- function(df) {
+metrics_by_phage_order <- function(df, other_label) {
   caudo_metrics <- df %>%
     filter(order == "Caudovirales") %>%
     get_metrics() %>%
@@ -1080,11 +1109,17 @@ plot_order_performance <- function(df) {
   noncaudo_metrics <- df %>%
     filter(order != "Caudovirales") %>%
     get_metrics() %>%
-    mutate(caudo = "All others")
+    mutate(caudo = other_label)
   
   metrics <- bind_rows(caudo_metrics, noncaudo_metrics)
   
-  metrics %>%
+  metrics
+}
+
+plot_order_performance <- function(df) {
+  
+  
+  df %>%
     ggplot(aes(
       x = as.integer(length) / 1000,
       y = sensitivity,
@@ -1096,14 +1131,14 @@ plot_order_performance <- function(df) {
     labs(
       x = "Fragment length (1000 nt)",
       y = "Sensitivity",
-      color = "Order",
-      title = "Sensitivity differences by viral order"
+      color = "Order"
     )
 }
 ```
 
 ```{r, echo = FALSE}
 viral %>% 
+  metrics_by_phage_order("Other viruses") %>% 
   plot_order_performance() +
   labs(subtitle = "All viral fragments included")
 ```
@@ -1136,9 +1171,23 @@ phages %>%
 ---
 
 ```{r, echo = FALSE}
-phages %>% 
-  plot_order_performance() +
-  labs(subtitle = "Only phage fragments included")
+caudo_v_non <- phages %>% 
+  metrics_by_phage_order("Other phages")
+
+caudo_v_non %>% 
+  plot_order_performance()
+
+ggsave(
+  "figures/length_sensitivity_viral_order.svg",
+  width = 4,
+  height = 3, standalone=FALSE
+)
+
+ggsave(
+  "figures/length_sensitivity_viral_orde.png",
+  width = 4,
+  height = 3
+)
 ```
 
 
@@ -1721,6 +1770,8 @@ big_pic <- caudo_v_non %>%
   group_by(tool) %>% 
   summarize(diverse_phage = signif(mean(retained_sensitivity), 3)) %>% 
   left_join(big_pic, by = "tool")
+
+save(big_pic, file="out_data/big_pic.RData")
 ```
 
 ```{r, echo = FALSE}
@@ -1780,127 +1831,4 @@ gtsave(big_pic_heatmap, "figures/bigpic_heatmap.png")
 
 rm(color_scale)
 ```
-
-## Caudovirales
-
-Here, I will dig deeper into the caudoviral sequences taxonomies.Again, these are only including seqeunces determined to be phage (not just viral)
-
-### Top families
-
-```{r, echo = FALSE}
-caudo <- phages %>% 
-  filter(order == "Caudovirales") %>% 
-  group_by(family)
-
-caudo %>%
-  count() %>%
-  mutate(num_frags = n / length(levels(viral$tool))) %>%
-  select(-n) %>%
-  arrange(desc(num_frags))
-```
-
-<hr style="border:1px solid gray"> </hr>
-
-### Sensitivity by family
-
----
-
-This plot becomes a bit complicated because there are lots of variables, and I cannot aggregate any of them, so here is how they are mapped:
-
-
-* length - $x$
-* sensitivity - $y$ 
-* caudovirus family - $facet\_wrap$
-* tool - $color$
-
-To make it a little easier on the eyes, I also scaled the $alpha$ by log of number of fragments in each family.
-
-```{r, echo = FALSE}
-caudo_metrics <- caudo %>% 
-  get_metrics() %>% 
-  mutate(family = "combined")
-
-for(family_i in levels(as.factor(caudo$family))) {
-  family_df <- caudo %>%
-    filter(family == family_i)
-  
-  family_metrics <- family_df %>% 
-    get_metrics() %>% 
-    mutate(family = family_i)
-  
-  caudo_metrics <- bind_rows(caudo_metrics, family_metrics)
-}
-
-caudo_metrics %>%
-  left_join(caudo %>%
-              count() %>%
-              mutate(num_frags = n / length(levels(viral$tool))) %>%
-              select(-n)) %>%
-  filter(family != "combined") %>%
-  ggplot(aes(
-    x = as.integer(length) / 1000,
-    y = sensitivity,
-    color = tool,
-    alpha = num_frags
-  )) +
-  facet_wrap(~ family) +
-  geom_point(aes()) +
-  scale_color_hurwitz("distinguish") +
-  scale_alpha(range = c(0.25, 1),
-              trans = "log",
-              guide = "none") +
-  labs(
-    x = "Fragment length (1000 nt)",
-    y = "Sensitivity",
-    color = "Tool",
-    title = "Sensitivity differences by caudoviral family",
-    subtitle = "Transparency ~ log(n_frags)"
-  )
-```
-
-<hr style="border:1px solid gray"> </hr>
-
-### Top families
-
----
-
-
-Alternatively, we can just look at the top (3) families
-
-```{r}
-top_caudo <- caudo %>%
-  count() %>%
-  mutate(num_frags = n / length(levels(viral$tool))) %>%
-  ungroup() %>%
-  top_n(n = 3)
-
-top_caudo_metrics <- caudo_metrics %>%
-  filter(family %in% top_caudo$family) %>%
-  left_join(caudo %>%
-              count() %>%
-              mutate(num_frags = n / length(levels(viral$tool))) %>%
-              select(-n))
-
-top_caudo_metrics %>%
-  ggplot(aes(
-    x = as.integer(length) / 1000,
-    y = sensitivity,
-    color = family,
-    alpha = num_frags
-  )) +
-  facet_wrap(~ tool) +
-  geom_point(aes()) +
-  scale_color_hurwitz("main") +
-  scale_alpha(range = c(0.5, 1),
-              trans = "log",
-              guide = "none") +
-  labs(
-    x = "Fragment length (1000 nt)",
-    y = "Sensitivity",
-    color = "Family",
-    title = "Sensitivity differences by caudoviral family",
-    subtitle = "Transparency ~ log(n_frags)"
-  )
-```
-
 
