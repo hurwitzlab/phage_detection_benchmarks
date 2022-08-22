@@ -96,19 +96,19 @@ def main() -> None:
 
     out_file = os.path.join(out_dir, 'bin_summary.csv')
 
-    if len(bin_files) == 0:
-        print('bin,contig,sample', file=out_file)
-    else:
-        for bin_file in bin_files:
-            bin_num = get_bin_name(bin_file.name)
-            for contig in SeqIO.parse(bin_file, 'fasta'):
-                bins.append(bin_num)
-                contigs.append(contig.id)
+    for bin_file in bin_files:
+        if not bin_file:
+            continue
 
-        out_df = pd.DataFrame({'bin': bins, 'contig': contigs})
-        out_df['sample'] = get_sample_name(args.bin_dir)
+        bin_num = get_bin_name(bin_file.name)
+        for contig in SeqIO.parse(bin_file, 'fasta'):
+            bins.append(bin_num)
+            contigs.append(contig.id)
 
-        out_df.to_csv(out_file, index=False)
+    out_df = pd.DataFrame({'bin': bins, 'contig': contigs})
+    out_df['sample'] = get_sample_name(args.bin_dir)
+
+    out_df.to_csv(out_file, index=False)
 
     print(f'Done. Wrote output to {out_file}.')
 
