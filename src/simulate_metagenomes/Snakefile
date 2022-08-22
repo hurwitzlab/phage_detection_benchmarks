@@ -381,7 +381,7 @@ rule summarize_bins:
         summarize=config["summarize_bins"],
         env=config["project_env"],
         out_dir=config["bin_summary_dir"] + "/{id}_{model}"
-    threads: config["reformat_threads"]
+    threads: config["combine_ntasks"]
     shell:
         """
         set +eu
