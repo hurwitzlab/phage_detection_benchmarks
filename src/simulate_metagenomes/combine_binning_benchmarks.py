@@ -90,7 +90,7 @@ def concat_files(regex: str, files: List[TextIO]) -> pd.DataFrame:
     for file in files:
         parts = match_regex(regex, file.name)
 
-        df = pd.read_csv(file)
+        df = pd.read_csv(file, sep='\t')
 
         df['step'] = parts.step
         df['profile'] = parts.profile
