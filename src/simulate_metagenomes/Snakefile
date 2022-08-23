@@ -31,20 +31,6 @@ rule all:
         config["summary_dir"] + "contig_counts/combined_counts.csv",
 
 
-rule count_profile_contigs:
-    input:
-        config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
-    output:
-        config["summary_dir"] + "/contig_counts/{id}_{model}_count.csv",
-    threads: config["combine_ntasks"]
-    shell:
-        """
-        COUNT=$(grep ">" {input} | wc -l)
-
-        echo "{wildcards.id},{wildcards.model},$COUNT" > {params.output}
-        """
-
-
 rule combine_contig_counts:
     input:
         expand(
