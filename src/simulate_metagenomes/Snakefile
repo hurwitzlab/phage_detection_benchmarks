@@ -57,7 +57,8 @@ rule combine_contig_counts:
     threads: config["combine_ntasks"]
     shell:
         """
-        cat {input} > {output}
+        echo "profile,model,contig_count" > {output}
+        cat {input} >> {output}
         """
 
 
