@@ -50,12 +50,14 @@ rule combine_binning_benchmarks:
         combine=config["combine_binning_benchmarks"],
         env=config["project_env"],
         out_dir=config["benchmarks_dir"],
+        regex=config["benchmark_re"],
     threads: config["combine_ntasks"]
     shell:
         """
         set +eu
         source activate {params.env}
-        combine \
+        {params.combine} \
+            -r '{params.regex}' \
             -o {params.out_dir} \
             {input}
         """
