@@ -39,6 +39,8 @@ summarize_bins:
         ./summarize_bins.py
 combine_bin_summaries:
         ../classify_crc/combine.py
+combine_binning_benchmarks:
+        ./combine_binning_benchmarks.py
 
 # Environments
 project_env:
@@ -111,6 +113,8 @@ contigs_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>contig_summary).csv
 blast_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>parsed_blast).csv'
 assigned_re: '(?P<profile>[\w.]+)_(?P<model>\w+)_(?P<filename>contig_taxonomy).csv'
 
+# combine benchmarks regular expressions
+benchmark_re: '(?P<step>[\w_]+)/(?P<profile>[\w.]+)_(?P<model>\w+).txt'
 
 
 # Resources
