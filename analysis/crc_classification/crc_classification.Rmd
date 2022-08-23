@@ -25,32 +25,41 @@ theme_set(theme_light() +
 
 ```{r, echo=FALSE}
 reference_free <- c("DeepVirFinder", "MARVEL", "Seeker", "VirFinder")
-reference_based <- c("MetaPhinder", "VIBRANT", "viralVerify", "VirSorter", "VirSorter2")
+reference_based <-
+  c("MetaPhinder",
+    "VIBRANT",
+    "viralVerify",
+    "VirSorter",
+    "VirSorter2")
 
-crc_df <- read_csv("../../data/classified_crc/combined_out/combined.csv", show_col_types = FALSE)
+crc_df <-
+  read_csv("../../data/classified_crc/combined_out/combined.csv",
+           show_col_types = FALSE)
 
-crc_matrix <- crc_df %>% 
-  rename("DeepVirFinder" = "dvf",
-      "MARVEL" = "marvel",
-      "MetaPhinder" = "metaphinder",
-      "Seeker" = "seeker",
-      "VIBRANT" = "vibrant",
-      "viralVerify" = "viralverify",
-      "VirFinder" = "virfinder",
-      "VirSorter" = "virsorter",
-      "VirSorter2" = "virsorter2") %>% 
-  mutate_all(~replace(., is.na(.), "non-viral")) %>% 
-  rename(sample = metagenome, contig = record) %>% 
-  mutate(sample_contig = paste(sample, contig, sep = "_")) %>% 
-  select(-sample, -contig) %>% 
-  mutate_all(~replace(., .  == "viral", 1)) %>% 
-  mutate_all(~replace(., .  == "non-viral", 0)) %>%
-  select(-sample_contig) %>% 
+crc_matrix <- crc_df %>%
+  rename(
+    "DeepVirFinder" = "dvf",
+    "MARVEL" = "marvel",
+    "MetaPhinder" = "metaphinder",
+    "Seeker" = "seeker",
+    "VIBRANT" = "vibrant",
+    "viralVerify" = "viralverify",
+    "VirFinder" = "virfinder",
+    "VirSorter" = "virsorter",
+    "VirSorter2" = "virsorter2"
+  ) %>%
+  mutate_all( ~ replace(., is.na(.), "non-viral")) %>%
+  rename(sample = metagenome, contig = record) %>%
+  mutate(sample_contig = paste(sample, contig, sep = "_")) %>%
+  select(-sample,-contig) %>%
+  mutate_all( ~ replace(., .  == "viral", 1)) %>%
+  mutate_all( ~ replace(., .  == "non-viral", 0)) %>%
+  select(-sample_contig) %>%
   mutate_if(is.character, as.numeric)
 
 crc_matrix_df <- as.data.frame(crc_matrix)
 
-rm(crc_df, crc_matrix)
+rm(crc_matrix)
 ```
 
 ## Upset Plots
@@ -104,7 +113,7 @@ Here is the same plot, but excluding MetaPhinder since it identifies the most ph
 
 ```{r, echo = FALSE}
 upset(
-  crc_matrix_df %>%  select(all_of(reference_based), -MetaPhinder),
+  crc_matrix_df %>% select(all_of(reference_based),-MetaPhinder),
   order.by = "freq",
   empty.intersections = TRUE,
   show.numbers = FALSE,
@@ -112,3 +121,11 @@ upset(
 )
 
 ```
+
+## Length Correlations
+
+```{r}
+
+```
+
+
