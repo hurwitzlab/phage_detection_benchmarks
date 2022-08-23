@@ -1,5 +1,6 @@
 # Directories
 assembly_dir: "../../data/crc_data/assemblies"
+contig_summary_dir: "../../data/contig_counts"
 filtered_contigs_dir: "../../data/crc_data/filtered_assemblies"
 bins_dir: "../../data/crc_data/bins"
 bin_summary_dir: "../../data/crc_data/bin_summaries"

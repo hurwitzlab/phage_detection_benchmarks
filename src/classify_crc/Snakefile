@@ -8,6 +8,35 @@ rule all:
         config["bin_summary_dir"] + "/combined/combined.csv",
 
 
+rule count_profile_contigs:
+    input:
+        config["assembly_dir"] + "/{metagenome}.fasta",
+    output:
+        config["contig_summary_dir"] + "/{metagenome}_count.csv",
+    threads: config["reformat_threads"]
+    shell:
+        """
+        COUNT=$(grep ">" {input} | wc -l)
+
+        echo "{wildcards.metagenome},$COUNT" > {output}
+        """
+
+
+rule combine_contig_counts:
+    input:
+        expand(
+            config["contig_summary_dir"] + "/{metagenome}_count.csv",
+            metagnome=METAGENOMES,
+        ),
+    output:
+        config["contig_summary_dir"] + "/combined_counts.csv",
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        echo "sample,contig_count" > {output}
+        cat {input} >> {output}
+        """
+
 rule combine_benchmarks:
     input:
         expand(
