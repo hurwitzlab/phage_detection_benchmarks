@@ -27,6 +27,38 @@ rule all:
             ],
         ),
         config["bin_summary_dir"] + "/combined/combined.csv",
+        config["benchmarks_dir"] + "/combined.csv",
+
+
+rule combine_binning_benchmarks:
+    input:
+        expand(
+            config["benchmarks_dir"] + "/{step}/{id}_{model}.txt",
+            step=[
+                "bowtie_map_reads",
+                "calculate_depths",
+                "convert_sort_mappings",
+                "make_bowtie_index",
+                "metabat_binning",
+            ],
+            id=PROFILES,
+            model=config["model"],
+        ),
+    output:
+        config["benchmarks_dir"] + "/combined.csv",
+    params:
+        combine=config["combine_binning_benchmarks"],
+        env=config["project_env"],
+        out_dir=config["benchmarks_dir"],
+    threads: config["combine_ntasks"]
+    shell:
+        """
+        set +eu
+        source activate {params.env}
+        combine \
+            -o {params.out_dir} \
+            {input}
+        """
 
 
 # Create profile for InSilicoSeq, and file globs to find necessary genomes
@@ -380,7 +412,7 @@ rule summarize_bins:
     params:
         summarize=config["summarize_bins"],
         env=config["project_env"],
-        out_dir=config["bin_summary_dir"] + "/{id}_{model}"
+        out_dir=config["bin_summary_dir"] + "/{id}_{model}",
     threads: config["combine_ntasks"]
     shell:
         """
@@ -396,10 +428,10 @@ rule summarize_bins:
 rule combine_bin_summaries:
     input:
         expand(
-                config["bin_summary_dir"] + "/{id}_{model}/bin_summary.csv",
-                id=PROFILES,
-                model=config["model"],
-            ),
+            config["bin_summary_dir"] + "/{id}_{model}/bin_summary.csv",
+            id=PROFILES,
+            model=config["model"],
+        ),
     output:
         config["bin_summary_dir"] + "/combined/combined.csv",
     params:
