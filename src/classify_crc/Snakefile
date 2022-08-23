@@ -6,6 +6,7 @@ rule all:
         config["out_dir"] + "/combined_out/combined_benchmarks.csv",
         config["out_dir"] + "/combined_out/combined.csv",
         config["bin_summary_dir"] + "/combined/combined.csv",
+        config["contig_summary_dir"] + "/combined_counts.csv",
 
 
 rule count_profile_contigs:
