@@ -41,7 +41,7 @@ rule count_profile_contigs:
         """
         COUNT=$(grep ">" {input} | wc -l)
 
-        echo "{wildcards.id},{wildcards.model},$COUNT" > {params.output}
+        echo "{wildcards.id},{wildcards.model},$COUNT" > {output}
         """
 
 
