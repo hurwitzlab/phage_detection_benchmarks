@@ -31,22 +31,6 @@ rule all:
         config["summary_dir"] + "contig_counts/combined_counts.csv",
 
 
-rule combine_contig_counts:
-    input:
-        expand(
-            config["summary_dir"] + "/contig_counts/{id}_{model}_count.csv",
-            id=PROFILES,
-            model=config["model"],
-        ),
-    output:
-        config["summary_dir"] + "contig_counts/combined_counts.csv",
-    threads: config["combine_ntasks"]
-    shell:
-        """
-        cat {input} > {output}
-        """
-
-
 rule count_profile_contigs:
     input:
         config["contigs_dir"] + "/{id}_{model}/final.contigs.fa",
