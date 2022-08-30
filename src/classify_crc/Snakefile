@@ -27,11 +27,11 @@ rule combine_contig_counts:
     input:
         expand(
             config["contig_summary_dir"] + "/{metagenome}_count.csv",
-            metagnome=METAGENOMES,
+            metagenome=METAGENOMES,
         ),
     output:
         config["contig_summary_dir"] + "/combined_counts.csv",
-    threads: config["combine_ntasks"]
+    threads: config["reformat_threads"]
     shell:
         """
         echo "sample,contig_count" > {output}
