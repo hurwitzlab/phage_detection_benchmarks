@@ -7,6 +7,29 @@ rule all:
         config["out_dir"] + "/combined_out/combined.csv",
         config["bin_summary_dir"] + "/combined/combined.csv",
         config["contig_summary_dir"] + "/combined_counts.csv",
+        config["contig_summary_dir"] + "/contig_lengths.csv",
+
+
+rule get_contig_lengths:
+    input:
+        expand(config["assembly_dir"] + "/{metagenome}.fasta", metagenome=METAGENOMES),
+    output:
+        config["contig_summary_dir"] + "/contig_lengths.csv",
+    params:
+        get_contig_lengths=config["contig_lengths"],
+        outdir=config["contig_summary_dir"],
+        env=config["project_env"],
+        activate=config["activate"],
+    threads: config["reformat_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {params.get_contig_lengths} \
+            -o {params.outdir} \
+            {input}
+        """
 
 
 rule count_profile_contigs:
@@ -37,6 +60,7 @@ rule combine_contig_counts:
         echo "sample,contig_count" > {output}
         cat {input} >> {output}
         """
+
 
 rule combine_benchmarks:
     input:
@@ -79,7 +103,7 @@ rule combine_preds:
         combine=config["combine"],
         env=config["project_env"],
         activate=config["activate"],
-    threads: config["combine_preds_threads"],
+    threads: config["combine_preds_threads"]
     shell:
         """
         set +eu
@@ -229,7 +253,7 @@ rule summarize_bins:
         summarize=config["summarize_bins"],
         env=config["project_env"],
         activate=config["activate"],
-        out_dir=config["bin_summary_dir"] + "/{metagenome}"
+        out_dir=config["bin_summary_dir"] + "/{metagenome}",
     threads: config["reformat_threads"]
     shell:
         """
@@ -241,12 +265,13 @@ rule summarize_bins:
             {input}
         """
 
+
 rule combine_bin_summaries:
     input:
         expand(
-                config["bin_summary_dir"] + "/{metagenome}/bin_summary.csv",
-                metagenome=METAGENOMES,
-            ),
+            config["bin_summary_dir"] + "/{metagenome}/bin_summary.csv",
+            metagenome=METAGENOMES,
+        ),
     output:
         config["bin_summary_dir"] + "/combined/combined.csv",
     params:
@@ -263,7 +288,7 @@ rule combine_bin_summaries:
             -o {params.out_dir} \
             {input}
         """
-        
+
 
 rule pred_marvel:
     input:
