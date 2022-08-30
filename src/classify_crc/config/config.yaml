@@ -15,6 +15,7 @@ benchmark: "python3 ../classify_simulated/benchmark.py"
 pivot: "python3 pivot_wider.py"
 filter: "python3 ./filter.py"
 summarize_bins: "python3 ../classify_simulated/summarize_bins.py"
+contig_lengths: "python3 ./get_lengths.py"
 
 # Resources for house scripts
 combine_preds_threads: 24
