@@ -18,6 +18,7 @@ library(readr)
 library(UpSetR)
 library(stringr)
 library(tidyr)
+library(tidytable)
 
 # Set ggplot2 theme for whole R session
 theme_set(theme_light() +
@@ -25,7 +26,7 @@ theme_set(theme_light() +
                   plot.subtitle = element_text(hjust = 0.5)))
 ```
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 reference_free <- c("DeepVirFinder", "Seeker", "VirFinder")
 reference_based <-
   c("MARVEL",
@@ -42,15 +43,17 @@ raw_lengths <-
   read_csv("../../data/crc_data/contig_counts/contig_lengths.csv",
            show_col_types = FALSE)
 
-lengths <- raw_lengths %>% 
-  mutate(contig = str_extract(contig, "k[\\d]+_[\\d]+"),
-         sample_contig = paste(sameple, contig, sep = "_")) %>% 
-  select(-sameple,-contig)
+lengths <- raw_lengths %>%
+  mutate(
+    contig = str_extract(contig, "k[\\d]+_[\\d]+"),
+    sample_contig = paste(sameple, contig, sep = "_")
+  ) %>%
+  select(-sameple, -contig)
 
 rm(raw_lengths)
 
-crc_df <- raw_crc_df %>% 
-   rename(
+crc_df <- raw_crc_df %>%
+  rename(
     "DeepVirFinder" = "dvf",
     "MARVEL" = "marvel",
     "MetaPhinder" = "metaphinder",
@@ -61,39 +64,39 @@ crc_df <- raw_crc_df %>%
     "VirSorter" = "virsorter",
     "VirSorter2" = "virsorter2"
   ) %>%
-  mutate_all( ~ replace(., is.na(.), "non-viral")) %>%
+  mutate_all(~ replace(., is.na(.), "non-viral")) %>%
   rename(sample = metagenome, contig = record) %>%
   mutate(sample_contig = paste(sample, contig, sep = "_")) %>%
-  select(-sample,-contig) %>%
-  mutate_all( ~ replace(., .  == "viral", 1)) %>%
-  mutate_all( ~ replace(., .  == "non-viral", 0)) %>% 
+  select(-sample, -contig) %>%
+  mutate_all(~ replace(., .  == "viral", 1)) %>%
+  mutate_all(~ replace(., .  == "non-viral", 0)) %>%
   right_join(lengths)
 
 rm(raw_crc_df, lengths)
-  
+
 crc_matrix_df <- crc_df %>%
-  select(-sample_contig, -length) %>%
-  mutate_if(is.character, as.numeric) %>% 
+  select(-sample_contig,-length) %>%
+  mutate_if(is.character, as.numeric) %>%
   as.data.frame(crc_matrix)
 
 write_csv(crc_df, "data/processed_df.csv")
 
-short_contigs <- crc_df %>% 
-  filter(length < 5000) %>% 
-  select(-sample_contig, -length) %>%
-  mutate_if(is.character, as.numeric) %>% 
+short_contigs <- crc_df %>%
+  filter(length < 5000) %>%
+  select(-sample_contig,-length) %>%
+  mutate_if(is.character, as.numeric) %>%
   as.data.frame(crc_matrix)
 
-write_csv(short_contigs, file="data/short_contigs.csv")
+write_csv(short_contigs, file = "data/short_contigs.csv")
 rm(short_contigs)
 
-long_contigs <- crc_df %>% 
-  filter(length >= 5000) %>% 
-  select(-sample_contig, -length) %>%
-  mutate_if(is.character, as.numeric) %>% 
+long_contigs <- crc_df %>%
+  filter(length >= 5000) %>%
+  select(-sample_contig,-length) %>%
+  mutate_if(is.character, as.numeric) %>%
   as.data.frame(crc_matrix)
 
-write_csv(long_contigs, file="data/long_contigs.csv")
+write_csv(long_contigs, file = "data/long_contigs.csv")
 rm(long_contigs)
 rm(crc_df)
 ```
@@ -149,7 +152,7 @@ Here is the same plot, but excluding MetaPhinder since it identifies the most ph
 
 ```{r, echo = FALSE}
 upset(
-  crc_matrix_df %>% select(all_of(reference_based),-MetaPhinder),
+  crc_matrix_df %>% select(all_of(reference_based), -MetaPhinder),
   order.by = "freq",
   empty.intersections = TRUE,
   show.numbers = FALSE,
@@ -159,19 +162,18 @@ upset(
 ```
 ### Short vs Long
 
-Contigs 
+#### Contigs >= 5000 nt
 
 
-## Length Correlations
-
-```{r}
+```{r, include=FALSE}
 rm(crc_matrix_df)
 
-long_contigs <- read_csv("data/long_contigs.csv", show_col_types = FALSE) %>% 
+long_contigs <-
+  read_csv("data/long_contigs.csv", show_col_types = FALSE) %>%
   as.data.frame()
 ```
 
-```{r}
+```{r, echo=FALSE}
 upset(
   long_contigs,
   order.by = "freq",
@@ -182,14 +184,17 @@ upset(
 )
 ```
 
-```{r}
+```{r, include=FALSE}
 rm(long_contigs)
 
-short_contigs <- read_csv("data/short_contigs.csv", show_col_types = FALSE) %>% 
+short_contigs <-
+  read_csv("data/short_contigs.csv", show_col_types = FALSE) %>%
   as.data.frame()
 ```
 
-```{r}
+#### Contigs < 5000 nt
+
+```{r, echo=FALSE}
 upset(
   short_contigs,
   order.by = "freq",
@@ -200,7 +205,9 @@ upset(
 )
 ```
 
-```{r}
+## Length Correlations
+
+```{r, include=FALSE}
 bin_lengths <- function(df, step, min, max) {
   df <- df %>%
     mutate(log_len = log(length, base = 10))
@@ -217,14 +224,14 @@ bin_lengths <- function(df, step, min, max) {
 ```
 
 
-```{r}
+```{r, include=FALSE}
 rm(short_contigs)
 
 crc_df <- read_csv("data/processed_df.csv", show_col_types = FALSE)
-crc_df %>% 
-  bin_lengths(0.5, 2.5, 5.0) %>%
-  separate(sample_contig, c("sample", "contig")) %>% 
-  group_by(length_bin) %>%
+crc_df <- crc_df %>% 
+  separate(sample_contig, c("sample", "contig"), sep = 15) %>% 
+  bin_lengths(0.5, 2.5, 5.0) %>% 
+  group_by(sample, length_bin) %>%
   summarize(
     total_count = n(),
     dvf_sum = sum(DeepVirFinder),
@@ -271,10 +278,66 @@ crc_df %>%
 
 ```
 
-```{r}
-crc_df %>% 
-  ggplot(aes(x = length_bin, y = predicted)) + 
+```{r, echo=FALSE}
+crc_df %>%
+  ggplot(aes(x = factor(length_bin), y = predicted_prop)) +
   facet_wrap(~ tool) +
-  geom_point()
+  geom_boxplot(
+    color = "grey30",
+    lwd = 0.25,
+    outlier.alpha = 0.7,
+    outlier.size = 0.85,
+    outlier.color = "gray40"
+  ) +
+  labs(x = "log(Contig Length) Bin",
+       y = "Phage Proportion of Total Contigs")
+
+ggsave("figures/prop_phage_length.png", height=6, width=6)
+ggsave("figures/prop_phage_length.svg", height=6, width=6)
+```
+
+```{r, echo=FALSE}
+crc_df %>%
+  ggplot(aes(x = factor(length_bin), y = predicted)) +
+  facet_wrap(~ tool) +
+  geom_boxplot(
+    color = "grey30",
+    lwd = 0.25,
+    outlier.alpha = 0.7,
+    outlier.size = 0.85,
+    outlier.color = "gray40"
+  ) +
+  labs(x = "log(Contig Length) Bin",
+       y = "Number of Predicted Phage Contigs")
+
+ggsave("figures/phage_length.png",
+       height = 6,
+       width = 6)
+ggsave("figures/phage_length.svg",
+       height = 6,
+       width = 6)
+```
+
+```{r,echo=FALSE}
+crc_df %>%
+  ggplot(aes(x = factor(length_bin), y = predicted)) +
+  facet_wrap(~ tool) +
+  geom_boxplot(
+    color = "grey30",
+    lwd = 0.25,
+    outlier.alpha = 0.7,
+    outlier.size = 0.85,
+    outlier.color = "gray40"
+  ) +
+  scale_y_continuous(trans = "log10") +
+  labs(x = "log(Contig Length) Bin",
+       y = "Number of Predicted Phage Contigs")
+
+ggsave("figures/log_phage_length.png",
+       height = 6,
+       width = 6)
+ggsave("figures/log_phage_length.svg",
+       height = 6,
+       width = 6)
 ```
 
