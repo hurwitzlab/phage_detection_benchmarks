@@ -16,6 +16,8 @@ library(ggplot2)
 library(magrittr)
 library(readr)
 library(UpSetR)
+library(stringr)
+library(tidyr)
 
 # Set ggplot2 theme for whole R session
 theme_set(theme_light() +
@@ -24,20 +26,31 @@ theme_set(theme_light() +
 ```
 
 ```{r, echo=FALSE}
-reference_free <- c("DeepVirFinder", "MARVEL", "Seeker", "VirFinder")
+reference_free <- c("DeepVirFinder", "Seeker", "VirFinder")
 reference_based <-
-  c("MetaPhinder",
+  c("MARVEL",
+    "MetaPhinder",
     "VIBRANT",
     "viralVerify",
     "VirSorter",
     "VirSorter2")
 
-crc_df <-
+raw_crc_df <-
   read_csv("../../data/classified_crc/combined_out/combined.csv",
            show_col_types = FALSE)
+raw_lengths <-
+  read_csv("../../data/crc_data/contig_counts/contig_lengths.csv",
+           show_col_types = FALSE)
 
-crc_matrix <- crc_df %>%
-  rename(
+lengths <- raw_lengths %>% 
+  mutate(contig = str_extract(contig, "k[\\d]+_[\\d]+"),
+         sample_contig = paste(sameple, contig, sep = "_")) %>% 
+  select(-sameple,-contig)
+
+rm(raw_lengths)
+
+crc_df <- raw_crc_df %>% 
+   rename(
     "DeepVirFinder" = "dvf",
     "MARVEL" = "marvel",
     "MetaPhinder" = "metaphinder",
@@ -53,13 +66,36 @@ crc_matrix <- crc_df %>%
   mutate(sample_contig = paste(sample, contig, sep = "_")) %>%
   select(-sample,-contig) %>%
   mutate_all( ~ replace(., .  == "viral", 1)) %>%
-  mutate_all( ~ replace(., .  == "non-viral", 0)) %>%
-  select(-sample_contig) %>%
-  mutate_if(is.character, as.numeric)
+  mutate_all( ~ replace(., .  == "non-viral", 0)) %>% 
+  right_join(lengths)
 
-crc_matrix_df <- as.data.frame(crc_matrix)
+rm(raw_crc_df, lengths)
+  
+crc_matrix_df <- crc_df %>%
+  select(-sample_contig, -length) %>%
+  mutate_if(is.character, as.numeric) %>% 
+  as.data.frame(crc_matrix)
 
-rm(crc_matrix)
+write_csv(crc_df, "data/processed_df.csv")
+
+short_contigs <- crc_df %>% 
+  filter(length < 5000) %>% 
+  select(-sample_contig, -length) %>%
+  mutate_if(is.character, as.numeric) %>% 
+  as.data.frame(crc_matrix)
+
+write_csv(short_contigs, file="data/short_contigs.csv")
+rm(short_contigs)
+
+long_contigs <- crc_df %>% 
+  filter(length >= 5000) %>% 
+  select(-sample_contig, -length) %>%
+  mutate_if(is.character, as.numeric) %>% 
+  as.data.frame(crc_matrix)
+
+write_csv(long_contigs, file="data/long_contigs.csv")
+rm(long_contigs)
+rm(crc_df)
 ```
 
 ## Upset Plots
@@ -121,11 +157,124 @@ upset(
 )
 
 ```
+### Short vs Long
+
+Contigs 
+
 
 ## Length Correlations
 
 ```{r}
+rm(crc_matrix_df)
+
+long_contigs <- read_csv("data/long_contigs.csv", show_col_types = FALSE) %>% 
+  as.data.frame()
+```
+
+```{r}
+upset(
+  long_contigs,
+  order.by = "freq",
+  empty.intersections = TRUE,
+  sets = colnames(long_contigs),
+  show.numbers = FALSE,
+  nintersects = 51
+)
+```
+
+```{r}
+rm(long_contigs)
+
+short_contigs <- read_csv("data/short_contigs.csv", show_col_types = FALSE) %>% 
+  as.data.frame()
+```
+
+```{r}
+upset(
+  short_contigs,
+  order.by = "freq",
+  empty.intersections = TRUE,
+  sets = colnames(short_contigs),
+  show.numbers = FALSE,
+  nintersects = 51
+)
+```
+
+```{r}
+bin_lengths <- function(df, step, min, max) {
+  df <- df %>%
+    mutate(log_len = log(length, base = 10))
+  
+  df$length_bin = min
+  
+  for (bin in seq(min, max, step)) {
+    df$length_bin[df$log_len >= bin] = bin
+  }
+  
+  df %>% 
+    select(-log_len, -length)
+}
+```
+
+
+```{r}
+rm(short_contigs)
+
+crc_df <- read_csv("data/processed_df.csv", show_col_types = FALSE)
+crc_df %>% 
+  bin_lengths(0.5, 2.5, 5.0) %>%
+  separate(sample_contig, c("sample", "contig")) %>% 
+  group_by(length_bin) %>%
+  summarize(
+    total_count = n(),
+    dvf_sum = sum(DeepVirFinder),
+    meta_sum = sum(MetaPhinder),
+    seeker_sum = sum(Seeker),
+    vibrant_sum = sum(VIBRANT),
+    viralverify_sum = sum(viralVerify),
+    virfinder_sum = sum(VirFinder),
+    virsorter_sum = sum(VirSorter),
+    virsorter2_sum = sum(VirSorter2),
+    marvel_sum = sum(MARVEL)
+  ) %>%
+  pivot_longer(cols = ends_with("sum"),
+               names_to = "tool",
+               values_to = "predicted") %>%
+  mutate(
+    tool = case_when(
+      tool == "dvf_sum" ~ "DeepVirFinder",
+      tool == "meta_sum" ~ "MetaPhinder",
+      tool == "seeker_sum" ~ "Seeker",
+      tool == "vibrant_sum" ~ "VIBRANT",
+      tool == "viralverify_sum" ~ "viralVerify",
+      tool == "virfinder_sum" ~ "VirFinder",
+      tool == "virsorter_sum" ~ "VirSorter",
+      tool == "virsorter2_sum" ~ "VirSorter2",
+      tool == "marvel_sum" ~ "MARVEL"
+    ),
+    tool = factor(
+      tool,
+      levels = c(
+        "VirFinder",
+        "DeepVirFinder",
+        "Seeker",
+        "VirSorter",
+        "MetaPhinder",
+        "MARVEL",
+        "viralVerify",
+        "VIBRANT",
+        "VirSorter2"
+      )
+    ),
+    predicted_prop = predicted / total_count
+  )
 
 ```
 
+```{r}
+crc_df %>% 
+  ggplot(aes(x = length_bin, y = predicted)) + 
+  facet_wrap(~ tool) +
+  geom_point()
+```
 
