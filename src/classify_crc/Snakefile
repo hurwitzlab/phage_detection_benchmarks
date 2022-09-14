@@ -8,6 +8,10 @@ rule all:
         config["bin_summary_dir"] + "/combined/combined.csv",
         config["contig_summary_dir"] + "/combined_counts.csv",
         config["contig_summary_dir"] + "/contig_lengths.csv",
+        expand(
+            config["out_dir"] + "/{metagenome}/checkv/quality_summary.tsv",
+            metagenome=METAGENOMES,
+        ),
 
 
 rule get_contig_lengths:
@@ -159,6 +163,31 @@ rule combine_sample_preds:
         {params.combine} \
             -o {params.out_dir} \
             {input}
+        """
+
+
+rule run_checkv:
+    input:
+        config["assembly_dir"] + "/{metagenome}.fasta",
+    output:
+        config["out_dir"] + "/{metagenome}/checkv/quality_summary.tsv",
+    params:
+        env=config["checkv_env"],
+        cores=config["checkv_cores"],
+        activate=config["activate"],
+        out_dir=config["out_dir"] + "/{metagenome}/checkv",
+        db=config["checkv_db"],
+    threads: config["checkv_cores"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        checkv end_to_end \
+            -t {params.cores} \
+            -d {params.db} \
+            {input} \
+            {out_dir}
         """
 
 
