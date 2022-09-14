@@ -1,6 +1,6 @@
 # Directories
 assembly_dir: "../../data/crc_data/assemblies"
-contig_summary_dir: "../../data/contig_counts"
+contig_summary_dir: "../../data/crc_data/contig_counts"
 filtered_contigs_dir: "../../data/crc_data/filtered_assemblies"
 bins_dir: "../../data/crc_data/bins"
 bin_summary_dir: "../../data/crc_data/bin_summaries"
@@ -30,6 +30,11 @@ metabat_env:
         ../../tool_envs/metabat2/env
 metabat:
         metabat2
+
+# CheckV
+checkv_env: "../../tool_envs/checkv/env"
+checkv_db: "../../tool_envs/checkv/checkv-db-v1.4"
+checkv_cores: 24
 
 # General conda environments
 project_env: "../../env"
