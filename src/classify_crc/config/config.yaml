@@ -27,16 +27,14 @@ filter_threads: 8
 
 # Binning
 binning_ntasks: 24
-metabat_env:
-        ../../tool_envs/metabat2/env
-metabat:
-        metabat2
+metabat_env: "../../tool_envs/metabat2/env"
+metabat: "metabat2"
 
 # CheckV
 checkv_env: "../../tool_envs/checkv/env"
 checkv_db: "../../tool_envs/checkv/checkv-db-v1.4"
 checkv_cores: 24
-checkv_regex: "".*/(?P<sample>\w+_\d+)/checkv/(?P<filename>quality_summary).tsv"
+checkv_regex: r".*/(?P<sample>\w+_\d+)/checkv/(?P<filename>quality_summary).tsv"
 
 # General conda environments
 project_env: "../../env"
