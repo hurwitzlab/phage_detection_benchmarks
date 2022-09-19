@@ -16,6 +16,7 @@ pivot: "python3 pivot_wider.py"
 filter: "python3 ./filter.py"
 summarize_bins: "python3 ../classify_simulated/summarize_bins.py"
 contig_lengths: "python3 ./get_lengths.py"
+combine_checkv: "python3 ./combine_checkv.py"
 
 # Resources for house scripts
 combine_preds_threads: 24
@@ -35,6 +36,7 @@ metabat:
 checkv_env: "../../tool_envs/checkv/env"
 checkv_db: "../../tool_envs/checkv/checkv-db-v1.4"
 checkv_cores: 24
+checkv_regex: "".*/(?P<sample>\w+_\d+)/checkv/(?P<filename>quality_summary).tsv"
 
 # General conda environments
 project_env: "../../env"
