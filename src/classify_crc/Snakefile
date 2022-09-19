@@ -191,6 +191,33 @@ rule run_checkv:
         """
 
 
+rule combine_checkv:
+    input:
+        expand(
+            config["out_dir"] + "/{metagenome}/checkv/quality_summary.tsv",
+            metagenome=METAGENOMES,
+        ),
+    output:
+        config["out_dir"] + "/combined_out/checkv/quality_summary.csv",
+    params:
+        env=config["project_env"],
+        activate=config["activate"],
+        combine=config["combine_checkv"],
+        regex=config["checkv_regex"],
+        out_dir=config["out_dir"] + "/combined_out/checkv",
+    threads: config["reformat_threads"]
+    shell:
+        """
+        set +eu
+        source {params.activate} {params.env}
+
+        {params.combine} \
+            -o {params.out_dir} \
+            -r {params.regex} \
+            {input}
+        """
+
+
 rule pred_deepvirfinder:
     input:
         config["assembly_dir"] + "/{metagenome}.fasta",
