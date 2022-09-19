@@ -89,7 +89,7 @@ def concat_files(regex: str, files: List[TextIO]) -> Tuple[pd.DataFrame, str]:
     for file in files:
         parts = match_regex(regex, file.name)
 
-        df = pd.read_csv(file)
+        df = pd.read_csv(file, sep='\t')
 
         df['sample'] = parts.sample
 
