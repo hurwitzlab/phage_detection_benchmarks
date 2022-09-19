@@ -8,10 +8,7 @@ rule all:
         config["bin_summary_dir"] + "/combined/combined.csv",
         config["contig_summary_dir"] + "/combined_counts.csv",
         config["contig_summary_dir"] + "/contig_lengths.csv",
-        expand(
-            config["out_dir"] + "/{metagenome}/checkv/quality_summary.tsv",
-            metagenome=METAGENOMES,
-        ),
+        config["out_dir"] + "/combined_out/checkv/quality_summary.csv",
 
 
 rule get_contig_lengths:
