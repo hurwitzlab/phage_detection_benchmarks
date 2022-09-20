@@ -3,16 +3,21 @@ title: "Classified Simulated Phages"
 output: html_notebook
 ---
 
+# {.tabset}
+
 This experiment involved 3 "metagenomes" from simulated reads. All reads came strictly from phage genomes.
 
 Each profile consists of 500 phages, and the read simulation was specified to result in 30x coverage for each genome.
 
 ```{r, include = FALSE}
+library(coin)
 library(dplyr)
 library(ggplot2)
 library(hurwitzLab)
+library(infer)
 library(magrittr)
 library(readr)
+library(rstatix)
 library(RColorBrewer)
 library(stringr)
 library(tidyr)
@@ -66,6 +71,50 @@ relabel_models <- function(df){
 }
 ```
 
+## Simulation Results
+
+```{r, echo=FALSE}
+contigs <-
+  read_csv(
+    "../../data/phage_simulation/summary/contigs/combined_contig_summary.csv",
+    show_col_types = FALSE
+  )
+```
+
+```{r, echo=FALSE}
+contigs %>% 
+  summarize(min = min(length),
+            max = max(length),
+            median = median(length))
+```
+
+```{r, echo=FALSE}
+contigs %>% 
+  group_by(model) %>% 
+  summarize(min = min(length),
+            max = max(length),
+            median = median(length))
+```
+
+```{r, echo=FALSE}
+contigs %>% 
+  group_by(profile) %>% 
+  summarize(min = min(length),
+            max = max(length))
+```
+
+```{r, echo=FALSE}
+wilcox_test_result <- contigs %>%
+  rstatix::wilcox_test(length ~ model, p.adjust.method = 'bonferroni')
+
+summary(wilcox_test_result)
+
+contigs %>% 
+  wilcox_effsize(length ~ model)
+```
+
+
+## Classification Results
 ```{r, echo=FALSE}
 summary_stats <-
   read_csv(

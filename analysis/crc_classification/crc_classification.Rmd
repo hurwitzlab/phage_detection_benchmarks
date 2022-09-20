@@ -112,6 +112,13 @@ The total number of possible intersections for 9 tools is 511, so not all inters
 Here, the number of intersections is set to 51 (The top 10% of largest intersections).
 
 ```{r, echo = FALSE}
+crc_matrix_df  <-
+  read_csv("data/processed_df.csv", show_col_types = FALSE) %>%
+  select(-sample_contig, -length) %>%
+  mutate_if(is.character, as.numeric) %>%
+  as.data.frame(crc_matrix)
+
+pdf(file="figures/all_upset.pdf", onefile=FALSE,width = 8, height = 6)
 upset(
   crc_matrix_df,
   order.by = "freq",
@@ -120,6 +127,7 @@ upset(
   show.numbers = FALSE,
   nintersects = 51
 )
+dev.off()
 ```
 
 ### Reference-free Tools
@@ -151,6 +159,7 @@ upset(
 Here is the same plot, but excluding MetaPhinder since it identifies the most phages.
 
 ```{r, echo = FALSE}
+pdf(file="figures/homology_upset.pdf", onefile=FALSE,width = 8, height = 6)
 upset(
   crc_matrix_df %>% select(all_of(reference_based), -MetaPhinder),
   order.by = "freq",
@@ -158,7 +167,7 @@ upset(
   show.numbers = FALSE,
   nintersects = 25
 )
-
+dev.off()
 ```
 ### Short vs Long
 
@@ -340,4 +349,370 @@ ggsave("figures/log_phage_length.svg",
        height = 6,
        width = 6)
 ```
+
+## Numbers of contigs found by tools
+
+```{r}
+rm(crc_matrix_df)
+crc_df <- read_csv("data/processed_df.csv", show_col_types = FALSE) %>% 
+  separate(sample_contig, c("sample", "contig"), sep = 15)
+
+commonalities <- crc_df %>% 
+  mutate(found_by = select(., c(-sample, -contig, -length)) %>%  rowSums()) %>% 
+  group_by(sample, found_by) %>% 
+  count()
+
+mean_commonalitites <- commonalities %>% 
+  group_by(found_by) %>% 
+  summarize(mean = mean(n))
+
+total_found <- mean_commonalitites %>% 
+  filter(found_by >= 1) %>% 
+  summarize(total = sum(mean))
+
+found_by_2_or_more <- mean_commonalitites %>%
+  ungroup() %>% 
+  filter(found_by >= 2) %>% 
+  summarize(mean = sum(mean))
+
+found_by_3_or_more <- mean_commonalitites %>%
+  ungroup() %>% 
+  filter(found_by >= 3) %>% 
+  summarize(mean = sum(mean))
+```
+
+### Overlaps between Seeker and MetaPhinder
+
+```{r, echo=FALSE}
+crc_df %>%
+  mutate(meta_and_seeker = case_when(
+    MetaPhinder == 1 & Seeker == 1 ~ 1,
+    TRUE ~ 0
+  )) %>% 
+  group_by(sample) %>% 
+  summarize(total_meta = sum(MetaPhinder),
+            total_seeker = sum(Seeker),
+            total_both = sum(meta_and_seeker),
+            prop_meta_shared = total_both / total_meta,
+            prop_seeker_shared = total_both / total_seeker) %>% 
+  ungroup() %>% 
+  summarize(mean_prop_meta_shared = mean(prop_meta_shared),
+            mean_prop_seeker_shared = mean(prop_seeker_shared))
+```
+```{r}
+find_overlap <- function(df, tool_1, tool_2) {
+  out_df <- df %>%
+    mutate(
+      both = case_when(df[tool_1] == 1 & df[tool_2] == 1 ~ 1,
+                       TRUE ~ 0),
+      either = case_when(df[tool_1] == 1 | df[tool_2] == 1 ~ 1,
+                       TRUE ~ 0)
+    ) %>%
+    summarize(
+      total_both = sum(both),
+      total_either = sum(either),
+      prop_overlap = total_both / total_either
+    )
+  
+  out_df$prop_overlap
+  
+}
+
+vect_find_overlap <- Vectorize(find_overlap)
+```
+
+
+```{r, echo=FALSE}
+tool_combinations <- combn(c(reference_based, reference_free), 2)
+
+overlaps <-
+  tibble(tool_1 = tool_combinations[1, ], tool_2 = tool_combinations[2, ])
+
+overlaps['overlap'] = 0.0
+
+for (row in 1:nrow(overlaps)) {
+  overlaps[row, 'overlap'] = find_overlap(crc_df, overlaps[[row, 'tool_1']], overlaps[[row, 'tool_2']])
+}
+
+overlaps %>% 
+  arrange(desc(overlap))
+```
+
+
+The following shows the quantities of contigs that are less than 5kbp
+
+```{r}
+crc_df %>%
+  group_by(sample) %>%
+  summarize(all = n()) %>%
+  left_join(crc_df %>%
+              group_by(sample) %>%
+              filter(length < 3000) %>%
+              summarize(short = n())) %>% 
+  ungroup() %>% 
+  summarize(total = sum(all),
+            total_short = sum(short),
+            proportion_short = total_short / total)
+
+
+```
+
+```{r, echo=FALSE}
+crc_df %>% 
+  group_by(sample) %>% 
+  summarize(across(c(-length, -contig), sum)) %>% 
+  pivot_longer(cols = c(-sample), names_to = "tool", values_to = "num_phages") %>% 
+  group_by(tool) %>% 
+  summarize(median_num_phages = median(num_phages),
+            iqr = IQR(num_phages))
+```
+
+
+## CheckV Results
+
+```{r, echo=FALSE}
+checkv_df <-
+  read_csv(
+    "../../data/classified_crc/combined_out/checkv/combined_quality_summary.csv",
+    show_col_types = FALSE
+  ) %>%
+  select(sample, contig_id, checkv_quality) %>%
+  mutate(contig_id = str_extract(contig_id, "k[[:digit:]]+_[[:digit:]]+"))
+
+crc_df <-
+  read_csv("data/processed_df.csv", show_col_types = FALSE) %>%
+  separate(sample_contig, c("sample", "contig"), sep = 15) %>%
+  mutate(sample = substr(sample, 1, nchar(sample) - 1))
+
+checkv_predictions_df <- 
+  full_join(checkv_df, crc_df, by = c("contig_id" = "contig", "sample" = "sample"))
+
+rm(checkv_df, crc_df)
+```
+
+```{r, echo = FALSE}
+summarize_checkv <- function(df) {
+  out_df <- tibble()
+  
+  for (sample_i in unique(df$sample)) {
+    sample_df <- df %>%
+      filter(sample == sample_i) %>%
+      pivot_longer(
+        c(
+          DeepVirFinder,
+          MetaPhinder,
+          Seeker,
+          VIBRANT,
+          viralVerify,
+          VirFinder,
+          VirSorter,
+          VirSorter2,
+          MARVEL
+        ),
+        names_to = "tool",
+        values_to = "prediction"
+      ) %>%
+      group_by(sample, tool) %>%
+      filter(prediction == 1) %>%
+      summarize(
+        num_predicted = sum(prediction),
+        num_not_determined = sum(checkv_quality == "Not-determined"),
+        num_low_quality = sum(checkv_quality == "Low-quality"),
+        num_medium_quality = sum(checkv_quality == "Medium-quality"),
+        num_high_quality = sum(checkv_quality == "High-quality"),
+        num_complete = sum(checkv_quality == "Complete")
+      )
+    
+    out_df <- bind_rows(out_df, sample_df)
+  }
+  out_df
+}
+```
+
+
+```{r ,echo = FALSE, warning=FALSE}
+checkv_props <- checkv_predictions_df %>%
+  summarize_checkv() %>%
+  group_by(tool) %>%
+  summarize(
+    num_predicted = sum(num_predicted),
+    num_not_determined = sum(num_not_determined),
+    num_low_quality = sum(num_low_quality),
+    num_medium_quality = sum(num_medium_quality),
+    num_high_quality = sum(num_high_quality),
+    num_complete = sum(num_complete),
+    prop_not_determined = num_not_determined / num_predicted,
+    prop_low_quality = num_low_quality / num_predicted,
+    prop_medium_quality = num_medium_quality / num_predicted,
+    prop_high_quality = num_high_quality / num_predicted,
+    prop_complete = num_complete / num_predicted
+  ) %>%
+  pivot_longer(starts_with("prop"),
+               names_to = "prop_category",
+               values_to = "proportion") %>%
+  mutate(
+    prop_category = case_when(
+      prop_category == "prop_complete" ~ "Complete",
+      prop_category == "prop_high_quality" ~ "High Quality",
+      prop_category == "prop_medium_quality" ~ "Medium Quality",
+      prop_category == "prop_low_quality" ~ "Low Quality",
+      prop_category == "prop_not_determined" ~ "Not Determined",
+    ),
+    prop_category = factor(
+      prop_category,
+      levels = c(
+        "Complete",
+        "High Quality",
+        "Medium Quality",
+        "Low Quality",
+        "Not Determined"
+      )
+    ),
+    tool = factor(
+      tool,
+      levels = c(
+        "VirFinder",
+        "DeepVirFinder",
+        "Seeker",
+        "VirSorter",
+        "MetaPhinder",
+        "MARVEL",
+        "viralVerify",
+        "VIBRANT",
+        "VirSorter2"
+      )
+    )
+  )
+  
+```
+
+
+```{r, echo = FALSE}
+checkv_props %>%
+  ggplot(aes(y = tool, x = proportion, fill = prop_category)) +
+  geom_bar(position = "fill", stat="identity", alpha = 0.8) +
+  scale_y_discrete(limits=rev) +
+  scale_x_continuous(labels = scales::percent) +
+  scale_fill_brewer(palette = "PuBuGn", direction=-1) +
+  labs(x = "Proportion of Predicted Phage Contigs",
+       y = "",
+       fill = "CheckV Quality")
+
+ggsave("figures/checkv_props.png", width=6, height=4)
+ggsave("figures/checkv_props.svg", width=6, height=4)
+```
+
+```{r, echo = FALSE}
+checkv_viruses <- checkv_props %>%
+  select(-proportion,-prop_category, -num_predicted) %>%
+  pivot_longer(starts_with("num"),
+               names_to = "num_category",
+               values_to = "number") %>%
+  mutate(
+    num_category = case_when(
+      num_category == "num_complete" ~ "Complete",
+      num_category == "num_high_quality" ~ "High Quality",
+      num_category == "num_medium_quality" ~ "Medium Quality",
+      num_category == "num_low_quality" ~ "Low Quality",
+      num_category == "num_not_determined" ~ "Not Determined",
+    ),
+    num_category = factor(
+      num_category,
+      levels = c(
+        "Complete",
+        "High Quality",
+        "Medium Quality",
+        "Low Quality",
+        "Not Determined"
+      )
+    ),
+    tool = factor(
+      tool,
+      levels = c(
+        "VirFinder",
+        "DeepVirFinder",
+        "Seeker",
+        "VirSorter",
+        "MetaPhinder",
+        "MARVEL",
+        "viralVerify",
+        "VIBRANT",
+        "VirSorter2"
+      )
+    )
+  ) %>% 
+  distinct() %>% 
+  filter(!num_category %in% c("Not Determined", "Low Quality"))
+
+checkv_viruses %>%
+  ggplot(aes(y = tool, x = number, fill = num_category)) +
+  geom_bar(position = "stack",
+           stat = "identity",
+           alpha = 0.8) +
+  scale_y_discrete(limits = rev) +
+  scale_fill_brewer(palette = "PuBuGn", direction = -1, drop=FALSE) +
+  labs(x = "Number of Predicted Phage Contigs",
+       y = "",
+       fill = "CheckV Quality")
+
+ggsave("figures/checkv_nums.png", width=6, height=4)
+ggsave("figures/checkv_nums.svg", width=6, height=4)
+```
+
+```{r, echo=FALSE}
+checkv_matrix_df <- checkv_predictions_df %>% 
+  filter(!checkv_quality %in% c("Not-determined", "Low-quality")) %>% 
+  # mutate(sample_contig = paste(sample, contig_id)) %>% 
+  select(-sample, -contig_id, -checkv_quality, -length) %>% 
+  as.data.frame()
+
+pdf(file="figures/checkv_upset.pdf", onefile=FALSE,width = 8, height = 6)
+upset(
+  checkv_matrix_df,
+  order.by = "freq",
+  empty.intersections = TRUE,
+  sets = colnames(checkv_matrix_df),
+  show.numbers = FALSE
+  # nintersects = 51
+)
+dev.off()
+```
+
+```{r}
+checkv_commonalities <- checkv_matrix_df %>% 
+  mutate(found_by = checkv_matrix_df %>%  rowSums()) %>% 
+  group_by(found_by) %>% 
+  count() %>% 
+  ungroup()
+
+
+checkv_commonalities %>%
+  summarize(
+    total = sum(n),
+    at_least_1 = sum(checkv_commonalities[checkv_commonalities$found_by >= 1, "n"]),
+    at_least_2 = sum(checkv_commonalities[checkv_commonalities$found_by >= 2, "n"]),
+    at_least_3 = sum(checkv_commonalities[checkv_commonalities$found_by >= 3, "n"]),
+    at_least_4 = sum(checkv_commonalities[checkv_commonalities$found_by >= 4, "n"]),
+    at_least_5 = sum(checkv_commonalities[checkv_commonalities$found_by >= 5, "n"]),
+    at_least_6 = sum(checkv_commonalities[checkv_commonalities$found_by >= 6, "n"]),
+    at_least_7 = sum(checkv_commonalities[checkv_commonalities$found_by >= 7, "n"]),
+    at_least_8 = sum(checkv_commonalities[checkv_commonalities$found_by >= 8, "n"]),
+    prop_at_least_2 = at_least_2 / at_least_1,
+    prop_at_least_3 = at_least_3 / at_least_1,
+    prop_at_least_4 = at_least_4 / at_least_1,
+    prop_at_least_5 = at_least_5 / at_least_1,
+    prop_at_least_6 = at_least_6 / at_least_1,
+    prop_at_least_7 = at_least_7 / at_least_1,
+    prop_at_least_8 = at_least_8 / at_least_1,
+  ) %>%
+  pivot_longer(starts_with("prop"),
+               names_to = "overlap",
+               values_to = "proportion") %>%
+  pivot_longer(starts_with("at"), names_to = "overlap_num", values_to = "number") %>%
+  filter(substr(overlap, nchar(overlap) - 1, nchar(overlap)) == substr(overlap_num, nchar(overlap_num) - 1, nchar(overlap_num))) %>% 
+  select(-overlap_num, -total) %>% 
+  mutate(overlap = substr(overlap, nchar(overlap), nchar(overlap)),
+         overlap = as.numeric(overlap))
+```
+
 

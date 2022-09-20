@@ -183,6 +183,51 @@ bench_summary <- bench_df %>%
 # bench_df[bench_df$tool == "VirSorter" && bench_df$length == 500] = NA
 ```
 
+The following is the breakdown of the taxonomy of the phages in the refseq database:
+
+```{r, echo = FALSE}
+taxonomy_df <- read.csv("../../data/refseq_info/taxonomy.csv")
+
+phages <- taxonomy_df %>%
+  distinct(species_taxid, .keep_all = T) %>% filter(kingdom == "viral") %>%
+  filter(str_detect(species, regex("phage", ignore_case = T)))
+
+print("Number of genomes in Caudovirales")
+phages %>% 
+  filter(order == "Caudovirales") %>% 
+  count()
+
+
+print("Number of genomes not in Caudovirales")
+phages %>% 
+  filter(order != "Caudovirales") %>% 
+  count()
+
+
+print("Number of genomes in Myoviridae")
+phages %>% 
+  filter(order == "Caudovirales",
+         family == "Myoviridae") %>% 
+  count()
+
+print("Number of genomes in Siphoviridae")
+phages %>% 
+  filter(order == "Caudovirales",
+         family == "Siphoviridae") %>% 
+  count()
+
+print("Number of genomes in Podoviridae")
+phages %>% 
+  filter(order == "Caudovirales",
+         family == "Podoviridae") %>% 
+  count()
+
+phages %>% 
+  group_by(family) %>% 
+  count()
+
+```
+
 
 ## Resource Usage
 
@@ -1482,6 +1527,15 @@ caudo %>%
   select(-n) %>%
   arrange(desc(num_frags))
 ```
+
+These are the distributions in my RefSeq database:
+
+```{r, echo = FALSE}
+taxonomy_df %>% 
+  filter(superkingdom == "Viruses",
+         )
+```
+
 
 <hr style="border:1px solid gray"> </hr>
 
