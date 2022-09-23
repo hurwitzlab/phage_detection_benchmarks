@@ -14,6 +14,8 @@ length (nt) | archaea | bacteria | fungi | viruses
 
 Sequences were created by fragmenting reference genomes from RefSeq. All reference genomes were downloaded before 20 July 2021. Reference genomes were fragmented into adjacent non-overlapping fragments of lengths 500, 1000, 3000, and 5000 nt. 10,000 fragments per taxon/length were selected by 1) randomly selecting genomes, then 2) randomly selecting a fragment from that genome. When fewer than 10k genomes were present, genomes were selected with replacement. If a genome fragment wa already selected, it was discarded and another was selected, making genome fragments within a set unique.
 
+The genome fragments were classified with the classifiers, and those results are present here. During classification, resource usage was also recorded, and are present.
+
 ## Structure
 
 The top level structure is as follows:
@@ -38,6 +40,7 @@ Each of the 4 directories have similar internal structure:
 
 ```sh
 $ tree archaea/
+archaea/
 ├── 1000                    # 1000 nt fragments 
 │   └── genome_fragments.fa # File with 10k fragments
 ├── 3000                    # 3000 nt fragments
@@ -46,7 +49,7 @@ $ tree archaea/
 │   └── genome_fragments.fa # File with 10k fragments
 └── 5000                    # 5000 nt fragments
     └── genome_fragments.fa # File with 10k fragments
-4 directories, 3 files
+4 directories, 4 files
 ```
 
 There are 4 sub-directories, each corresponding to a certain fragment length. Within those directories are files called `genome_fragments.fa` which are FASTA files of 10,000 reference genome fragments.
