@@ -16,6 +16,8 @@ Sequences were created by fragmenting reference genomes from RefSeq. All referen
 
 The genome fragments were classified with the classifiers, and those results are present here. During classification, resource usage was also recorded, and are present.
 
+---
+
 ## Structure
 
 The top level structure is as follows:
@@ -23,24 +25,36 @@ The top level structure is as follows:
 ```sh
 $ tree -L 1
 .
-├── archaea/                     # Fragmented archaeal genomes
-├── bacteria/                    # Fragmented bacterial genomes
-├── fungi/                       # Fragmented fungal genomes
+├── genome_fragments/            # Fragmented fungal genomes
 ├── previous_classifications.csv # Classified fragments
 ├── previous_resource_usage.csv  # Resources used during classification
-├── README.md
-└── viruses/                     # Fragmented viral genomes
+└── README.md
 
-4 directories, 3 files
+1 directory, 3 files
 ```
 
+---
+
 ## Directories
+
+The `genome_fragments/` directory contains 4 directories, one for each superkingdom in `archaea`, `bacteria`, `fungi`, and `viruses`.
+
+```sh
+$ tree -L 1 genome_fragments/
+genome_fragments/
+├── archaea
+├── bacteria
+├── fungi
+└── viruses
+
+4 directories, 0 files
+```
 
 Each of the 4 directories have similar internal structure:
 
 ```sh
-$ tree archaea/
-archaea/
+$ tree genome_fragments/archaea/
+genome_fragments/archaea/
 ├── 1000                    # 1000 nt fragments 
 │   └── genome_fragments.fa # File with 10k fragments
 ├── 3000                    # 3000 nt fragments
@@ -49,12 +63,15 @@ archaea/
 │   └── genome_fragments.fa # File with 10k fragments
 └── 5000                    # 5000 nt fragments
     └── genome_fragments.fa # File with 10k fragments
+
 4 directories, 4 files
 ```
 
 There are 4 sub-directories, each corresponding to a certain fragment length. Within those directories are files called `genome_fragments.fa` which are FASTA files of 10,000 reference genome fragments.
 
 These FASTA files are the input to the phage detection tools.
+
+---
 
 ## Files
 
@@ -85,6 +102,8 @@ Those classifications are present in the file `previous_classifications.csv`. Ou
 
 There may not be a row for each fragment for each tool. Missing observations come from tools that only create output for predicted viruses, so missing observation indicate a "non-viral" prediction.
 
+---
+
 ### `previous_resource_usage.csv`
 
 During classification of the genome fragments by the tools, resource usage was tracked by Snakemake, those results are compiled in `previous_resource_usage.csv`. Each row represents the resource usage while classifying a single file of 10k genome fragments.
@@ -107,17 +126,19 @@ tool | string | Phage detection tool
 taxon | string | Reference genome taxon
 length | integer | Genome fragment length
 
+---
+
 ### `genome_fragments.fa`
 
 Each `genome_fragments.fa` file is a FASTA structured file. The headers give taxonomic information about each genome fragment.
 
 ```sh
-$ head -n 3 archaea/1000/genome_fragments.fa
+$ head -n 3 genome_fragments/archaea/1000/genome_fragments.fa
 >frag_614_NC_009033.1 Fragment 614 of NC_009033.1 Staphylothermus marinus F1, complete sequence
 GCATATCCTATGATATCGGATATTCTCGTAAATCCTTTCTCTTCCATATACTTCTTGATA
 CCATCAAGTATATTGTTTACTATATTGTATCCAACCATGTAGAATCCTGTACCTATTTGA
 
 # Each record starts with a ">"
-$ grep ">" archaea/1000/genome_fragments.fa | wc -l
+$ grep ">" genome_fragments/archaea/1000/genome_fragments.fa | wc -l
 10000
 ```

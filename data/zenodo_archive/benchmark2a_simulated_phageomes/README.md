@@ -23,6 +23,8 @@ NovaSeq     | 24        | 19        | 22
 
 The phageomes were classified with the classifiers, and those results are present here. During classification, resource usage was also recorded, and are present.
 
+---
+
 ## Structure
 
 The top level structure is as follows:
@@ -40,12 +42,15 @@ $ tree -L 1
 2 directories, 4 files
 ```
 
+---
+
 ## Directories
 
 There are two directories: `assemblies` and `bins`:
 
 ```sh
 $ tree assemblies/
+assemblies/
 ├── profile_1_hiseq
 │   └── assembly.fa
 ├── profile_1_miseq
@@ -62,6 +67,7 @@ $ tree assemblies/
 
 # Top level structure in bins/
 $ tree bins/ -L 1
+bins/
 ├── profile_1_hiseq
 ├── profile_1_miseq
 ├── profile_1_novaseq
@@ -69,7 +75,7 @@ $ tree bins/ -L 1
 # ...
 └── profile_3_novaseq
 
-9 directories, 9 files
+9 directories, 0 files
 
 # Inside a single bin directory
 $ tree bins/profile_2_miseq/
@@ -81,6 +87,8 @@ bins/profile_2_miseq/
 
 0 directories, 17 files
 ```
+
+---
 
 ## Files
 
@@ -110,6 +118,8 @@ Those classifications are present in the file `previous_classifications.csv`. Ou
 
 There may not be a row for each fragment for each tool. Missing observations come from tools that only create output for predicted viruses, so missing observation indicate a "non-viral" prediction.
 
+---
+
 ### `previous_resource_usage.csv`
 
 During classification of the genome fragments by the tools, resource usage was tracked by Snakemake, those results are compiled in `previous_resource_usage.csv`. Each row represents the resource usage while classifying a single file of 10k genome fragments.
@@ -131,6 +141,8 @@ cpu_time | float(-) | CPU time summed for user and system
 tool | string | Phage detection tool
 phageome| string | Phageome name
 
+---
+
 ### `assembly.fa`
 
 Each `assembly.fa` file is a FASTA structured file. The headers give taxonomic information about each genome fragment.
@@ -148,17 +160,21 @@ $ grep ">" assemblies/profile_1_miseq/assembly.fa | wc -l
 
 These files were classified by all tools except MARVEL.
 
+---
+
 ### `bin.*.fa`
 
 Each bin directory contains files of binned contigs, named as `bin.*.fa`, each of which is a FASTA file.
 
-```
+```sh
 head -n 2 bins/profile_1_miseq/bin.1.fa
 >k141_15995
 GTAAATCTAAGGTCTGTCCGGTAATCCACTTCGAGGACAAAGAATGAGAACAGTTATGAA
 ```
 
 The bins were classified by MARVEL.
+
+---
 
 ### `contig_identities.csv`
 
@@ -174,6 +190,7 @@ The file contains the following columns:
 * `accession`: Sequence accession number
 * `seq_id`: Sequence SeqID
 * `taxid`: Organism TaxID
+* `species_taxid`: Species level TaxID (may be same as taxid)
 * `superkingdom`
 * `phylum`
 * `class`
