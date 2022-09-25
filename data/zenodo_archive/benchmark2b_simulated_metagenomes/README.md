@@ -1,5 +1,5 @@
 # Metagenomic Phage Detection Benchmarking Datasets
-# Set 2a: *Simulated metagenomes*
+# Set 2b: *Simulated metagenomes*
 
 ## Description
 
