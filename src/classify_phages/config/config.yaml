@@ -24,7 +24,7 @@ bin_max: 5.0
 project_env: "../../env"
 activate: "/opt/ohpc/pub/apps/anaconda/2020.11/bin/activate"
 
-tools: ['marvel', 'metaphinder', 'seeker', 'vibrant', 'viralverify', 'virfinder', 'virsorter', 'virsorter2']
+tools: ['dvf', 'marvel', 'metaphinder', 'seeker', 'vibrant', 'viralverify', 'virfinder', 'virsorter', 'virsorter2']
 
 deepvirfinder: "python ../../tool_envs/deepvirfinder/DeepVirFinder/dvf.py"
 dvf_env: "../../tool_envs/deepvirfinder/env"
