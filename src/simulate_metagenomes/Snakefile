@@ -28,7 +28,7 @@ rule all:
         ),
         config["bin_summary_dir"] + "/combined/combined.csv",
         config["benchmarks_dir"] + "/combined.csv",
-        config["summary_dir"] + "contig_counts/combined_counts.csv",
+        config["summary_dir"] + "/contig_counts/combined_counts.csv",
 
 
 rule count_profile_contigs:
