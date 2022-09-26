@@ -13,7 +13,7 @@
 ### Amount of memory per node
 #SBATCH --mem-per-cpu=5gb
 ### Job walltime (HHH:MM:SS)
-#SBATCH --time=10-00:00:00
+#SBATCH --time=1:00:00
 ### OPTIONAL:
 ### Job name
 ### SBATCH --job-name=JobName
@@ -47,5 +47,5 @@ snakemake --cluster \
     -e {cluster.e} \
     -o {cluster.o}" \
     --cluster-config config/cluster.yaml \
-    -j 16 --latency-wait 60 \
+    -j 18 --latency-wait 60 \
     --configfile config/config.yaml
