@@ -113,7 +113,7 @@ The simulated metagenomes have previously been classified by the following tools
 Those classifications are present in the file `previous_classifications.csv`. Output from the original tools has already been cleaned, organized into a consistent manny, and compiled into this single file. The following columns are present:
 
 * `tool`: Phage detection tool (*e.g.* DeepVirFinder)
-* `metagenome`: Phageome (*e.g.* profile_1_hiseq)
+* `metagenome`: metagenome (*e.g.* profile_1_hiseq)
 * `prediction`: Predicted identity, which has been grouped into "viral" or "non-viral"
 * `lifecycle`: Lifecycle prediction (*e.g.* lytic or prophage) if given by tool
 * `value`: Value upon which prediction is made, when given by tool
@@ -141,7 +141,7 @@ io_out | float (MB) | the number of MB written (cumulative).
 mean_load | float (-) | CPU usage over time, divided by the total running time (first row)
 cpu_time | float(-) | CPU time summed for user and system
 tool | string | Phage detection tool
-phageome| string | Phageome name
+metagenome| string | metagenome name
 
 
 ---
@@ -181,11 +181,11 @@ The bins were classified by MARVEL.
 
 ### `contig_identities.csv`
 
-The true identities of the contigs in each phageome were obtained by running a BLAST search against a database composed of the phage genomes used for simulation of that particular phageome. Based on the accession number of the BLAST matches, TaxIDs were retrieved, and further taxonomic information was obtained using the R package taxonomizr. These results are present in the file `contig_identities.csv`.
+The true identities of the contigs in each metagenome were obtained by running a BLAST search against a database composed of the phage genomes used for simulation of that particular metagenome. Based on the accession number of the BLAST matches, TaxIDs were retrieved, and further taxonomic information was obtained using the R package taxonomizr. These results are present in the file `contig_identities.csv`.
 
 The file contains the following columns:
 
-* `profile`: Phageome profile
+* `profile`: metagenome profile
 * `model`: InSilicoSeq error model
 * `query_id`: Contig ID that was queried by BLAST
 * `query_length`: Query contig length (nt)

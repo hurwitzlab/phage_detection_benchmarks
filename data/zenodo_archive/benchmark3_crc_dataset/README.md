@@ -60,10 +60,10 @@ bins/
 # ...
 └── 2467085
 
-93 directories, 0 files
+198 directories, 0 files
 
 # Inside a single bins directory
-$ tree bins/SRR6507280_miseq/
+$ tree bins/2466887/
 bins/2466887/
 ├── bin.1.fa
 ├── bin.2.fa
@@ -100,7 +100,7 @@ Those classifications are present in the file `previous_classifications.csv`. Th
 
 ### `previous_resource_usage.csv`
 
-During classification of the genome fragments by the tools, resource usage was tracked by Snakemake, those results are compiled in `previous_resource_usage.csv`. Each row represents the resource usage while classifying a single file of 10k genome fragments.
+During classification of the metagenomes by the tools, resource usage was tracked by Snakemake, those results are compiled in `previous_resource_usage.csv`. Each row represents the resource usage while classifying a single metagenome.
 
 The columns in this file are those created by Snakemake (information from [stackoverflow](https://stackoverflow.com/questions/46813371/meaning-of-the-benchmark-variables-in-snakemake))
 
@@ -116,24 +116,25 @@ io_in | float (MB) | the number of MB read (cumulative).
 io_out | float (MB) | the number of MB written (cumulative).
 mean_load | float (-) | CPU usage over time, divided by the total running time (first row)
 cpu_time | float(-) | CPU time summed for user and system
-tool | string | Phage detection tool
-phageome| string | Phageome name
+tool | string | Metagenom detection tool
+metagenome| string | Metagenom name
 
 
 ---
 
 ### `assembly.fa`
 
-Each `assembly.fa` file is a FASTA structured file. The headers give taxonomic information about each genome fragment.
+Each `assembly.fa` file is a FASTA structured file. The headers give taxonomic information about each contig.
 
 ```sh
-$ head -n 2 assemblies/SRR6507280_miseq/assembly.fa
->k141_53487 flag=1 multi=1.0000 len=500                                                                                 TGTGCCTTCCATTGACATCTATTGTAGCTATTAGGTTATCCACCTTATTTGCCGACGCGTACATGATTGCTTCCCATATTTGCCCCTCTTGAATTTCGCATCCCCGTGTAGGCTAAATACCAATCTTTCGTCTCCATTTATTTTTTTCGATAGAGCTGCTCCAATAGCTACAGACATGCCTTGTCCTAGAGAT
+$ head -n 2 assemblies/2466887/assembly.fa
+>SAMEA2466887-ContigCoA-k113_2
+AAAATCTAATGTATTATTTTCTCTTTCTATTTTTATATTTAAGTCTTCACCTTTTGATTT
 # ...
 
 # Each record starts with a ">"
-$ grep ">" assemblies/SRR6507280_miseq/assembly.fa | wc -l
-134453
+$ grep ">" assemblies/2466887/assembly.fa | wc -l
+138439
 ```
 
 These files were classified by all tools except MARVEL.
@@ -145,9 +146,9 @@ These files were classified by all tools except MARVEL.
 Each bin directory contains files of binned contigs, named as `bin.*.fa`, each of which is a FASTA file.
 
 ```sh
-head -n 2 bins/SRR6507280_miseq/bin.1.fa
->k141_201389
-ATACCGCCCAAGAGTTCATATCGACGGCGGTGTTTGGCACCTCGATGTCGGCTCATCACA
+head -n 2 bins/2466887/bin.1.fa
+>SAMEA2466887-ContigCoA-k113_127722
+ACGGCTCTCTCACCTGCAGCCATAACACCCATATGTCCACCAAGACATGGTCCACAGGTA
 # ...
 ```
 
