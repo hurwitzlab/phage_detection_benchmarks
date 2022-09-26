@@ -2,10 +2,10 @@
 
 ### REQUIRED: 
 ### Research group/PI
-#SBATCH --account=bhurwitz
+###SBATCH --account=bhurwitz
 ### Job queue (standard|windfall|high_pri)
 ### If windfall, omit --account
-#SBATCH --partition=standard
+#SBATCH --partition=windfall
 ### Number of nodes
 #SBATCH --nodes=1
 ### Number of CPUs per node 
@@ -13,7 +13,7 @@
 ### Amount of memory per node
 #SBATCH --mem-per-cpu=5gb
 ### Job walltime (HHH:MM:SS)
-#SBATCH --time=10-00:00:00
+#SBATCH --time=1-00:00:00
 ### OPTIONAL:
 ### Job name
 ### SBATCH --job-name=JobName
@@ -39,7 +39,6 @@ cd /xdisk/bhurwitz/mig2020/rsgrps/bhurwitz/schackartk/projects/phage_finders/src
 # Run snakemake cluster
 snakemake --cluster \
     "sbatch -p {cluster.partition} \
-    --account {cluster.group} \
     -t {cluster.time} \
     --mem-per-cpu=5gb \
     --nodes=1 \
