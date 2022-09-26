@@ -104,6 +104,77 @@ contigs %>%
 ```
 
 ```{r, echo=FALSE}
+contigs %>%
+  mutate(
+    profile = case_when(
+      profile == "phage_profile_1" ~ "Phage Set 1",
+      profile == "phage_profile_2" ~ "Phage Set 2",
+      profile == "phage_profile_3" ~ "Phage Set 3"
+    ),
+    model = case_when(
+      model == "hiseq" ~ "HiSeq",
+      model == "miseq" ~ "MiSeq",
+      model == "novaseq" ~ "NovaSeq"
+    ),
+    model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq")),
+    log_length = log(length, base = 10)
+  ) %>%
+  ggplot(aes(
+    x = model,
+    y = log_length,
+    color = model,
+    fill = model
+  )) +
+  facet_wrap( ~ profile) +
+  geom_violin(alpha = 0.2, draw_quantiles = 0.5) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position = "none") +
+  labs(x = "",
+       y = "Log10(Contig Length)")
+
+ggsave("figures/length_distributions.svg", width=6, height=4)
+ggsave("figures/length_distributions.png", width=6, height=4)
+```
+
+```{r, echo=FALSE}
+contigs %>%
+  mutate(
+    profile = case_when(
+      profile == "phage_profile_1" ~ "Phage Set 1",
+      profile == "phage_profile_2" ~ "Phage Set 2",
+      profile == "phage_profile_3" ~ "Phage Set 3"
+    ),
+    model = case_when(
+      model == "hiseq" ~ "HiSeq",
+      model == "miseq" ~ "MiSeq",
+      model == "novaseq" ~ "NovaSeq"
+    ),
+    model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq")),
+    log_length = log(length, base = 10)
+  ) %>%
+  group_by(profile, model) %>% 
+  summarize(count = n()) %>% 
+  ggplot(aes(
+    x = model,
+    y = count,
+    color = model,
+    fill = model
+  )) +
+  facet_wrap( ~ profile) +
+  geom_col(alpha = 0.2) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position = "none") +
+  labs(x = "",
+       y = "Number of Contigs")
+
+ggsave("figures/counts.svg", width=6, height=4)
+ggsave("figures/counts.png", width=6, height=4)
+```
+
+
+```{r, echo=FALSE}
 wilcox_test_result <- contigs %>%
   rstatix::wilcox_test(length ~ model, p.adjust.method = 'bonferroni')
 
