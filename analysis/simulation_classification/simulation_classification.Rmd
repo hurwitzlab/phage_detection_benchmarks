@@ -1,0 +1,163 @@
+---
+title: "Classification of Simulated Metagenome"
+output: html_notebook
+---
+
+# Sensitivity (Recall)
+
+```{r, include=FALSE}
+library(caret)
+library(dplyr)
+library(ggplot2)
+library(hurwitzLab)
+library(magrittr)
+library(readr)
+library(RColorBrewer)
+library(stringr)
+library(tidyr)
+
+# Set ggplot2 theme for whole R session
+theme_set(theme_light() +
+            theme(plot.title = element_text(hjust = 0.5),
+                  plot.subtitle = element_text(hjust = 0.5)))
+```
+
+```{r, echo=FALSE}
+relabel_profiles <- function(df) {
+  df %>%
+    mutate(profile = case_when(
+      profile == "SRR4831655" ~ "Profile 1",
+      profile == "SRR4831664" ~ "Profile 2",
+      profile == "SRR5720259" ~ "Profile 3",
+      profile == "SRR5720320" ~ "Profile 4",
+      profile == "SRR6507280" ~ "Profile 5"
+    )) %>%
+    group_by(profile) %>% 
+    mutate(profile = as.factor(profile),
+           model = as.factor(model),
+           tool = as.factor(tool))
+}
+
+relabel_tools <- function(df){
+  df %>% 
+    mutate(tool = case_when(
+      tool == "dvf" ~ "DeepVirFinder",
+      tool == "marvel" ~ "MARVEL",
+      tool == "metaphinder" ~ "MetaPhinder",
+      tool == "seeker" ~ "Seeker",
+      tool == "vibrant" ~ "VIBRANT",
+      tool == "viralverify" ~ "viralVerify",
+      tool == "virfinder" ~ "VirFinder",
+      tool == "virsorter" ~ "VirSorter",
+      tool == "virsorter2" ~ "VirSorter2"
+    ))
+  
+}
+
+relabel_models <- function(df) {
+  df %>%
+    mutate(
+      model = case_when(
+        model == "hiseq" ~ "HiSeq",
+        model == "miseq" ~ "MiSeq",
+        model == "novaseq" ~ "NovaSeq"
+      ),
+      model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq"))
+    )
+  
+}
+```
+
+
+```{r, echo=FALSE}
+summary_stats <- read_csv("../../data/classified_simulated/combined_out/summary_stats/combined.csv", show_col_types = FALSE)
+
+summary_stats <- summary_stats %>% 
+  separate(metagenome, into = c("profile", "model"), sep = "_") %>% 
+  filter(grepl("SRR", profile)) %>% 
+  relabel_profiles() %>% 
+  relabel_tools() %>% 
+  relabel_models() %>% 
+  filter(!is.na(profile))
+
+summary_stats <- summary_stats %>% 
+  complete(profile, model, tool) %>% 
+  mutate_all(~replace(., is.na(.), 0)) %>% 
+  filter(length_bin != 0)
+
+save(summary_stats, file="out_data/summary_stats.RData")
+```
+
+# Specificity
+
+```{r, echo=FALSE}
+plot_metric <- function(df, metric) {
+  plot <- df %>%
+    mutate(
+      length_bin = case_when(
+        model == "HiSeq" ~ length_bin - 0.075,
+        model == "MiSeq" ~ length_bin + 0.075,
+        TRUE ~ length_bin
+      )
+    ) %>%
+    group_by(profile, model, tool, length_bin) %>%
+    ggplot(aes(
+      x = length_bin,
+      y = !!sym(metric),
+      color = model
+    )) +
+    facet_wrap(~ tool) +
+    geom_point(alpha = 0.75, size = 0.5) +
+    scale_color_brewer(palette = "Dark2") +
+    scale_x_continuous(breaks = c(2.5, 3, 3.5, 4, 4.5, 5)) +
+    theme(legend.position = "bottom",
+          panel.grid.minor.x = element_blank()) +
+    labs(x = "log of Contig Length",
+         y = str_to_title(metric),
+         color = "Error Model")
+  
+  png_name <-
+    paste0("figures/simulated_metagenome_", metric, ".png")
+  svg_name <-
+    paste0("figures/simulated_metagenome_", metric, ".svg")
+  ggsave(png_name,
+         plot,
+         width = 6,
+         height = 6)
+  ggsave(svg_name,
+         plot,
+         width = 6,
+         height = 6)
+  
+  plot
+}
+```
+
+# Sensitivity
+
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric('sensitivity')
+```
+
+# Precision
+
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric("precision")
+```
+
+# F1
+
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric("f1")
+```
+
+
+# Specificity
+
+```{r, echo=False}
+summary_stats %>% 
+  plot_metric("specificity")
+```

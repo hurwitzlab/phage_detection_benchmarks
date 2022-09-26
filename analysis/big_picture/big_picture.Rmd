@@ -1,0 +1,255 @@
+
+```{r}
+library(readr)
+library(magrittr)
+library(dplyr)
+library(tidyr)
+library(gt)
+library(hurwitzLab)
+
+relabel_tools <- function(df) {
+  df %>%
+    mutate(
+      tool = case_when(
+        tool == "dvf" ~ "DeepVirFinder",
+        tool == "marvel" ~ "MARVEL",
+        tool == "metaphinder" ~ "MetaPhinder",
+        tool == "seeker" ~ "Seeker",
+        tool == "vibrant" ~ "VIBRANT",
+        tool == "viralverify" ~ "viralVerify",
+        tool == "virfinder" ~ "VirFinder",
+        tool == "virsorter" ~ "VirSorter",
+        tool == "virsorter2" ~ "VirSorter2"
+      )
+    )
+  
+}
+```
+
+
+```{r, echo=FALSE}
+load("../simulation_classification/out_data/summary_stats.RData")
+
+simulated_class <- summary_stats
+
+rm(summary_stats)
+```
+
+```{r, echo=FALSE}
+bin_simulated_times <-
+  read_csv("../../data/metagenome_simulation/benchmarks/combined.csv",
+           show_col_types = FALSE) %>%
+  filter(grepl("SRR", profile)) %>%
+  group_by(profile, model) %>%
+  summarize(binning_time = sum(cpu_time)) %>%
+  mutate(tool = "MARVEL")
+
+classify_simulated_bench <-
+  read_csv(
+    "../../data/classified_simulated/combined_out/combined_benchmarks.csv",
+    show_col_types = FALSE
+  ) %>%
+  filter(grepl("SRR", metagenome)) %>%
+  separate(metagenome,
+           into = c("profile", "model"),
+           sep = "_") %>%
+  select(tool, profile, model, cpu_time) %>%
+  relabel_tools()
+
+time_by_tool <-
+  left_join(classify_simulated_bench, bin_simulated_times,) %>%
+  mutate(binning_time = replace_na(binning_time, 0),
+         total_time = cpu_time + binning_time)
+```
+
+```{r}
+contig_count <-
+  read_csv(
+    "../../data/metagenome_simulation/summary/contigs/combined_contig_summary.csv",
+    show_col_types = FALSE
+  ) %>%
+  filter(grepl("SRR", profile)) %>%
+  group_by(profile, model) %>%
+  summarize(num_contigs = n())
+
+contig_summary <- read_csv(
+    "../../data/metagenome_simulation/summary/contigs/combined_contig_summary.csv",
+    show_col_types = FALSE
+  )
+
+count_contigs <- function(df, min_length) {
+  df %>%
+    filter(grepl("SRR", profile), length > min_length) %>%
+    summarize(num_contigs = n())
+}
+
+contigs_gt_200 <-count_contigs(contig_summary, 200)
+contigs_gt_500 <-count_contigs(contig_summary, 500)
+contigs_gt_1k <-count_contigs(contig_summary, 1000)
+contigs_gt_2k <-count_contigs(contig_summary, 2000)
+contigs_gt_3k <-count_contigs(contig_summary, 3000)
+   
+
+time_by_tool <- full_join(time_by_tool, contig_count) %>%
+  group_by(tool) %>%
+  summarize(total_time = sum(total_time),
+            total_contigs = sum(num_contigs)) %>%
+  mutate(
+    total_contigs = case_when(
+      tool == "VirSorter" ~ contigs_gt_3k$num_contigs,
+      tool == "MetaPhinder" ~ contigs_gt_500$num_contigs,
+      tool == "MARVEL" ~ contigs_gt_2k$num_contigs,
+      tool == "VIBRANT" ~ contigs_gt_1k$num_contigs,
+      tool == "VirFinder" ~ contigs_gt_500$num_contigs,
+      tool == "Seeker" ~ contigs_gt_200$num_contigs,
+      TRUE ~ total_contigs
+    )
+  ) %>%
+  group_by(tool) %>%
+  summarize(
+    avg_speed = total_contigs / total_time,
+    base = 10,
+    log_speed = log(avg_speed, base = 10)
+  )
+```
+
+
+```{r}
+load("../fragment_classification/out_data/big_pic.RData")
+
+big_pic <- big_pic %>%
+  select(-mean_sensitivity,
+         -mean_precision,
+         -sensitivity_quartile,
+         -precision_quartile,
+         -speed_quartile,
+         -speed) 
+
+big_pic <- simulated_class %>%
+  group_by(tool) %>%
+  mutate(
+    n = tp + fp + tn + fn,
+    tpr = tp / (tp + fn),
+    fpr = fp / (tn + fp),
+    bal_precision = tpr / (tpr + fpr),
+    precision_product = n * bal_precision,
+    sensitivity_product = n * sensitivity
+  ) %>%
+  mutate_all(~ replace(., is.nan(.), 0)) %>%
+  summarize(mean_precision = signif(sum(precision_product / sum(n)), 3),
+            mean_sensitivity = signif(sum(sensitivity_product) / sum(n), 3)) %>%
+  left_join(big_pic, by = "tool") %>%
+  mutate(
+    method = case_when(
+      tool == "DeepVirFinder" ~ "reference-free",
+      tool == "MARVEL" ~ "reference",
+      tool == "MetaPhinder" ~ "reference",
+      tool == "Seeker" ~ "reference-free",
+      tool == "VIBRANT" ~ "reference",
+      tool == "viralVerify" ~ "reference",
+      tool == "VirFinder" ~ "reference-free",
+      tool == "VirSorter" ~ "reference",
+      tool == "VirSorter2" ~ "reference"
+    )
+  )
+
+big_pic <- big_pic %>%
+  left_join(time_by_tool) %>%
+  rename(speed = avg_speed) %>%
+  mutate(speed = signif(speed, 3),
+         tool = factor(
+           tool,
+           levels = c(
+             "VirFinder",
+             "DeepVirFinder",
+             "Seeker",
+             "VirSorter",
+             "MetaPhinder",
+             "MARVEL",
+             "viralVerify",
+             "VIBRANT",
+             "VirSorter2"
+           )
+         ))
+
+```
+
+```{r}
+color_scale <-  c("grey", "green")
+fill_alpha <-  0.5
+get_scale <- function(column, scale) {
+  scales::col_numeric(palette = scale,
+                      domain = c(min(column, na.rm = TRUE), max(column, na.rm = TRUE)))
+}
+
+big_pic_heatmap <- big_pic %>%
+  arrange(tool) %>% 
+  ungroup() %>%
+  select(
+    tool,
+    log_speed,
+    speed,
+    mean_sensitivity,
+    mean_precision,
+    diverse_phage,
+    mean_specificity,
+    method
+  ) %>%
+  gt() %>%
+  cols_merge(columns = c(log_speed, speed), pattern = "{2}") %>% 
+  cols_label(
+    tool = "Tool",
+    log_speed = "Speed",
+    mean_precision = "Precision",
+    mean_sensitivity = "Sensitivity",
+    diverse_phage = "Phage Diversity",
+    mean_specificity = "Eukaryote Specificity"
+  ) %>%
+  data_color(
+    columns = "log_speed",
+    colors = get_scale(log_speed, color_scale),
+    alpha = fill_alpha
+  ) %>%
+  data_color(
+    columns = "mean_sensitivity",
+    colors = get_scale(mean_sensitivity, color_scale),
+    alpha = fill_alpha
+  ) %>%
+  data_color(
+    columns = "mean_precision",
+    colors = get_scale(mean_precision, color_scale),
+    alpha = fill_alpha
+  ) %>%
+  data_color(
+    columns = "diverse_phage",
+    colors = get_scale(diverse_phage, color_scale),
+    alpha = fill_alpha
+  ) %>%
+  data_color(
+    columns = "mean_specificity",
+    colors = get_scale(mean_specificity, color_scale),
+    alpha = fill_alpha
+  ) %>%
+  tab_style(
+    style = cell_fill(color = hurwitz_pal("shallow_ocean")["gold"], alpha =
+                        0.5),
+    location = cells_body(columns = tool,
+                          rows = method == "reference")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = hurwitz_pal("shallow_ocean")["viking"], alpha =
+                        0.5),
+    location = cells_body(columns = tool,
+                          rows = method == "reference-free")
+  ) %>%
+  cols_hide(c(method)) %>%
+  cols_align(align = "center") %>%
+  cols_width(tool ~ px(110),
+             everything() ~ px(80))
+
+
+big_pic_heatmap
+
+gtsave(big_pic_heatmap, "figures/bigpic_heatmap_method_date.png")
+```
+

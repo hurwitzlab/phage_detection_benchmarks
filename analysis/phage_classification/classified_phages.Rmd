@@ -1,0 +1,246 @@
+---
+title: "Classified Simulated Phages"
+output: html_notebook
+---
+
+# {.tabset}
+
+This experiment involved 3 "metagenomes" from simulated reads. All reads came strictly from phage genomes.
+
+Each profile consists of 500 phages, and the read simulation was specified to result in 30x coverage for each genome.
+
+```{r, include = FALSE}
+library(coin)
+library(dplyr)
+library(ggplot2)
+library(hurwitzLab)
+library(infer)
+library(magrittr)
+library(readr)
+library(rstatix)
+library(RColorBrewer)
+library(stringr)
+library(tidyr)
+
+# Set ggplot2 theme for whole R session
+theme_set(theme_light() +
+            theme(plot.title = element_text(hjust = 0.5),
+                  plot.subtitle = element_text(hjust = 0.5)))
+```
+
+```{r, echo=FALSE}
+relabel_profiles <- function(df) {
+  df %>%
+    separate(metagenome, c("profile", "model"), sep = "_(?=[A-z]+$)") %>% 
+    mutate(profile = case_when(
+      profile == "phage_profile_1" ~ "Phage Set 1",
+      profile == "phage_profile_2" ~ "Phage Set 2",
+      profile == "phage_profile_3" ~ "Phage Set 3"
+    )) %>%
+    group_by(profile, model, tool) %>% 
+    mutate(profile = as.factor(profile),
+           model = as.factor(model),
+           tool = as.factor(tool))
+}
+
+relabel_tools <- function(df){
+  df %>% 
+    mutate(tool = case_when(
+      tool == "dvf" ~ "DeepVirFinder",
+      tool == "marvel" ~ "MARVEL",
+      tool == "metaphinder" ~ "MetaPhinder",
+      tool == "seeker" ~ "Seeker",
+      tool == "vibrant" ~ "VIBRANT",
+      tool == "viralverify" ~ "viralVerify",
+      tool == "virfinder" ~ "VirFinder",
+      tool == "virsorter" ~ "VirSorter",
+      tool == "virsorter2" ~ "VirSorter2"
+    ))
+  
+}
+
+relabel_models <- function(df){
+  df %>% 
+    mutate(model = case_when(
+      model == "hiseq" ~ "HiSeq",
+      model == "miseq" ~ "MiSeq",
+      model == "novaseq" ~ "NovaSeq"
+    ),
+    model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq")))
+  
+}
+```
+
+## Simulation Results
+
+```{r, echo=FALSE}
+contigs <-
+  read_csv(
+    "../../data/phage_simulation/summary/contigs/combined_contig_summary.csv",
+    show_col_types = FALSE
+  )
+```
+
+```{r, echo=FALSE}
+contigs %>% 
+  summarize(min = min(length),
+            max = max(length),
+            median = median(length))
+```
+
+```{r, echo=FALSE}
+contigs %>% 
+  group_by(model) %>% 
+  summarize(min = min(length),
+            max = max(length),
+            median = median(length))
+```
+
+```{r, echo=FALSE}
+contigs %>% 
+  group_by(profile) %>% 
+  summarize(min = min(length),
+            max = max(length))
+```
+
+```{r, echo=FALSE}
+contigs %>%
+  mutate(
+    profile = case_when(
+      profile == "phage_profile_1" ~ "Phage Set 1",
+      profile == "phage_profile_2" ~ "Phage Set 2",
+      profile == "phage_profile_3" ~ "Phage Set 3"
+    ),
+    model = case_when(
+      model == "hiseq" ~ "HiSeq",
+      model == "miseq" ~ "MiSeq",
+      model == "novaseq" ~ "NovaSeq"
+    ),
+    model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq")),
+    log_length = log(length, base = 10)
+  ) %>%
+  ggplot(aes(
+    x = model,
+    y = log_length,
+    color = model,
+    fill = model
+  )) +
+  facet_wrap( ~ profile) +
+  geom_violin(alpha = 0.2, draw_quantiles = 0.5) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position = "none") +
+  labs(x = "",
+       y = "Log10(Contig Length)")
+
+ggsave("figures/length_distributions.svg", width=6, height=4)
+ggsave("figures/length_distributions.png", width=6, height=4)
+```
+
+```{r, echo=FALSE}
+contigs %>%
+  mutate(
+    profile = case_when(
+      profile == "phage_profile_1" ~ "Phage Set 1",
+      profile == "phage_profile_2" ~ "Phage Set 2",
+      profile == "phage_profile_3" ~ "Phage Set 3"
+    ),
+    model = case_when(
+      model == "hiseq" ~ "HiSeq",
+      model == "miseq" ~ "MiSeq",
+      model == "novaseq" ~ "NovaSeq"
+    ),
+    model = factor(model, levels = c("HiSeq", "NovaSeq", "MiSeq")),
+    log_length = log(length, base = 10)
+  ) %>%
+  group_by(profile, model) %>% 
+  summarize(count = n()) %>% 
+  ggplot(aes(
+    x = model,
+    y = count,
+    color = model,
+    fill = model
+  )) +
+  facet_wrap( ~ profile) +
+  geom_col(alpha = 0.2) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position = "none") +
+  labs(x = "",
+       y = "Number of Contigs")
+
+ggsave("figures/counts.svg", width=6, height=4)
+ggsave("figures/counts.png", width=6, height=4)
+```
+
+
+```{r, echo=FALSE}
+wilcox_test_result <- contigs %>%
+  rstatix::wilcox_test(length ~ model, p.adjust.method = 'bonferroni')
+
+summary(wilcox_test_result)
+
+contigs %>% 
+  wilcox_effsize(length ~ model)
+```
+
+
+## Classification Results
+```{r, echo=FALSE}
+summary_stats <-
+  read_csv(
+    "../../data/classified_phages/combined_out/summary_stats/combined.csv",
+    show_col_types = FALSE
+  )
+
+summary_stats <- summary_stats %>% 
+  relabel_profiles() %>% 
+  relabel_tools() %>% 
+  relabel_models() %>% 
+  filter(!is.na(profile))
+
+summary_stats[is.na(summary_stats)] <- 0
+```
+
+```{r, echo = FALSE}
+summary_stats %>%
+  group_by(profile, model, tool, length_bin) %>%
+  ggplot(aes(x = as.factor(length_bin), y = sensitivity, color = model)) +
+  facet_wrap( ~ tool) +
+  geom_boxplot() +
+  scale_color_brewer(palette = "Dark2") +
+  theme(legend.position = "bottom") +
+  labs(x = "log of Contig Length",
+       y = "Sensitivity",
+       color = "Error Model")
+```
+
+
+```{r, echo = FALSE}
+summary_stats %>%
+  mutate(length_bin = case_when(
+    model == "HiSeq" ~ length_bin - 0.075,
+    model == "MiSeq" ~ length_bin + 0.075,
+    TRUE ~ length_bin
+  )) %>% 
+  group_by(profile, model, tool, length_bin) %>%
+  ggplot(aes(x = length_bin, y = sensitivity, color = model)) +
+  facet_wrap( ~ tool) +
+  geom_point(alpha = 0.75, size = 0.8) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_continuous(breaks = c(2.5, 3, 3.5, 4, 4.5, 5)) +
+  theme(legend.position = "bottom",
+        panel.grid.minor.x = element_blank()) +
+  labs(x = "log of Contig Length",
+       y = "Sensitivity",
+       color = "Error Model")
+
+ggsave("figures/phage_simulation_sensitivity.png",
+  width = 6,
+  height = 6)
+ggsave("figures/phage_simulation_sensitivity.svg",
+  width = 6,
+  height = 6)
+
+```
+
