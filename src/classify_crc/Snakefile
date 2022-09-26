@@ -210,7 +210,7 @@ rule combine_checkv:
 
         {params.combine} \
             -o {params.out_dir} \
-            -r {params.regex} \
+            -r '{params.regex}' \
             {input}
         """
 
