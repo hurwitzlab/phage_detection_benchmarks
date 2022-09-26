@@ -90,11 +90,13 @@ The simulated metagenomes have previously been classified by the following tools
 * VirSorter
 * VirSorter2
 
-Those classifications are present in the file `previous_classifications.csv`. This file contains a row per contig, and columns for each tool
+Those classifications are present in the file `previous_classifications.csv`. This file contains a row per contig, with the following columns:
 
 * `metagenome`: Metagenome number (*e.g.* 2466958)
 * `record`: Contig number. Unique within each metagenome
-* 'dvf`
+* `dvf` - `VirSorter2`: Columns for each tool
+
+---
 
 ### `previous_resource_usage.csv`
 
