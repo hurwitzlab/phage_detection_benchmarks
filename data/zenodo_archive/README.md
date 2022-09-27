@@ -13,19 +13,19 @@ Additionally, the results and resource usage from classification of these datase
 All datasets are compressed as `.tar.gz`, to extract the contents of these files to the current directory run:
 
 ```sh
-$ tar -zxvf benchmark*.tar.gz
+$ tar -zxvf set*.tar.gz
 ```
 
 To extract to another directory (*e.g.* `dir/`):
 
 ```sh
-$ tar -C dir/ -zxvf benchmark*.tar.gz
+$ tar -C dir/ -zxvf set*.tar.gz
 ```
 
 Once the tar files have been extracted, they can be deleted:
 
 ```sh
-$ rm benchmark*.tar.gz
+$ rm set*.tar.gz
 ```
 
 ---
@@ -37,11 +37,12 @@ Once the datasets are extracted (and tar files deleted), there will be the follo
 ```sh
 tree -L 1
 .
-├── benchmark1_fragmented_genomes.tar.gz
-├── benchmark2a_simulated_phageomes.tar.gz
-├── benchmark2b_simulated_metagenomes.tar.gz
-├── benchmark3_crc_dataset.tar.gz
-└── README.md
+├── LICENSE
+├── README.md
+├── set1_fragmented_genomes.tar.gz
+├── set2_simulated_phageomes.tar.gz
+├── set3_simulated_metagenomes.tar.gz
+└── set4_crc_dataset.tar.gz
 ```
 
 Each directory contains a `README.md` describing the dataset and files that are included.

@@ -1,5 +1,5 @@
 # Metagenomic Phage Detection Benchmarking Datasets
-# Set 3: *CRC dataset*
+# Set 4: *CRC dataset*
 
 ## Description
 
