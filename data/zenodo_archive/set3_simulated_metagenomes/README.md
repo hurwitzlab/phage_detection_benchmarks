@@ -11,7 +11,7 @@ HiSeq       | 30,806     | 30,869     | 14,050     | 14,603     | 13,834
 MiSeq       | 328,243    | 234,764    | 64,454     | 144,859    | 134,453
 NovaSeq     | 42,881     | 40,366     | 16,052     | 21,087     | 18,087
 
-The five abundance profiles used for simulation come from marine metagenomes. Bacterial and phage population abundance profiles were obtained using Kraken2 and Bracken. Phage content was supplemented to include a value of 5% phage. 2M paired-end reads were generated using InSilicoSeq based on the 5 abundance profiles, and using the 3 built-in error models (HiSeq, MiSeq, and NovaSeq). Simulated reads were assembled with MegaHit v1.2.9 with a minimum contig length of 1000 bp. Contigs assembled from simulated reads were also binned with MetaBAT 2 v2:2.15 and using Bowtie2 v2.4.5 for indexing. The following number of bins were created.
+The five abundance profiles used for simulation come from marine metagenomes obtained from SRA. SRR4831655 and SRR4831664 are from study PRJNA237344; the other three are from study PRJNA385855. Bacterial and phage population abundance profiles were obtained using Kraken2 and Bracken. Phage content was supplemented to include a value of 5% phage. 2M paired-end reads were generated using InSilicoSeq based on the 5 abundance profiles, and using the 3 built-in error models (HiSeq, MiSeq, and NovaSeq). Simulated reads were assembled with MegaHit v1.2.9 with a minimum contig length of 1000 bp. Contigs assembled from simulated reads were also binned with MetaBAT 2 v2:2.15 and using Bowtie2 v2.4.5 for indexing. The following number of bins were created.
 
 Error Model | SRR4831655 | SRR4831664 | SRR5720259 | SRR5720320 | SRR6507280
 | :-------: | :--------: | :--------: | :--------: | :--------: | :--------: |
