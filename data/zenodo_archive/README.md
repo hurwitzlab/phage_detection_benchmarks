@@ -46,8 +46,3 @@ tree -L 1
 ```
 
 Each directory contains a `README.md` describing the dataset and files that are included.
-
----
-
-## Authorship
-Kenneth Schackart <schackartk1@gmail.com>
