@@ -1,4 +1,4 @@
-(METAGENOMES,) = glob_wildcards(config["assembly_dir"] + "/{p}.fasta")
+(METAGENOMES,) = glob_wildcards(config["assembly_dir"] + "/{p}.fa")
 
 
 rule all:
@@ -13,7 +13,7 @@ rule all:
 
 rule get_contig_lengths:
     input:
-        expand(config["assembly_dir"] + "/{metagenome}.fasta", metagenome=METAGENOMES),
+        expand(config["assembly_dir"] + "/{metagenome}.fa", metagenome=METAGENOMES),
     output:
         config["contig_summary_dir"] + "/contig_lengths.csv",
     params:
@@ -35,7 +35,7 @@ rule get_contig_lengths:
 
 rule count_profile_contigs:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["contig_summary_dir"] + "/{metagenome}_count.csv",
     threads: config["reformat_threads"]
@@ -165,7 +165,7 @@ rule combine_sample_preds:
 
 rule run_checkv:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"] + "/{metagenome}/checkv/quality_summary.tsv",
     params:
@@ -217,9 +217,9 @@ rule combine_checkv:
 
 rule pred_deepvirfinder:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
-        config["out_dir"] + "/{metagenome}/dvf/{metagenome}.fasta_gt1bp_dvfpred.txt",
+        config["out_dir"] + "/{metagenome}/dvf/{metagenome}.fa_gt1bp_dvfpred.txt",
     params:
         dvf=config["deepvirfinder"],
         env=config["dvf_env"],
@@ -245,7 +245,7 @@ rule pred_deepvirfinder:
 
 rule reformat_dvf:
     input:
-        config["out_dir"] + "/{metagenome}/dvf/{metagenome}.fasta_gt1bp_dvfpred.txt",
+        config["out_dir"] + "/{metagenome}/dvf/{metagenome}.fa_gt1bp_dvfpred.txt",
     output:
         config["out_dir"] + "/{metagenome}/dvf/dvf_pred_formatted.csv",
     params:
@@ -292,7 +292,7 @@ rule calculate_depths:
 
 rule metabat_binning:
     input:
-        in_file=config["assembly_dir"] + "/{metagenome}.fasta",
+        in_file=config["assembly_dir"] + "/{metagenome}.fa",
         depths=config["coverage_dir"] + "/{metagenome}_cov.txt",
     output:
         config["bins_dir"] + "/{metagenome}/bin.1.fa",
@@ -434,7 +434,7 @@ rule reformat_marvel:
 
 rule pred_metaphinder:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"] + "/{metagenome}/metaphinder/output.txt",
     params:
@@ -493,13 +493,13 @@ rule reformat_metaphinder:
 rule filter_contigs:
     input:
         expand(
-            "{dir}/{metagenomes}.fasta",
+            "{dir}/{metagenomes}.fa",
             dir=config["assembly_dir"],
             metagenomes=METAGENOMES,
         ),
     output:
         expand(
-            "{dir}/{metagenomes}.fasta",
+            "{dir}/{metagenomes}.fa",
             dir=config["filtered_contigs_dir"],
             metagenomes=METAGENOMES,
         ),
@@ -523,7 +523,7 @@ rule filter_contigs:
 
 rule pred_seeker:
     input:
-        config["filtered_contigs_dir"] + "/{metagenome}.fasta",
+        config["filtered_contigs_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"] + "/{metagenome}/seeker/pred.txt",
     params:
@@ -575,7 +575,7 @@ rule reformat_seeker:
 
 rule pred_vibrant:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"]
         + "/{metagenome}/vibrant/VIBRANT_{metagenome}/VIBRANT_phages_{metagenome}/{metagenome}.phages_combined.txt",
@@ -636,7 +636,7 @@ rule reformat_vibrant:
 
 rule pred_viralverify:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"] + "/{metagenome}/viralverify/{metagenome}_result_table.csv",
     params:
@@ -690,7 +690,7 @@ rule reformat_viralverify:
 
 rule pred_virfinder:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"] + "/{metagenome}/virfinder/{metagenome}_vf_preds.csv",
     params:
@@ -741,20 +741,20 @@ rule reformat_virfinder:
 
 rule pred_virsorster:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-1.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-1.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-2.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-2.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-3.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-3.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fa",
     params:
         virsorter=config["virsorter"],
         env=config["virsorter_env"],
@@ -786,12 +786,12 @@ rule pred_virsorster:
 
         if ! [[ "$(ls -A $pred_dir)" ]]; then
             echo "No viruses found, creating empty output files."
-            echo "sequences" > $pred_dir/VIRSorter_cat-1.fasta
-            echo "sequences" > $pred_dir/VIRSorter_cat-2.fasta
-            echo "sequences" > $pred_dir/VIRSorter_cat-3.fasta
-            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-4.fasta
-            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-5.fasta
-            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-6.fasta
+            echo "sequences" > $pred_dir/VIRSorter_cat-1.fa
+            echo "sequences" > $pred_dir/VIRSorter_cat-2.fa
+            echo "sequences" > $pred_dir/VIRSorter_cat-3.fa
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-4.fa
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-5.fa
+            echo "sequences" > $pred_dir/VIRSorter_prophages_cat-6.fa
         fi
 
         ) 2> {log}
@@ -801,17 +801,17 @@ rule pred_virsorster:
 rule wrangle_virsorter:
     input:
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-1.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-1.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-2.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-2.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-3.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_cat-3.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-4.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-5.fa",
         config["out_dir"]
-        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fasta",
+        + "/{metagenome}/virsorter/Predicted_viral_sequences/VIRSorter_prophages_cat-6.fa",
     output:
         config["out_dir"]
         + "/{metagenome}/virsorter/Predicted_viral_sequences/combined_sequences.txt",
@@ -857,7 +857,7 @@ rule reformat_virsorter:
 
 rule pred_virsorter2:
     input:
-        config["assembly_dir"] + "/{metagenome}.fasta",
+        config["assembly_dir"] + "/{metagenome}.fa",
     output:
         config["out_dir"] + "/{metagenome}/virsorter2/final-viral-boundary.tsv",
         config["out_dir"] + "/{metagenome}/virsorter2/final-viral-combined.fa",
