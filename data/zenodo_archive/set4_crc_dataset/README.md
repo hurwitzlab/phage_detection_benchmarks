@@ -30,7 +30,7 @@ $ tree -L 1
 ├── previous_resource_usage.csv  # Resources used during classification
 └── README.md
 
-2 directories, 2 files
+2 directories, 3 files
 ```
 
 ---
@@ -78,7 +78,7 @@ bins/2466887/
 
 ### `previous_classifications.csv`
 
-The simulated metagenomes have previously been classified by the following tools:
+The metagenomes have previously been classified by the following tools:
 
 * DeepVirFinder
 * MARVEL
@@ -94,7 +94,7 @@ Those classifications are present in the file `previous_classifications.csv`. Th
 
 * `metagenome`: Metagenome number (*e.g.* 2466958)
 * `record`: Contig number. Unique within each metagenome
-* `dvf` - `VirSorter2`: Columns for each tool
+* `DeepVirFinder` - `VirSorter2`: Columns for each tool
 
 ---
 
@@ -115,16 +115,16 @@ max_pss | float (MB) | “Proportional Set Size”, is the amount of memory shar
 io_in | float (MB) | the number of MB read (cumulative).
 io_out | float (MB) | the number of MB written (cumulative).
 mean_load | float (-) | CPU usage over time, divided by the total running time (first row)
-cpu_time | float(-) | CPU time summed for user and system
-tool | string | Metagenom detection tool
-metagenome| string | Metagenom name
+cpu_time | float (-) | CPU time summed for user and system
+tool | string | Phage detection tool
+metagenome| string | Metagenome name
 
 
 ---
 
 ### `assembly.fa`
 
-Each `assembly.fa` file is a FASTA structured file. The headers give taxonomic information about each contig.
+Each `assembly.fa` file is a FASTA structured file.
 
 ```sh
 $ head -n 2 assemblies/2466887/assembly.fa
@@ -136,8 +136,6 @@ AAAATCTAATGTATTATTTTCTCTTTCTATTTTTATATTTAAGTCTTCACCTTTTGATTT
 $ grep ">" assemblies/2466887/assembly.fa | wc -l
 138439
 ```
-
-These files were classified by all tools except MARVEL.
 
 ---
 
