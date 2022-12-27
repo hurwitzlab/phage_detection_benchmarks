@@ -104,7 +104,7 @@ sample| string | Sample number
 
 ### `assembly.fa`
 
-Each `assembly.fa` file is a FASTA structured file. The headers give taxonomic information about each contig.
+Each `assembly.fa` file is a FASTA structured file.
 
 ```sh
 $ head -n 2 assemblies/SRR5747434/assembly.fa
