@@ -2,7 +2,7 @@
 
 ## Description
 
-There are 4 datasets included here meant for conducting benchmarks on metagenomic phage detection tools. The first is a set of fragmented reference genomes from NCBI Reference Sequence database (RefSeq) of a variety of micro-organisms and of different length. The second is a set of simulated phageomes created by simulating, assembling, and binning reads from bacteriophage genomes. The third is a set of simulated metagenomes with realistic abundance profiles modeled after marine metagenomes. The fourth is a set of real stool metagenomes from colorectal cancer patients and healthy controls (Study PRJEB6070).
+There are 5 datasets included here meant for conducting benchmarks on metagenomic phage detection tools. The first is a set of fragmented reference genomes from NCBI Reference Sequence database (RefSeq) of a variety of micro-organisms and of different length. The second is a set of simulated phageomes created by simulating, assembling, and binning reads from bacteriophage genomes. The third is a set of simulated metagenomes with realistic abundance profiles modeled after marine metagenomes. The fourth is a set of real stool metagenomes from colorectal cancer patients and healthy controls (Study PRJEB6070). The fifth is a set of real stool viromes from children with Crohn's disease or ulcerative colitis and similar aged controls (study PRJNA391511)
 
 Additionally, the results and resource usage from classification of these datasets by 9 phage detection tools are included.
 
@@ -42,7 +42,8 @@ tree -L 1
 ├── set1_fragmented_genomes.tar.gz
 ├── set2_simulated_phageomes.tar.gz
 ├── set3_simulated_metagenomes.tar.gz
-└── set4_crc_dataset.tar.gz
+├── set4_crc_dataset.tar.gz
+└── set5_gut_virome_dataset.tar.gz
 ```
 
 Each directory contains a `README.md` describing the dataset and files that are included.
