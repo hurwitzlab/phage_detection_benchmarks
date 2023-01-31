@@ -1,14 +1,14 @@
 # Metagenomic Phage Detection Benchmarking Datasets
-# Set 4: *CRC dataset*
+# Set 5: *Gut Virome Dataset*
 
 ## Description
 
-This dataset contains 198 metagenomes for a total of 29,285,217 contigs. Metagenomes are fecal shotgun metagenomes from colorectal cancer (CRC) patients and healthy controls (https://doi.org/10.15252/msb.20145645). Raw sequencing data were downloaded from SRA (study PRJEB6070) and were quality filtered using fastqc v0.11.9 and trimGalore v0.6.6. Briefly, reads with an average base pair quality score below 20 were removed, and adapters and poly-G sequences were trimmed. After trimming, reads with a length < 20bp were filtered out. Quality-filtered sequences were screened to remove human sequences using bowtie2 v2.4.2 against a non-redundant version of the Genome Reference Consortium Human Build 38, patch release 7 (available at PRJNA31257 in NCBI).
+This dataset contains 24 viromes with a total of 33,105 contigs. Viromes were generated using viral particle enrichment of fecal samples from 24 children with Crohn's disease (n=7) or ulcerative colitis (n=7) and similar aged controls (n=12) (https://doi.org/10.1097/MPG.0000000000002140).  Raw sequencing data were downloaded from SRA (study PRJNA391511) and were quality filtered using fastqc v0.11.9 and trimGalore v0.6.6. Briefly, reads with an average base pair quality score below 20 were removed, and adapters and poly-G sequences were trimmed. After trimming, reads with a length < 20bp were filtered out. Quality-filtered sequences were screened to remove human sequences using bowtie2 v2.4.2 against a non-redundant version of the Genome Reference Consortium Human Build 38, patch release 7 (available at PRJNA31257 in NCBI).
 
 After QC and human read filtering, the reads were assembled using Megahit v1.2.9. The code of 
 the pipeline used for the assembly is available on Github (https://github.com/aponsero/Assembly_metagenomes). Megahit was run on the paired-end reads or single-end reads using the default parameters (referred to as the simple assembly). Additionally, a co-assembly of the multiple runs per BioSample was also performed (referred to as the co-assembly). 
 
-Contigs were also binned with MetaBAT 2 v2:2.15 and using Bowtie2 v2.4.5 for indexing.
+Contigs were also binned with MetaBAT 2 v2:2.15 and using Bowtie2 v2.4.5 for indexing. This did not successfully yield any bins, so no bins are present here.
 
 The metagenomes were classified with the phage detection tools, and those results are present here. During classification, resource usage was also recorded, and are present.
 
@@ -24,52 +24,32 @@ The top level structure is as follows:
 $ tree -L 1
 .
 ├── assemblies                   # Assembled reads
-├── bins                         # Binned assemblies
 ├── checkv_quality_summary.csv   # CheckV results
-├── previous_classifications.csv # Classified metagenomes
+├── previous_classifications.csv # Classified viromes
 ├── previous_resource_usage.csv  # Resources used during classification
 └── README.md
 
-2 directories, 3 files
+1 directory, 3 files
 ```
 
 ---
 
 ## Directories
 
-There are two directories: `assemblies/` and `bins/`:
+There is one directory: `assemblies/`:
 
 ```sh
 $ tree assemblies/
 assemblies/
-├── 2466887
+├── SRR5747434
 │   └── assembly.fa
-├── 2466888
+├── SRR5747435
 │   └── assembly.fa
 # ...
-└── 2467085
+└── SRR5747457
     └── assembly.fa
 
-198 directories, 198 files
-
-# Top level structure in bins/
-$ tree bins/ -L 1
-bins/
-├── 2466887
-├── 2466888
-# ...
-└── 2467085
-
-198 directories, 0 files
-
-# Inside a single bins directory
-$ tree bins/2466887/
-bins/2466887/
-├── bin.1.fa
-├── bin.2.fa
-└── bin.3.fa
-
-0 directories, 3 files
+24 directories, 24 files
 ```
 
 ---
@@ -78,10 +58,9 @@ bins/2466887/
 
 ### `previous_classifications.csv`
 
-The metagenomes have previously been classified by the following tools:
+The viromes have previously been classified by the following tools (MARVEL not included since no bins were generated):
 
 * DeepVirFinder
-* MARVEL
 * MetaPhinder
 * Seeker
 * VIBRANT
@@ -92,15 +71,15 @@ The metagenomes have previously been classified by the following tools:
 
 Those classifications are present in the file `previous_classifications.csv`. This file contains a row per contig, with the following columns:
 
-* `metagenome`: Metagenome number (*e.g.* 2466958)
-* `record`: Contig number. Unique within each metagenome
+* `sample`: Sample number (*e.g.* SRR5747434)
+* `record`: Contig number. Unique within each sample
 * `DeepVirFinder` - `VirSorter2`: Columns for each tool
 
 ---
 
 ### `previous_resource_usage.csv`
 
-During classification of the metagenomes by the tools, resource usage was tracked by Snakemake, those results are compiled in `previous_resource_usage.csv`. Each row represents the resource usage while classifying a single metagenome.
+During classification of the viromes by the tools, resource usage was tracked by Snakemake, those results are compiled in `previous_resource_usage.csv`. Each row represents the resource usage while classifying a single sample.
 
 The columns in this file are those created by Snakemake (information from [stackoverflow](https://stackoverflow.com/questions/46813371/meaning-of-the-benchmark-variables-in-snakemake))
 
@@ -117,8 +96,9 @@ io_out | float (MB) | the number of MB written (cumulative).
 mean_load | float (-) | CPU usage over time, divided by the total running time (first row)
 cpu_time | float (-) | CPU time summed for user and system
 tool | string | Phage detection tool
-metagenome| string | Metagenome name
+sample| string | Sample number
 
+---
 
 ---
 
@@ -127,30 +107,15 @@ metagenome| string | Metagenome name
 Each `assembly.fa` file is a FASTA structured file.
 
 ```sh
-$ head -n 2 assemblies/2466887/assembly.fa
->SAMEA2466887-ContigCoA-k113_2
-AAAATCTAATGTATTATTTTCTCTTTCTATTTTTATATTTAAGTCTTCACCTTTTGATTT
+$ head -n 2 assemblies/SRR5747434/assembly.fa
+>k141_468 flag=1 multi=4.0000 len=431
+AACGTGAAGGATATGGAATTTATATGTTCCCTGACGGAGAAAAGTACGAA
 # ...
 
 # Each record starts with a ">"
-$ grep ">" assemblies/2466887/assembly.fa | wc -l
-138439
+$ grep ">" assemblies/SRR5747434/assembly.fa | wc -l 
+1956
 ```
-
----
-
-### `bin.*.fa`
-
-Each bin directory contains files of binned contigs, named as `bin.*.fa`, each of which is a FASTA file.
-
-```sh
-head -n 2 bins/2466887/bin.1.fa
->SAMEA2466887-ContigCoA-k113_127722
-ACGGCTCTCTCACCTGCAGCCATAACACCCATATGTCCACCAAGACATGGTCCACAGGTA
-# ...
-```
-
-The bins were classified by MARVEL.
 
 ---
 
