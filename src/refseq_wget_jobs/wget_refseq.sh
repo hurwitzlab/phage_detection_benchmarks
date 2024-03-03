@@ -38,6 +38,12 @@ echo "CD'ing into $DIR"
 
 cd $DIR
 
+TARGET_DIR="../../data/refseq/$KINGDOM"
+
+if [ ! -d "$TARGET_DIR" ]; then
+    mkdir -p "$TARGET_DIR"
+fi
+
 cd ../../data/refseq/$KINGDOM
 
 echo "Getting assembly summary"
@@ -48,8 +54,17 @@ awk -F '\t' '{if($12=="Complete Genome") print $20}' assembly_summary.txt > asse
 
 echo "Downloading genomes"
 
-for next in $(cat assembly_summary_complete_genomes_$KINGDOM.txt); do
-          wget "$next"/*genomic.fna.gz
-done
+while IFS= read -r next; do
+    wget "$next" -O "$(basename "$next")_genomic"
+    while IFS= read -r line; do
+        link=$(echo "$line" | grep -oP '(?<=href=")[^"]+')
+
+    if [[ $link == *genomic.fna.gz && $link != *from_genomic.fna.gz ]]; then
+            wget "$next/$link" 
+            gzip -d "$link"
+        fi
+    done < "$(basename "$next")_genomic"
+    rm "$(basename "$next")_genomic"
+done < assembly_summary_complete_genomes_"$KINGDOM".txt
 
 echo "Done."
